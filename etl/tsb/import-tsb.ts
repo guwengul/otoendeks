@@ -1,0 +1,105 @@
+import * as fs from "fs";
+import * as path from "path";
+import * as xlsx from "xlsx";
+import { supabase } from "../shared/supabase-client";
+
+const DATA_DIR = path.join(process.cwd(), "TSB Verileri");
+
+type KaskoRow = {
+  snapshot_month: string; // YYYY-MM-01
+  marka_kodu: number;
+  tip_kodu: number;
+  marka_adi: string;
+  tip_adi: string;
+  model_yili: number;
+  deger: number;
+};
+
+function parseFile(filePath: string, fileName: string): KaskoRow[] {
+  const yyyymm = fileName.replace(/\.xlsx$/i, "");
+  const year = yyyymm.slice(0, 4);
+  const month = yyyymm.slice(4, 6);
+  const snapshotMonth = `${year}-${month}-01`;
+
+  const wb = xlsx.readFile(filePath);
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const data = xlsx.utils.sheet_to_json<unknown[]>(ws, { header: 1, defval: "" });
+
+  // Satır 0: başlık ("Haziran 2025"), Satır 1: kolon başlıkları (Marka Kodu, Tip Kodu, Marka Adı, Tip Adı, <yıllar...>)
+  const headerRow = data[1] as (string | number)[];
+  const yearColumns: { colIndex: number; year: number }[] = [];
+  for (let i = 4; i < headerRow.length; i++) {
+    const year = Number(headerRow[i]);
+    if (Number.isInteger(year)) {
+      yearColumns.push({ colIndex: i, year });
+    }
+  }
+
+  const rows: KaskoRow[] = [];
+  for (let r = 2; r < data.length; r++) {
+    const row = data[r] as (string | number)[];
+    if (!row || row.length === 0) continue;
+    const markaKodu = Number(row[0]);
+    const tipKodu = Number(row[1]);
+    const markaAdi = String(row[2] ?? "").trim();
+    const tipAdi = String(row[3] ?? "").trim();
+    if (!markaAdi || !Number.isInteger(markaKodu) || !Number.isInteger(tipKodu)) continue;
+
+    for (const { colIndex, year } of yearColumns) {
+      const deger = Number(row[colIndex]);
+      if (!Number.isFinite(deger) || deger <= 0) continue;
+      rows.push({
+        snapshot_month: snapshotMonth,
+        marka_kodu: markaKodu,
+        tip_kodu: tipKodu,
+        marka_adi: markaAdi,
+        tip_adi: tipAdi,
+        model_yili: year,
+        deger,
+      });
+    }
+  }
+
+  return rows;
+}
+
+async function main() {
+  if (!fs.existsSync(DATA_DIR)) {
+    console.error(`Klasör bulunamadı: ${DATA_DIR}`);
+    process.exit(1);
+  }
+
+  const files = fs
+    .readdirSync(DATA_DIR)
+    .filter((f) => f.toLowerCase().endsWith(".xlsx"))
+    .sort();
+
+  if (files.length === 0) {
+    console.error("TSB Verileri klasöründe .xlsx dosyası bulunamadı.");
+    process.exit(1);
+  }
+
+  let totalRows = 0;
+  for (const file of files) {
+    const filePath = path.join(DATA_DIR, file);
+    const rows = parseFile(filePath, file);
+    console.log(`${file}: ${rows.length} satır`);
+
+    const CHUNK_SIZE = 1000;
+    for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+      const chunk = rows.slice(i, i + CHUNK_SIZE);
+      const { error } = await supabase
+        .from("kasko_degerleri")
+        .upsert(chunk, { onConflict: "snapshot_month,marka_kodu,tip_kodu,model_yili" });
+      if (error) {
+        console.error(`${file}: Upsert hatası -`, error);
+        process.exit(1);
+      }
+    }
+    totalRows += rows.length;
+  }
+
+  console.log(`Tamamlandı. Toplam ${totalRows} satır işlendi (${files.length} dosya).`);
+}
+
+main();
