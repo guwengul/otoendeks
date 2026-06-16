@@ -26,7 +26,9 @@ async function getLatestSnapshotMonth(): Promise<string> {
     .limit(1)
     .single();
 
-  if (error || !data) throw new Error("Kasko verisi bulunamadı");
+  if (error || !data) {
+    throw new Error(`Kasko verisi bulunamadı: ${error?.message ?? "veri yok"}`);
+  }
   return data.snapshot_month;
 }
 
