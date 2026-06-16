@@ -1,0 +1,60 @@
+import type { DegerNoktasi } from "@/lib/kasko";
+
+function formatTL(value: number): string {
+  return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value) + " TL";
+}
+
+export function DegerKaybiGrafik({ gecmis }: { gecmis: DegerNoktasi[] }) {
+  const sirali = [...gecmis].sort((a, b) => a.model_yili - b.model_yili);
+  if (sirali.length === 0) return null;
+
+  const width = 600;
+  const height = 220;
+  const padding = { top: 20, right: 20, bottom: 30, left: 70 };
+  const innerWidth = width - padding.left - padding.right;
+  const innerHeight = height - padding.top - padding.bottom;
+
+  const degerler = sirali.map((d) => d.deger);
+  const maxDeger = Math.max(...degerler);
+  const minDeger = Math.min(...degerler);
+  const range = maxDeger - minDeger || 1;
+
+  const points = sirali.map((d, i) => {
+    const x = padding.left + (sirali.length === 1 ? innerWidth / 2 : (i / (sirali.length - 1)) * innerWidth);
+    const y = padding.top + innerHeight - ((d.deger - minDeger) / range) * innerHeight;
+    return { x, y, ...d };
+  });
+
+  const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} className="w-full" role="img" aria-label="Değer kaybı grafiği">
+      <line
+        x1={padding.left}
+        y1={padding.top + innerHeight}
+        x2={width - padding.right}
+        y2={padding.top + innerHeight}
+        stroke="#d1d5db"
+      />
+      <line x1={padding.left} y1={padding.top} x2={padding.left} y2={padding.top + innerHeight} stroke="#d1d5db" />
+
+      <text x={padding.left - 8} y={padding.top + 4} textAnchor="end" fontSize="10" fill="#6b7280">
+        {formatTL(maxDeger)}
+      </text>
+      <text x={padding.left - 8} y={padding.top + innerHeight} textAnchor="end" fontSize="10" fill="#6b7280">
+        {formatTL(minDeger)}
+      </text>
+
+      <path d={pathD} fill="none" stroke="#2563eb" strokeWidth={2} />
+
+      {points.map((p) => (
+        <g key={p.model_yili}>
+          <circle cx={p.x} cy={p.y} r={3.5} fill="#2563eb" />
+          <text x={p.x} y={height - 8} textAnchor="middle" fontSize="10" fill="#6b7280">
+            {p.model_yili}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+}
