@@ -28,7 +28,7 @@ type SatirProps = { label: string; ilk: React.ReactNode; son: React.ReactNode; f
 
 function KarsilastirmaSatiri({ label, ilk, son, fark, farkStr }: SatirProps) {
   return (
-    <div className="grid items-center gap-x-1 text-sm tabular-nums" style={{ gridTemplateColumns: "2rem 1fr 1rem 1fr 5.5rem" }}>
+    <div className="grid items-center gap-x-1 text-sm tabular-nums" style={{ gridTemplateColumns: "2rem 1fr 1rem 1fr 4.5rem" }}>
       <span className="text-xs text-gray-400">{label}</span>
       <span className="text-right font-mono text-gray-500">{ilk}</span>
       <span className="text-center text-gray-300">→</span>
