@@ -59,8 +59,11 @@ export function DetayKartlari({
   eskime: EskimeData | null;
   aracAdi: string;
 }) {
+  const kartSayisi = (enflasyon ? 1 : 0) + (eskime ? 1 : 0);
+  if (kartSayisi === 0) return null;
+
   return (
-    <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className={`mb-8 grid grid-cols-1 gap-3 ${kartSayisi === 2 ? "sm:grid-cols-2" : ""}`}>
 
       {enflasyon && (() => {
         const tlFark = enflasyon.son.deger_tl - enflasyon.ilk.deger_tl;
