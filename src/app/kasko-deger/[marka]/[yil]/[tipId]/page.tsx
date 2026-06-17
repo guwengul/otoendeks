@@ -34,11 +34,11 @@ export default async function TipDetayPage({
           Markalar
         </Link>{" "}
         /{" "}
-        <Link href={`/${marka.slug}`} className="hover:underline">
+        <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">
           {marka.marka_adi}
         </Link>{" "}
         /{" "}
-        <Link href={`/${marka.slug}/${modelYili}`} className="hover:underline">
+        <Link href={`/kasko-deger/${marka.slug}/${modelYili}`} className="hover:underline">
           {modelYili}
         </Link>{" "}
         / <span className="text-gray-900">{detay.tip_adi}</span>

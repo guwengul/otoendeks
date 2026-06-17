@@ -17,7 +17,7 @@ export default async function Home() {
         items={markalar.map((m) => ({
           key: String(m.marka_kodu),
           label: m.marka_adi,
-          href: `/${m.slug}`,
+          href: `/kasko-deger/${m.slug}`,
         }))}
       />
     </main>

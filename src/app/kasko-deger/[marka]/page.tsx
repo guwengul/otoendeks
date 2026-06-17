@@ -24,7 +24,7 @@ export default async function MarkaPage({ params }: { params: Promise<{ marka: s
         {yillar.map((yil) => (
           <li key={yil}>
             <Link
-              href={`/${marka.slug}/${yil}`}
+              href={`/kasko-deger/${marka.slug}/${yil}`}
               className="block rounded-lg border border-gray-200 px-4 py-3 text-center text-sm font-medium text-gray-900 transition-colors hover:border-blue-400 hover:bg-blue-50"
             >
               {yil}

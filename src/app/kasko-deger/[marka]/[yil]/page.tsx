@@ -30,7 +30,7 @@ export default async function YilPage({
           Markalar
         </Link>{" "}
         /{" "}
-        <Link href={`/${marka.slug}`} className="hover:underline">
+        <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">
           {marka.marka_adi}
         </Link>{" "}
         / <span className="text-gray-900">{modelYili}</span>
@@ -44,7 +44,7 @@ export default async function YilPage({
           key: String(tip.tip_kodu),
           label: tip.tip_adi,
           sublabel: formatTL(tip.deger),
-          href: `/${marka.slug}/${modelYili}/${tip.tip_kodu}`,
+          href: `/kasko-deger/${marka.slug}/${modelYili}/${tip.tip_kodu}`,
         }))}
       />
     </main>

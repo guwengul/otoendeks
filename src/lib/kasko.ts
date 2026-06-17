@@ -1,5 +1,7 @@
-import { supabase } from "./supabase";
-import { slugify } from "./slug";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const PAGE_SIZE = 1000;
+const REVALIDATE_SECONDS = 86400;
 
 export type Marka = {
   marka_kodu: number;
@@ -18,77 +20,93 @@ export type DegerNoktasi = {
   deger: number;
 };
 
-const PAGE_SIZE = 1000;
+async function restFetch<T>(
+  table: string,
+  params: Record<string, string>,
+  range: [number, number],
+): Promise<{ data: T[]; total: number }> {
+  const qs = new URLSearchParams(params).toString();
+  const url = `${SUPABASE_URL}/rest/v1/${table}?${qs}`;
 
-// Supabase/PostgREST varsayılan olarak tek sorguda en fazla ~1000 satır döner.
-// Bu yüzden büyük sonuç kümelerinde range() ile sayfalayıp tamamını topluyoruz.
-async function fetchAllPages<T>(
-  build: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
-): Promise<T[]> {
-  const all: T[] = [];
-  let from = 0;
-  while (true) {
-    const { data, error } = await build(from, from + PAGE_SIZE - 1);
-    if (error) throw new Error(error.message);
-    if (!data || data.length === 0) break;
-    all.push(...data);
-    if (data.length < PAGE_SIZE) break;
-    from += PAGE_SIZE;
+  const res = await fetch(url, {
+    headers: {
+      apikey: ANON_KEY,
+      Authorization: `Bearer ${ANON_KEY}`,
+      Prefer: "count=exact",
+      Range: `${range[0]}-${range[1]}`,
+    },
+    // Next.js Data Cache: aynı sorgu 1 gün boyunca Supabase'e gitmeden cache'den dönüyor.
+    next: { revalidate: REVALIDATE_SECONDS },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Supabase REST hatası (${table}, ${res.status}): ${await res.text()}`);
   }
-  return all;
+
+  const data = (await res.json()) as T[];
+  const contentRange = res.headers.get("content-range"); // örn "0-999/12345"
+  const total = contentRange ? Number(contentRange.split("/")[1]) : data.length;
+  return { data, total };
+}
+
+// Supabase/PostgREST tek istekte en fazla ~1000 satır döner. Toplam satır sayısını
+// ilk istekten öğrenip kalan sayfaları PARALEL çekerek sıralı sayfalamadaki yüksek
+// gecikmeyi ortadan kaldırıyoruz. kasko_degerleri sorguları zaten marka_kodu/yıl/ay
+// ile filtrelendiği için birkaç sayfayı aşmaz.
+async function fetchAll<T>(table: string, params: Record<string, string>): Promise<T[]> {
+  const first = await restFetch<T>(table, params, [0, PAGE_SIZE - 1]);
+  if (first.total <= first.data.length) return first.data;
+
+  const pageCount = Math.ceil(first.total / PAGE_SIZE);
+  const remaining = await Promise.all(
+    Array.from({ length: pageCount - 1 }, (_, i) => {
+      const from = (i + 1) * PAGE_SIZE;
+      return restFetch<T>(table, params, [from, from + PAGE_SIZE - 1]).then((r) => r.data);
+    }),
+  );
+
+  return [first.data, ...remaining].flat();
 }
 
 async function getLatestSnapshotMonth(): Promise<string> {
-  const { data, error } = await supabase
-    .from("kasko_degerleri")
-    .select("snapshot_month")
-    .order("snapshot_month", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (error || !data) {
-    throw new Error(`Kasko verisi bulunamadı: ${error?.message ?? "veri yok"}`);
-  }
-  return data.snapshot_month;
+  const { data } = await restFetch<{ snapshot_month: string }>(
+    "kasko_degerleri",
+    { select: "snapshot_month", order: "snapshot_month.desc", limit: "1" },
+    [0, 0],
+  );
+  if (!data[0]) throw new Error("Kasko verisi bulunamadı");
+  return data[0].snapshot_month;
 }
 
+// Marka listesi artık 1.43M satırlık kasko_degerleri'ni hiç taramıyor;
+// TSB import script'i tarafından güncel tutulan küçük özet tablodan (tsb_markalar) okunuyor.
 export async function getMarkalar(): Promise<Marka[]> {
-  const snapshotMonth = await getLatestSnapshotMonth();
+  const rows = await fetchAll<{ marka_kodu: number; marka_adi: string; slug: string }>("tsb_markalar", {
+    select: "marka_kodu,marka_adi,slug",
+    order: "marka_adi.asc",
+  });
 
-  const rows = await fetchAllPages<{ marka_kodu: number; marka_adi: string }>((from, to) =>
-    supabase
-      .from("kasko_degerleri")
-      .select("marka_kodu, marka_adi")
-      .eq("snapshot_month", snapshotMonth)
-      .range(from, to),
-  );
-
-  const seen = new Map<number, string>();
-  for (const row of rows) {
-    if (!seen.has(row.marka_kodu)) seen.set(row.marka_kodu, row.marka_adi);
-  }
-
-  return [...seen.entries()]
-    .map(([marka_kodu, marka_adi]) => ({ marka_kodu, marka_adi, slug: slugify(marka_adi) }))
-    .sort((a, b) => a.marka_adi.localeCompare(b.marka_adi, "tr"));
+  return rows.map((r) => ({ marka_kodu: r.marka_kodu, marka_adi: r.marka_adi, slug: r.slug }));
 }
 
 export async function getMarkaBySlug(slug: string): Promise<Marka | null> {
-  const markalar = await getMarkalar();
-  return markalar.find((m) => m.slug === slug) ?? null;
+  const { data } = await restFetch<{ marka_kodu: number; marka_adi: string; slug: string }>(
+    "tsb_markalar",
+    { select: "marka_kodu,marka_adi,slug", slug: `eq.${slug}`, limit: "1" },
+    [0, 0],
+  );
+  if (!data[0]) return null;
+  return { marka_kodu: data[0].marka_kodu, marka_adi: data[0].marka_adi, slug: data[0].slug };
 }
 
 export async function getYillarForMarka(markaKodu: number): Promise<number[]> {
   const snapshotMonth = await getLatestSnapshotMonth();
 
-  const rows = await fetchAllPages<{ model_yili: number }>((from, to) =>
-    supabase
-      .from("kasko_degerleri")
-      .select("model_yili")
-      .eq("marka_kodu", markaKodu)
-      .eq("snapshot_month", snapshotMonth)
-      .range(from, to),
-  );
+  const rows = await fetchAll<{ model_yili: number }>("kasko_degerleri", {
+    select: "model_yili",
+    marka_kodu: `eq.${markaKodu}`,
+    snapshot_month: `eq.${snapshotMonth}`,
+  });
 
   return [...new Set(rows.map((row) => row.model_yili))].sort((a, b) => b - a);
 }
@@ -96,33 +114,27 @@ export async function getYillarForMarka(markaKodu: number): Promise<number[]> {
 export async function getTiplerForMarkaYil(markaKodu: number, modelYili: number): Promise<Tip[]> {
   const snapshotMonth = await getLatestSnapshotMonth();
 
-  const rows = await fetchAllPages<Tip>((from, to) =>
-    supabase
-      .from("kasko_degerleri")
-      .select("tip_kodu, tip_adi, deger")
-      .eq("marka_kodu", markaKodu)
-      .eq("model_yili", modelYili)
-      .eq("snapshot_month", snapshotMonth)
-      .order("tip_adi", { ascending: true })
-      .range(from, to),
-  );
-
-  return rows;
+  return fetchAll<Tip>("kasko_degerleri", {
+    select: "tip_kodu,tip_adi,deger",
+    marka_kodu: `eq.${markaKodu}`,
+    model_yili: `eq.${modelYili}`,
+    snapshot_month: `eq.${snapshotMonth}`,
+    order: "tip_adi.asc",
+  });
 }
 
 export async function getTipDetay(markaKodu: number, tipKodu: number) {
   const snapshotMonth = await getLatestSnapshotMonth();
 
-  const rows = await fetchAllPages<{ tip_adi: string; marka_adi: string; model_yili: number; deger: number }>(
-    (from, to) =>
-      supabase
-        .from("kasko_degerleri")
-        .select("tip_adi, marka_adi, model_yili, deger")
-        .eq("marka_kodu", markaKodu)
-        .eq("tip_kodu", tipKodu)
-        .eq("snapshot_month", snapshotMonth)
-        .order("model_yili", { ascending: false })
-        .range(from, to),
+  const rows = await fetchAll<{ tip_adi: string; marka_adi: string; model_yili: number; deger: number }>(
+    "kasko_degerleri",
+    {
+      select: "tip_adi,marka_adi,model_yili,deger",
+      marka_kodu: `eq.${markaKodu}`,
+      tip_kodu: `eq.${tipKodu}`,
+      snapshot_month: `eq.${snapshotMonth}`,
+      order: "model_yili.desc",
+    },
   );
 
   if (rows.length === 0) return null;

@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as xlsx from "xlsx";
 import { supabase } from "../shared/supabase-client";
+import { slugify } from "../../src/lib/slug";
 
 const DATA_DIR = path.join(process.cwd(), "TSB Verileri");
 
@@ -80,6 +81,8 @@ async function main() {
   }
 
   let totalRows = 0;
+  const markaOzet = new Map<number, { marka_adi: string; son_snapshot_month: string }>();
+
   for (const file of files) {
     const filePath = path.join(DATA_DIR, file);
     const rows = parseFile(filePath, file);
@@ -97,9 +100,33 @@ async function main() {
       }
     }
     totalRows += rows.length;
+
+    for (const row of rows) {
+      const mevcut = markaOzet.get(row.marka_kodu);
+      if (!mevcut || row.snapshot_month > mevcut.son_snapshot_month) {
+        markaOzet.set(row.marka_kodu, { marka_adi: row.marka_adi, son_snapshot_month: row.snapshot_month });
+      }
+    }
   }
 
   console.log(`Tamamlandı. Toplam ${totalRows} satır işlendi (${files.length} dosya).`);
+
+  const markalarRows = [...markaOzet.entries()].map(([marka_kodu, v]) => ({
+    marka_kodu,
+    marka_adi: v.marka_adi,
+    slug: slugify(v.marka_adi),
+    son_snapshot_month: v.son_snapshot_month,
+  }));
+
+  console.log(`tsb_markalar özet tablosu güncelleniyor (${markalarRows.length} marka)...`);
+  const { error: markaError } = await supabase
+    .from("tsb_markalar")
+    .upsert(markalarRows, { onConflict: "marka_kodu" });
+  if (markaError) {
+    console.error("tsb_markalar upsert hatası -", markaError);
+    process.exit(1);
+  }
+  console.log("tsb_markalar güncellendi.");
 }
 
 main();
