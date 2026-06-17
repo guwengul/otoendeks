@@ -30,6 +30,27 @@ export type Tip = {
   deger: number;
 };
 
+export type SifirFiyat = {
+  id: number;
+  marka_adi: string;
+  model_adi: string;
+  versiyon: string;
+  guc: string;
+  vites: string;
+  yakit: string;
+  liste_fiyati: number;
+  kampanya_fiyati: number;
+  scrape_date: string;
+};
+
+export async function getSifirFiyatlar(markaSlug: string): Promise<SifirFiyat[]> {
+  return fetchAll<SifirFiyat>("sifir_fiyatlar", {
+    select: "id,marka_adi,model_adi,versiyon,guc,vites,yakit,liste_fiyati,kampanya_fiyati,scrape_date",
+    marka_slug: `eq.${markaSlug}`,
+    order: "model_adi.asc,liste_fiyati.asc",
+  });
+}
+
 export type DegerNoktasi = {
   model_yili: number;
   deger: number;
