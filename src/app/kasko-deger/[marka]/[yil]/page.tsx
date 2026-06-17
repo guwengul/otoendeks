@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getMarkaBySlug, getTiplerForMarkaYil } from "@/lib/kasko";
+import { getMarkaBySlug, getTiplerForMarkaYil, slugify } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 
 export const revalidate = 86400;
@@ -44,7 +44,7 @@ export default async function YilPage({
           key: String(tip.tip_kodu),
           label: tip.tip_adi,
           sublabel: formatTL(tip.deger),
-          href: `/kasko-deger/${marka.slug}/${modelYili}/${tip.tip_kodu}`,
+          href: `/kasko-deger/${marka.slug}/${modelYili}/${tip.tip_kodu}-${slugify(tip.tip_adi)}`,
         }))}
       />
     </main>

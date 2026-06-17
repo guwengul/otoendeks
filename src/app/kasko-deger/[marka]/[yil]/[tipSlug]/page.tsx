@@ -10,9 +10,6 @@ export const revalidate = 86400;
 function formatTL(value: number): string {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);
 }
-function fmt(v: number): string {
-  return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(Math.abs(v));
-}
 
 function ayLabel(isoDate: string): string {
   const [year, month] = isoDate.split("-");
@@ -24,12 +21,13 @@ function ayLabel(isoDate: string): string {
 export default async function TipDetayPage({
   params,
 }: {
-  params: Promise<{ marka: string; yil: string; tipId: string }>;
+  params: Promise<{ marka: string; yil: string; tipSlug: string }>;
 }) {
-  const { marka: markaSlug, yil, tipId } = await params;
+  const { marka: markaSlug, yil, tipSlug } = await params;
   const modelYili = Number(yil);
-  const tipKodu = Number(tipId);
-  if (!Number.isInteger(modelYili) || !Number.isInteger(tipKodu)) notFound();
+  // slug format: "{tipKodu}-{slug-of-tip-adi}"
+  const tipKodu = Number(tipSlug.split("-")[0]);
+  if (!Number.isFinite(modelYili) || !Number.isFinite(tipKodu) || tipKodu === 0) notFound();
 
   const marka = await getMarkaBySlug(markaSlug);
   if (!marka) notFound();
@@ -45,7 +43,6 @@ export default async function TipDetayPage({
   const birOncekiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili - 1);
   const sonPiyasa = fiyatGecmisi.length > 0 ? fiyatGecmisi[fiyatGecmisi.length - 1] : null;
 
-  // En fazla 12 ay öncesine en yakın snapshot; daha azıyla da çalışır, tek nokta varsa null
   const enflasyonData = (() => {
     if (fiyatGecmisi.length < 2 || !sonPiyasa) return null;
     const hedef = new Date(sonPiyasa.snapshot_month);
@@ -63,7 +60,6 @@ export default async function TipDetayPage({
     };
   })();
 
-  // Eskime: modelYili+1 varsa onu karşılaştır, yoksa modelYili-1 ile karşılaştır
   const eskimeData = (() => {
     if (!buYilDegeri || !sonPiyasa) return null;
     const usdKur = sonPiyasa.deger_tl / sonPiyasa.deger_usd;
@@ -111,7 +107,6 @@ export default async function TipDetayPage({
         <p className="mt-3 text-xs text-gray-400">{ayLabel(marka.son_snapshot_month)} TSB verisi</p>
       </div>
 
-      {/* İki küçük paylaşılabilir kart */}
       <DetayKartlari
         enflasyon={enflasyonData}
         eskime={eskimeData}
@@ -120,19 +115,18 @@ export default async function TipDetayPage({
         anaAyLabel={ayLabel(marka.son_snapshot_month)}
       />
 
-      {/* Aylık fiyat geçmişi */}
       <h2 className="mb-3 text-base font-semibold text-gray-900">Aylık Fiyat Geçmişi</h2>
       <div className="mb-8 rounded-xl border border-gray-200 p-4">
         <FiyatGecmisiGrafik gecmis={fiyatGecmisi} />
       </div>
 
-      {/* Değer kaybı grafiği ±1 yıl */}
       <h2 className="mb-3 text-base font-semibold text-gray-900">Model Yılına Göre Değer</h2>
       <div className="rounded-xl border border-gray-200 p-4">
         <DegerKaybiGrafik
           gecmis={detay.gecmis.filter((d) =>
             d.model_yili >= modelYili - 1 && d.model_yili <= modelYili + 1,
           )}
+          modelYili={modelYili}
         />
       </div>
     </main>
