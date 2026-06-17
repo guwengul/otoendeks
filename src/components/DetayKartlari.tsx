@@ -35,12 +35,12 @@ type SatirProps = { label: string; ilk: string; son: string; fark: number; farkS
 
 function KarsilastirmaSatiri({ label, ilk, son, fark, farkStr }: SatirProps) {
   return (
-    <div className="flex items-center gap-1 font-mono text-sm tabular-nums">
-      <span className="w-8 shrink-0 font-sans text-xs text-gray-400">{label}</span>
-      <span className="flex-1 text-right text-gray-500">{ilk}</span>
-      <span className="shrink-0 px-1 text-gray-300">→</span>
-      <span className="flex-1 text-right font-medium text-gray-800">{son}</span>
-      <span className={`w-24 shrink-0 text-right text-xs font-semibold ${farkRenk(fark)}`}>{farkStr}</span>
+    <div className="grid items-center gap-x-1 text-sm tabular-nums" style={{ gridTemplateColumns: "2rem 1fr 1rem 1fr 5.5rem" }}>
+      <span className="text-xs text-gray-400">{label}</span>
+      <span className="text-right font-mono text-gray-500">{ilk}</span>
+      <span className="text-center text-gray-300">→</span>
+      <span className="text-right font-mono font-medium text-gray-800">{son}</span>
+      <span className={`text-right text-xs font-semibold ${farkRenk(fark)}`}>{farkStr}</span>
     </div>
   );
 }
