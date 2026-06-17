@@ -185,20 +185,69 @@ export async function getFiyatGecmisi(markaKodu: number, tipKodu: number, modelY
   });
 }
 
-export type SifirEndeksRow = {
-  tip_kodu: number;
-  tip_adi: string;
-  snapshot_month: string;
-  deger: number;
+type RawKaskoRow = { tip_kodu: number; tip_adi: string; deger: number };
+
+export type SifirEndeksVeri = {
+  sonAy: string;
+  oncekiAy: string | null;
+  current: RawKaskoRow[];
+  prevMonthMap: Map<number, number>;
+  prevYearMap: Map<number, number>;
 };
 
-export async function getSifirEndeks(markaKodu: number, modelYili: number): Promise<SifirEndeksRow[]> {
-  return fetchAll<SifirEndeksRow>("kasko_degerleri", {
-    select: "tip_kodu,tip_adi,snapshot_month,deger",
-    marka_kodu: `eq.${markaKodu}`,
-    model_yili: `eq.${modelYili}`,
-    order: "tip_adi.asc,snapshot_month.asc",
-  });
+export async function getSifirEndeksVeri(
+  markaKodu: number,
+  sonAy: string,
+): Promise<SifirEndeksVeri> {
+  const modelYili = Number(sonAy.slice(0, 4));
+
+  // Bir önceki ay (2026-06-01 → 2026-05-01)
+  const d = new Date(sonAy);
+  d.setMonth(d.getMonth() - 1);
+  const oncekiAy = d.toISOString().slice(0, 7) + "-01";
+
+  // Bir yıl önceki ay & model yılı
+  const yilOncesiAy = String(modelYili - 1) + sonAy.slice(4);
+  const yilOncesiModel = modelYili - 1;
+
+  const [current, prevMonth, prevYear] = await Promise.all([
+    fetchAll<RawKaskoRow>("kasko_degerleri", {
+      select: "tip_kodu,tip_adi,deger",
+      marka_kodu: `eq.${markaKodu}`,
+      model_yili: `eq.${modelYili}`,
+      snapshot_month: `eq.${sonAy}`,
+      order: "tip_adi.asc",
+    }),
+    fetchAll<RawKaskoRow>("kasko_degerleri", {
+      select: "tip_kodu,tip_adi,deger",
+      marka_kodu: `eq.${markaKodu}`,
+      model_yili: `eq.${modelYili}`,
+      snapshot_month: `eq.${oncekiAy}`,
+      order: "tip_adi.asc",
+    }),
+    fetchAll<RawKaskoRow>("kasko_degerleri", {
+      select: "tip_kodu,tip_adi,deger",
+      marka_kodu: `eq.${markaKodu}`,
+      model_yili: `eq.${yilOncesiModel}`,
+      snapshot_month: `eq.${yilOncesiAy}`,
+      order: "tip_adi.asc",
+    }),
+  ]);
+
+  return {
+    sonAy,
+    oncekiAy: prevMonth.length ? oncekiAy : null,
+    current,
+    prevMonthMap: new Map(prevMonth.map((r) => [r.tip_kodu, r.deger])),
+    prevYearMap: new Map(prevYear.map((r) => [r.tip_kodu, r.deger])),
+  };
+}
+
+const TICARI_REGEX =
+  /\b(KAMYONET|KAMYON|M[İI]N[İI]BÜS|M[İI]N[İI]BUS|M[İI]D[İI]BÜS|M[İI]D[İI]BUS|OTOBÜS|OTOBUS|PANELVAN|TRANSPORTER|CRAFTER|CARAVELLE|MULTIVAN|SPRINTER|DAILY|DUCATO|BOXER|JUMPER|VIVARO|TRAFIC|MASTER|EXPRESS)\b/i;
+
+export function isTicari(tipAdi: string): boolean {
+  return TICARI_REGEX.test(tipAdi);
 }
 
 export function extractModelAdi(tipAdi: string, markaAdi: string): string {

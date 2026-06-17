@@ -5,13 +5,17 @@ export const revalidate = 86400;
 
 export default async function SifirEndeksPage() {
   const markalar = await getMarkalar();
-  const sirali = [...markalar].sort((a, b) => b.model_yillari.length - a.model_yillari.length);
+  const simdikiYil = new Date().getFullYear();
+
+  const sirali = markalar
+    .filter((m) => m.model_yillari.includes(simdikiYil))
+    .sort((a, b) => b.model_yillari.length - a.model_yillari.length);
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
-      <h1 className="mb-2 text-2xl font-semibold text-gray-900">Sıfır Araç Fiyat Geçmişi</h1>
+      <h1 className="mb-2 text-2xl font-semibold text-gray-900">Sıfır Araç Fiyat Değişimi</h1>
       <p className="mb-8 text-sm text-gray-600">
-        Güncel model araçların TSB kasko verisiyle aylık fiyat değişimi.
+        {simdikiYil} model araçların güncel fiyatları, aylık ve yıllık değişimi.
       </p>
       <AramaListesi
         placeholder="Marka ara..."
