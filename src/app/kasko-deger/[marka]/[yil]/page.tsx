@@ -21,7 +21,7 @@ export default async function YilPage({
   const marka = await getMarkaBySlug(markaSlug);
   if (!marka) notFound();
 
-  const tipler = await getTiplerForMarkaYil(marka.marka_kodu, modelYili);
+  const tipler = await getTiplerForMarkaYil(marka.marka_kodu, modelYili, marka.son_snapshot_month);
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">

@@ -22,7 +22,7 @@ export default async function TipDetayPage({
   const marka = await getMarkaBySlug(markaSlug);
   if (!marka) notFound();
 
-  const detay = await getTipDetay(marka.marka_kodu, tipKodu);
+  const detay = await getTipDetay(marka.marka_kodu, tipKodu, marka.son_snapshot_month);
   if (!detay) notFound();
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);

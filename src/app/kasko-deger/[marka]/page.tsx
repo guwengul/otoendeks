@@ -9,7 +9,7 @@ export default async function MarkaPage({ params }: { params: Promise<{ marka: s
   const marka = await getMarkaBySlug(markaSlug);
   if (!marka) notFound();
 
-  const yillar = await getYillarForMarka(marka.marka_kodu);
+  const yillar = await getYillarForMarka(marka.marka_kodu, marka.son_snapshot_month);
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
