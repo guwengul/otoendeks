@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { SifirEndeksVeri } from "@/lib/kasko";
-import { extractModelAdi, isTicari } from "@/lib/kasko";
+import { extractModelAdi } from "@/lib/kasko";
 
 function formatTL(v: number) {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(v);
@@ -34,38 +34,29 @@ type ModelGrup = {
 
 export function SifirEndeksListesi({ veri, markaAdi }: { veri: SifirEndeksVeri; markaAdi: string }) {
   const [query, setQuery] = useState("");
-  const [tab, setTab] = useState<"binek" | "ticari">("binek");
 
-  const { binekGruplar, ticariGruplar } = useMemo(() => {
-    const toGruplar = (rows: typeof veri.current): ModelGrup[] => {
-      const modelMap = new Map<string, TipRow[]>();
-      for (const r of rows) {
-        const model = extractModelAdi(r.tip_adi, markaAdi);
-        const tipAdiKisa = r.tip_adi.slice(markaAdi.length).trim().slice(model.length).trim() || r.tip_adi;
-        const prev = veri.prevMonthMap.get(r.tip_kodu);
-        const yilOnce = veri.prevYearMap.get(r.tip_kodu);
-        const aylikPct = prev ? ((r.deger - prev) / prev) * 100 : null;
-        const yillikPct = yilOnce ? ((r.deger - yilOnce) / yilOnce) * 100 : null;
-        const tip: TipRow = { tip_kodu: r.tip_kodu, tipAdiKisa, deger: r.deger, aylikPct, yillikPct };
-        const list = modelMap.get(model) ?? [];
-        list.push(tip);
-        modelMap.set(model, list);
-      }
-      return [...modelMap.entries()].map(([model, tipler]) => ({ model, tipler }));
-    };
-
-    const binek = veri.current.filter((r) => !isTicari(r.tip_adi));
-    const ticari = veri.current.filter((r) => isTicari(r.tip_adi));
-    return { binekGruplar: toGruplar(binek), ticariGruplar: toGruplar(ticari) };
+  const gruplar = useMemo((): ModelGrup[] => {
+    const modelMap = new Map<string, TipRow[]>();
+    for (const r of veri.current) {
+      const model = extractModelAdi(r.tip_adi, markaAdi);
+      const tipAdiKisa = r.tip_adi.slice(markaAdi.length).trim().slice(model.length).trim() || r.tip_adi;
+      const prev = veri.prevMonthMap.get(r.tip_kodu);
+      const yilOnce = veri.prevYearMap.get(r.tip_kodu);
+      const aylikPct = prev ? ((r.deger - prev) / prev) * 100 : null;
+      const yillikPct = yilOnce ? ((r.deger - yilOnce) / yilOnce) * 100 : null;
+      const tip: TipRow = { tip_kodu: r.tip_kodu, tipAdiKisa, deger: r.deger, aylikPct, yillikPct };
+      const list = modelMap.get(model) ?? [];
+      list.push(tip);
+      modelMap.set(model, list);
+    }
+    return [...modelMap.entries()].map(([model, tipler]) => ({ model, tipler }));
   }, [veri, markaAdi]);
-
-  const aktifGruplar = tab === "binek" ? binekGruplar : ticariGruplar;
 
   const filtreliGruplar = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("tr");
-    if (!q) return aktifGruplar;
+    if (!q) return gruplar;
     const tokens = q.split(/\s+/).filter(Boolean);
-    return aktifGruplar
+    return gruplar
       .map((g) => ({
         ...g,
         tipler: g.tipler.filter((t) => {
@@ -74,23 +65,10 @@ export function SifirEndeksListesi({ veri, markaAdi }: { veri: SifirEndeksVeri; 
         }),
       }))
       .filter((g) => g.tipler.length > 0);
-  }, [aktifGruplar, query]);
+  }, [gruplar, query]);
 
   return (
     <div className="w-full">
-      {/* Tab */}
-      <div className="mb-4 flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 w-fit">
-        {(["binek", "ticari"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => { setTab(t); setQuery(""); }}
-            className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${tab === t ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
-          >
-            {t === "binek" ? `Binek (${binekGruplar.reduce((a, g) => a + g.tipler.length, 0)})` : `Ticari (${ticariGruplar.reduce((a, g) => a + g.tipler.length, 0)})`}
-          </button>
-        ))}
-      </div>
-
       <input
         type="text"
         value={query}

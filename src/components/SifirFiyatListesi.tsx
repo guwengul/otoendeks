@@ -32,11 +32,24 @@ export function SifirFiyatListesi({ rows }: { rows: SifirFiyat[] }) {
 
     const map = new Map<string, SifirFiyat[]>();
     for (const r of filtered) {
-      const list = map.get(r.model_adi) ?? [];
+      const key = r.model_adi.split(" ")[0]; // ilk kelime = grup anahtarı
+      const list = map.get(key) ?? [];
       list.push(r);
-      map.set(r.model_adi, list);
+      map.set(key, list);
     }
-    return map;
+
+    // Grup içi: ucuzdan pahalıya
+    for (const list of map.values()) {
+      list.sort((a, b) => (a.kampanya_fiyati || a.liste_fiyati) - (b.kampanya_fiyati || b.liste_fiyati));
+    }
+
+    // Grup sırası: grubun en ucuz fiyatına göre
+    return new Map(
+      [...map.entries()].sort(
+        ([, a], [, b]) =>
+          (a[0].kampanya_fiyati || a[0].liste_fiyati) - (b[0].kampanya_fiyati || b[0].liste_fiyati),
+      ),
+    );
   }, [rows, query]);
 
   return (
@@ -54,11 +67,8 @@ export function SifirFiyatListesi({ rows }: { rows: SifirFiyat[] }) {
       )}
 
       <div className="space-y-4">
-        {[...grouped.entries()].map(([modelAdi, versiyonlar]) => (
-          <div key={modelAdi} className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-            <div className="border-b border-gray-100 bg-gray-50 px-4 py-2.5">
-              <h2 className="text-sm font-semibold text-gray-800">{modelAdi}</h2>
-            </div>
+        {[...grouped.entries()].map(([, versiyonlar]) => (
+          <div key={versiyonlar[0].id} className="rounded-xl border border-gray-200 bg-white overflow-hidden">
             <div className="divide-y divide-gray-100">
               {versiyonlar.map((r) => {
                 const kampanya = r.kampanya_fiyati > 0;
@@ -98,3 +108,4 @@ export function SifirFiyatListesi({ rows }: { rows: SifirFiyat[] }) {
     </div>
   );
 }
+
