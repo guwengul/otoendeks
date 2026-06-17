@@ -10,6 +10,9 @@ export const revalidate = 86400;
 function formatTL(value: number): string {
   return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value) + " TL";
 }
+function fmt(v: number): string {
+  return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(Math.abs(v));
+}
 
 function ayLabel(isoDate: string): string {
   const [year, month] = isoDate.split("-");
@@ -63,13 +66,11 @@ export default async function TipDetayPage({
   // Eskime maliyeti: modelYili+1 → modelYili farkı
   const eskimeData = (() => {
     if (!buYilDegeri || !birSonrakiYilDegeri || !sonPiyasa) return null;
-    const fark = birSonrakiYilDegeri.deger - buYilDegeri.deger;
     const usdKur = sonPiyasa.deger_tl / sonPiyasa.deger_usd;
     const altinKur = sonPiyasa.deger_tl / sonPiyasa.deger_altin_gram;
     return {
-      tl: fark,
-      usd: Math.round(fark / usdKur),
-      altin: Math.round(fark / altinKur),
+      yeni: { tl: birSonrakiYilDegeri.deger, usd: Math.round(birSonrakiYilDegeri.deger / usdKur), altin: Math.round(birSonrakiYilDegeri.deger / altinKur) },
+      eski: { tl: buYilDegeri.deger, usd: sonPiyasa.deger_usd, altin: sonPiyasa.deger_altin_gram },
       modelYili,
     };
   })();
@@ -90,8 +91,13 @@ export default async function TipDetayPage({
         <p className="mb-3 text-sm font-medium text-gray-500">
           {marka.marka_adi} {detay.tip_adi} · {modelYili} model · {ayLabel(marka.son_snapshot_month)} TSB
         </p>
-        {buYilDegeri ? (
-          <p className="text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
+        {buYilDegeri && sonPiyasa ? (
+          <>
+            <p className="text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
+            <p className="mt-2 text-sm text-gray-500">
+              ${fmt(sonPiyasa.deger_usd)} · {fmt(sonPiyasa.deger_altin_gram)} gram altın
+            </p>
+          </>
         ) : (
           <p className="text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
         )}
