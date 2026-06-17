@@ -5,6 +5,7 @@ export const revalidate = 86400;
 
 export default async function Home() {
   const markalar = await getMarkalar();
+  const sirali = [...markalar].sort((a, b) => b.model_yillari.length - a.model_yillari.length);
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
@@ -14,7 +15,8 @@ export default async function Home() {
       </p>
       <AramaListesi
         placeholder="Marka ara..."
-        items={markalar.map((m) => ({
+        defaultCount={30}
+        items={sirali.map((m) => ({
           key: String(m.marka_kodu),
           label: m.marka_adi,
           href: `/kasko-deger/${m.slug}`,

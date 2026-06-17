@@ -16,6 +16,7 @@ export type Marka = {
   marka_kodu: number;
   marka_adi: string;
   slug: string;
+  model_yillari: number[];
 };
 
 export type MarkaDetay = Marka & {
@@ -99,7 +100,7 @@ async function fetchAll<T>(table: string, params: Record<string, string>): Promi
 // TSB import script'i tarafından güncel tutulan küçük özet tablodan (tsb_markalar) okunuyor.
 export async function getMarkalar(): Promise<Marka[]> {
   const rows = await fetchAll<Marka>("tsb_markalar", {
-    select: "marka_kodu,marka_adi,slug",
+    select: "marka_kodu,marka_adi,slug,model_yillari",
     order: "marka_adi.asc",
   });
   return rows;
