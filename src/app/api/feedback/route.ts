@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const { tip_kodu, model_yili, oy } = await req.json();
+  const { tip_kodu, model_yili, oy, yorum } = await req.json();
 
   if (!tip_kodu || !model_yili || (oy !== 1 && oy !== -1)) {
     return new Response("Geçersiz istek", { status: 400 });
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
         Prefer: "return=minimal",
       },
-      body: JSON.stringify({ tip_kodu, model_yili, oy }),
+      body: JSON.stringify({ tip_kodu, model_yili, oy, yorum: yorum ?? null }),
     },
   );
 
