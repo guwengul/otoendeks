@@ -31,13 +31,13 @@ export default async function TipDetayPage({
   if (!detay) notFound();
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
-  const birOncekiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili - 1);
+  const birSonrakiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili + 1);
 
-  // 1 model yılı değer kaybı — USD/altın için son snapshot kurlarını kullan
+  // 1 model yılı değer kaybı: 2019 model - 2018 model = 2018 modelin eskime maliyeti
   const sonPiyasa = fiyatGecmisi.length > 0 ? fiyatGecmisi[fiyatGecmisi.length - 1] : null;
-  const yillikKayip = buYilDegeri && birOncekiYilDegeri && sonPiyasa
+  const yillikKayip = buYilDegeri && birSonrakiYilDegeri && sonPiyasa
     ? (() => {
-        const tlFark = buYilDegeri.deger - birOncekiYilDegeri.deger;
+        const tlFark = birSonrakiYilDegeri.deger - buYilDegeri.deger;
         const usdKur = sonPiyasa.deger_tl / sonPiyasa.deger_usd;
         const altinKur = sonPiyasa.deger_tl / sonPiyasa.deger_altin_gram;
         return {
@@ -92,7 +92,7 @@ export default async function TipDetayPage({
       <h2 className="mb-3 text-lg font-semibold text-gray-900">Model Yılına Göre Değer Kaybı</h2>
       {yillikKayip && (
         <p className="mb-3 text-sm text-gray-500">
-          {modelYili - 1} → {modelYili} model yılı geçişinde yaklaşık{" "}
+          {modelYili} → {modelYili + 1} model yılı farkı yaklaşık{" "}
           <span className="font-medium text-gray-800">{formatTL(Math.abs(yillikKayip.tl))}</span>
           {" / "}
           <span className="font-medium text-gray-800">${Math.abs(yillikKayip.usd).toLocaleString("tr-TR")}</span>
