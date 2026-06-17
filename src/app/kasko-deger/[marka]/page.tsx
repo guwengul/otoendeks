@@ -1,8 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getMarkaBySlug, getYillarForMarka } from "@/lib/kasko";
+import { getMarkalar, getMarkaBySlug, getYillarForMarka } from "@/lib/kasko";
 
 export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  const markalar = await getMarkalar();
+  return markalar.map((m) => ({ marka: m.slug }));
+}
 
 export default async function MarkaPage({ params }: { params: Promise<{ marka: string }> }) {
   const { marka: markaSlug } = await params;

@@ -1,9 +1,20 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getMarkaBySlug, getTiplerForMarkaYil } from "@/lib/kasko";
+import { getMarkalar, getMarkaBySlug, getTiplerForMarkaYil, getYillarForMarka } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 
 export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  const markalar = await getMarkalar();
+  const results = await Promise.all(
+    markalar.map(async (m) => {
+      const yillar = await getYillarForMarka(m.marka_kodu, m.son_snapshot_month);
+      return yillar.map((yil) => ({ marka: m.slug, yil: String(yil) }));
+    }),
+  );
+  return results.flat();
+}
 
 function formatTL(value: number): string {
   return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value) + " TL";
