@@ -5,6 +5,8 @@ import { getMarkaBySlug, getTipDetay, getFiyatGecmisi } from "@/lib/kasko";
 import { DegerKaybiGrafik } from "@/components/DegerKaybiGrafik";
 import { FiyatGecmisiGrafik } from "@/components/FiyatGecmisiGrafik";
 import { DetayKartlari } from "@/components/DetayKartlari";
+import { MikroFeedback } from "@/components/MikroFeedback";
+import { FavoriButonu } from "@/components/FavoriButonu";
 
 export const revalidate = 86400;
 
@@ -165,6 +167,7 @@ export default async function TipDetayPage({
     return null;
   })();
 
+  const tipKodu = Number(tipSlug.split("-")[0]);
   const aracAdi = `${marka.marka_adi} ${detay.tip_adi} ${modelYili}`;
   const ogParams = buildOgParams(marka, detay.tip_adi, modelYili, buYilDegeri?.deger, fiyatGecmisi, eskimeData);
 
@@ -204,13 +207,39 @@ export default async function TipDetayPage({
       </div>
 
       <h2 className="mb-3 text-base font-semibold text-gray-900">Model Yılına Göre Değer</h2>
-      <div className="rounded-xl border border-gray-200 p-4">
+      <div className="mb-8 rounded-xl border border-gray-200 p-4">
         <DegerKaybiGrafik
           gecmis={detay.gecmis.filter((d) =>
             d.model_yili >= modelYili - 1 && d.model_yili <= modelYili + 1,
           )}
           modelYili={modelYili}
         />
+      </div>
+
+      {/* Takip et */}
+      <div className="mb-4">
+        <FavoriButonu />
+      </div>
+
+      {/* Sıfır araç yönlendirme */}
+      <div className="mb-8 rounded-xl border border-gray-100 bg-gray-50 px-5 py-4">
+        <p className="mb-1 text-sm font-medium text-gray-700">
+          {marka.marka_adi} sıfır araç fiyatlarına bak
+        </p>
+        <p className="mb-3 text-xs text-gray-400">
+          Güncel liste fiyatları ve kampanyalar
+        </p>
+        <Link
+          href={`/sifir-fiyat/${marka.slug}`}
+          className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
+        >
+          {marka.marka_adi} sıfır fiyatları →
+        </Link>
+      </div>
+
+      {/* Mikro feedback */}
+      <div className="border-t border-gray-100 pt-4">
+        <MikroFeedback tipKodu={tipKodu} modelYili={modelYili} />
       </div>
     </main>
   );
