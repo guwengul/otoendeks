@@ -1,16 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getMarkalar, getMarkaBySlug, getTiplerForMarkaYil } from "@/lib/kasko";
+import { getMarkaBySlug, getTiplerForMarkaYil } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 
 export const revalidate = 86400;
-
-export async function generateStaticParams() {
-  const markalar = await getMarkalar();
-  return markalar.flatMap((m) =>
-    m.model_yillari.map((yil) => ({ marka: m.slug, yil: String(yil) })),
-  );
-}
 
 function formatTL(value: number): string {
   return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value) + " TL";
