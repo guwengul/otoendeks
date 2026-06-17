@@ -27,7 +27,15 @@ export type DegerNoktasi = {
 
 export type AylikNoktasi = {
   snapshot_month: string;
-  deger: number;
+  deger_tl: number;
+  deger_usd: number;
+  deger_altin_gram: number;
+};
+
+type PiyasaRow = {
+  tarih: string;
+  usd_try: number;
+  gram_altin_try: number;
 };
 
 async function restFetch<T>(
@@ -110,14 +118,44 @@ export async function getTiplerForMarkaYil(markaKodu: number, modelYili: number,
 }
 
 export async function getFiyatGecmisi(markaKodu: number, tipKodu: number, modelYili: number): Promise<AylikNoktasi[]> {
-  const rows = await fetchAll<{ snapshot_month: string; deger: number }>("kasko_degerleri", {
+  const kaskoRows = await fetchAll<{ snapshot_month: string; deger: number }>("kasko_degerleri", {
     select: "snapshot_month,deger",
     marka_kodu: `eq.${markaKodu}`,
     tip_kodu: `eq.${tipKodu}`,
     model_yili: `eq.${modelYili}`,
     order: "snapshot_month.asc",
   });
-  return rows;
+  if (kaskoRows.length === 0) return [];
+
+  // snapshot aylarının kapsadığı tarih aralığında piyasa verilerini çek
+  const ilkAy = kaskoRows[0].snapshot_month.slice(0, 7);   // "2025-01"
+  const sonAy = kaskoRows[kaskoRows.length - 1].snapshot_month.slice(0, 7); // "2026-06"
+  const sonGunSonAy = `${sonAy}-31`; // PostgREST lte ile ay sonunu kapsar
+
+  const piyasaRows = await fetchAll<PiyasaRow>("piyasa_degerleri", {
+    select: "tarih,usd_try,gram_altin_try",
+    tarih: `gte.${ilkAy}-01`,
+    "tarih.lte": sonGunSonAy,
+    order: "tarih.asc",
+  });
+
+  // Her snapshot ayı için o aydaki son piyasa kaydını bul
+  const ayPiyasa = new Map<string, PiyasaRow>();
+  for (const p of piyasaRows) {
+    const ay = p.tarih.slice(0, 7); // "2025-01"
+    ayPiyasa.set(ay, p); // sonraki üzerine yazar → ayın son günü kalır
+  }
+
+  return kaskoRows.map((k) => {
+    const ay = k.snapshot_month.slice(0, 7);
+    const piyasa = ayPiyasa.get(ay);
+    return {
+      snapshot_month: k.snapshot_month,
+      deger_tl: k.deger,
+      deger_usd: piyasa ? Math.round(k.deger / piyasa.usd_try) : 0,
+      deger_altin_gram: piyasa ? Math.round(k.deger / piyasa.gram_altin_try) : 0,
+    };
+  });
 }
 
 export async function getTipDetay(markaKodu: number, tipKodu: number, snapshotMonth: string) {

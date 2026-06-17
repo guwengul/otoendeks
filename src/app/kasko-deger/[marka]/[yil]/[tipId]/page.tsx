@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getMarkaBySlug, getTipDetay, getFiyatGecmisi } from "@/lib/kasko";
 import { DegerKaybiGrafik } from "@/components/DegerKaybiGrafik";
 import { FiyatGecmisiGrafik } from "@/components/FiyatGecmisiGrafik";
+import { PaylasProvizyonKarti } from "@/components/PaylasProvizyonKarti";
 
 export const revalidate = 86400;
 
@@ -53,13 +54,19 @@ export default async function TipDetayPage({
       </h1>
       <p className="mb-6 text-sm text-gray-600">{modelYili} model kasko değeri</p>
 
-      <div className="mb-8 rounded-xl border border-gray-200 bg-gray-50 px-6 py-5">
+      <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 px-6 py-5">
         {buYilDegeri ? (
           <div className="text-3xl font-bold text-blue-600">{formatTL(buYilDegeri.deger)}</div>
         ) : (
           <p className="text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
         )}
       </div>
+
+      <PaylasProvizyonKarti
+        gecmis={fiyatGecmisi}
+        aracAdi={`${marka.marka_adi} ${detay.tip_adi}`}
+        modelYili={modelYili}
+      />
 
       <h2 className="mb-3 text-lg font-semibold text-gray-900">Aylık Fiyat Geçmişi ({modelYili} model)</h2>
       <div className="mb-8 rounded-xl border border-gray-200 p-4">
