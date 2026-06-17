@@ -174,7 +174,7 @@ export default async function TipDetayPage({
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/" className="hover:underline">Markalar</Link>{" / "}
+        <Link href="/" className="hover:underline">Kasko Değeri</Link>{" / "}
         <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">{marka.marka_adi}</Link>{" / "}
         <Link href={`/kasko-deger/${marka.slug}/${modelYili}`} className="hover:underline">{modelYili}</Link>
         {" / "}<span className="text-gray-900">{detay.tip_adi}</span>
