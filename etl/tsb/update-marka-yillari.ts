@@ -1,32 +1,23 @@
+/**
+ * tsb_markalar.model_yillari kolonunu kasko_degerleri'ndeki mevcut veriden doldurur.
+ * import-tsb.ts'deki model_yillari logiği doğrulanana kadar bu script kullanılabilir.
+ *
+ * Supabase SQL Editöründe çalıştırmak daha hızlı:
+ *
+ *   UPDATE tsb_markalar t
+ *   SET model_yillari = sub.yillar
+ *   FROM (
+ *     SELECT marka_kodu,
+ *            array_agg(DISTINCT model_yili ORDER BY model_yili DESC) AS yillar
+ *     FROM kasko_degerleri
+ *     WHERE snapshot_month = (SELECT MAX(snapshot_month) FROM kasko_degerleri)
+ *     GROUP BY marka_kodu
+ *   ) sub
+ *   WHERE t.marka_kodu = sub.marka_kodu;
+ */
 import { supabase } from "../shared/supabase-client";
 
 async function main() {
-  const { error } = await supabase.rpc("exec_sql", {
-    sql: `
-      UPDATE tsb_markalar t
-      SET model_yillari = sub.yillar
-      FROM (
-        SELECT
-          marka_kodu,
-          array_agg(DISTINCT model_yili ORDER BY model_yili DESC) AS yillar
-        FROM kasko_degerleri
-        WHERE snapshot_month = (SELECT MAX(snapshot_month) FROM kasko_degerleri)
-        GROUP BY marka_kodu
-      ) sub
-      WHERE t.marka_kodu = sub.marka_kodu
-    `,
-  });
-
-  if (error) {
-    // exec_sql RPC yoksa manuel pagination yöntemi
-    console.log("RPC yok, pagination yöntemi deneniyor...");
-    await fallback();
-    return;
-  }
-  console.log("model_yillari güncellendi.");
-}
-
-async function fallback() {
   const { data: snap } = await supabase
     .from("kasko_degerleri")
     .select("snapshot_month")
@@ -34,6 +25,7 @@ async function fallback() {
     .limit(1)
     .single();
   if (!snap) { console.error("snapshot bulunamadı"); process.exit(1); }
+  console.log("snapshot_month:", snap.snapshot_month);
 
   const markaYillar = new Map<number, Set<number>>();
   let from = 0;
@@ -54,13 +46,15 @@ async function fallback() {
     from += PAGE;
   }
 
+  console.log(`${markaYillar.size} marka için yıllar toplandı, güncelleniyor...`);
   for (const [marka_kodu, yillar] of markaYillar) {
-    await supabase
+    const { error } = await supabase
       .from("tsb_markalar")
       .update({ model_yillari: [...yillar].sort((a, b) => b - a) })
       .eq("marka_kodu", marka_kodu);
+    if (error) { console.error(`marka_kodu=${marka_kodu} güncelleme hatası:`, error); }
   }
-  console.log(`${markaYillar.size} marka güncellendi.`);
+  console.log("Tamamlandı.");
 }
 
 main();

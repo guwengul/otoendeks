@@ -7,6 +7,9 @@ export type Marka = {
   marka_kodu: number;
   marka_adi: string;
   slug: string;
+};
+
+export type MarkaDetay = Marka & {
   son_snapshot_month: string;
   model_yillari: number[];
 };
@@ -73,34 +76,21 @@ async function fetchAll<T>(table: string, params: Record<string, string>): Promi
 // Marka listesi artık 1.43M satırlık kasko_degerleri'ni hiç taramıyor;
 // TSB import script'i tarafından güncel tutulan küçük özet tablodan (tsb_markalar) okunuyor.
 export async function getMarkalar(): Promise<Marka[]> {
-  const rows = await fetchAll<{ marka_kodu: number; marka_adi: string; slug: string; son_snapshot_month: string; model_yillari: number[] }>(
-    "tsb_markalar",
-    { select: "marka_kodu,marka_adi,slug,son_snapshot_month,model_yillari", order: "marka_adi.asc" },
-  );
-
-  return rows.map((r) => ({
-    marka_kodu: r.marka_kodu,
-    marka_adi: r.marka_adi,
-    slug: r.slug,
-    son_snapshot_month: r.son_snapshot_month,
-    model_yillari: r.model_yillari,
-  }));
+  const rows = await fetchAll<Marka>("tsb_markalar", {
+    select: "marka_kodu,marka_adi,slug",
+    order: "marka_adi.asc",
+  });
+  return rows;
 }
 
-export async function getMarkaBySlug(slug: string): Promise<Marka | null> {
-  const { data } = await restFetch<{ marka_kodu: number; marka_adi: string; slug: string; son_snapshot_month: string; model_yillari: number[] }>(
+export async function getMarkaBySlug(slug: string): Promise<MarkaDetay | null> {
+  const { data } = await restFetch<MarkaDetay>(
     "tsb_markalar",
     { select: "marka_kodu,marka_adi,slug,son_snapshot_month,model_yillari", slug: `eq.${slug}`, limit: "1" },
     [0, 0],
   );
   if (!data[0]) return null;
-  return {
-    marka_kodu: data[0].marka_kodu,
-    marka_adi: data[0].marka_adi,
-    slug: data[0].slug,
-    son_snapshot_month: data[0].son_snapshot_month,
-    model_yillari: data[0].model_yillari,
-  };
+  return data[0];
 }
 
 
