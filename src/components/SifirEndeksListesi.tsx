@@ -94,6 +94,16 @@ export function SifirEndeksListesi({
 }) {
   const [query, setQuery] = useState("");
   const [modalAcik, setModalAcik] = useState(false);
+  const [acikGruplar, setAcikGruplar] = useState<Set<string>>(new Set());
+
+  function toggleGrup(model: string) {
+    setAcikGruplar((prev) => {
+      const next = new Set(prev);
+      if (next.has(model)) next.delete(model);
+      else next.add(model);
+      return next;
+    });
+  }
 
   const gruplar = useMemo((): ModelGrup[] => {
     const modelMap = new Map<string, TipRow[]>();
@@ -144,10 +154,26 @@ export function SifirEndeksListesi({
         <p className="mt-6 text-center text-sm text-gray-500">Sonuç bulunamadı.</p>
       )}
 
-      <div className="space-y-3">
-        {filtreliGruplar.map((g) => (
+      <div className="space-y-2">
+        {filtreliGruplar.map((g) => {
+          const acik = query.trim().length > 0 || acikGruplar.has(g.model);
+          return (
           <div key={g.model} className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-            <div className="divide-y divide-gray-100">
+            {/* Grup başlığı */}
+            <button
+              onClick={() => toggleGrup(g.model)}
+              className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+            >
+              <span className="text-sm font-semibold text-gray-900">{g.model}</span>
+              <span className="flex items-center gap-2 text-xs text-gray-400">
+                {g.tipler.length} versiyon
+                <svg className={`w-4 h-4 transition-transform ${acik ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
+            </button>
+
+            {acik && <div className="divide-y divide-gray-100 border-t border-gray-100">
               {g.tipler.map((tip) => (
                 <div key={tip.tip_kodu} className="px-4 py-3">
                   {/* Araç adı */}
@@ -191,9 +217,9 @@ export function SifirEndeksListesi({
                   </div>
                 </div>
               ))}
-            </div>
+            </div>}
           </div>
-        ))}
+        );})}
       </div>
 
       {modalAcik && <BayiFiyatModal onKapat={() => setModalAcik(false)} />}
