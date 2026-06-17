@@ -3,12 +3,19 @@ import Link from "next/link";
 import { getMarkaBySlug, getTipDetay, getFiyatGecmisi } from "@/lib/kasko";
 import { DegerKaybiGrafik } from "@/components/DegerKaybiGrafik";
 import { FiyatGecmisiGrafik } from "@/components/FiyatGecmisiGrafik";
-import { PaylasProvizyonKarti } from "@/components/PaylasProvizyonKarti";
+import { DetayKartlari } from "@/components/DetayKartlari";
 
 export const revalidate = 86400;
 
 function formatTL(value: number): string {
   return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value) + " TL";
+}
+
+function ayLabel(isoDate: string): string {
+  const [year, month] = isoDate.split("-");
+  const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+    "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+  return `${aylar[Number(month) - 1]} ${year}`;
 }
 
 export default async function TipDetayPage({
@@ -32,82 +39,79 @@ export default async function TipDetayPage({
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
   const birSonrakiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili + 1);
-  const birOncekiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili - 1);
   const sonPiyasa = fiyatGecmisi.length > 0 ? fiyatGecmisi[fiyatGecmisi.length - 1] : null;
 
-  function kayipHesapla(yeniDeger: number, eskiDeger: number) {
-    if (!sonPiyasa) return null;
-    const fark = yeniDeger - eskiDeger;
+  // 12 ay öncesine en yakın snapshot
+  const enflasyonData = (() => {
+    if (fiyatGecmisi.length < 2 || !sonPiyasa) return null;
+    const sonTarih = new Date(sonPiyasa.snapshot_month);
+    const hedef = new Date(sonTarih);
+    hedef.setFullYear(hedef.getFullYear() - 1);
+    const adaylar = fiyatGecmisi.slice(0, -1); // son hariç
+    const ilk = adaylar.reduce((prev, curr) =>
+      Math.abs(new Date(curr.snapshot_month).getTime() - hedef.getTime()) <
+      Math.abs(new Date(prev.snapshot_month).getTime() - hedef.getTime()) ? curr : prev
+    );
+    return {
+      ilk,
+      son: sonPiyasa,
+      ilkAyLabel: ayLabel(ilk.snapshot_month),
+      sonAyLabel: ayLabel(sonPiyasa.snapshot_month),
+    };
+  })();
+
+  // Eskime maliyeti: modelYili+1 → modelYili farkı
+  const eskimeData = (() => {
+    if (!buYilDegeri || !birSonrakiYilDegeri || !sonPiyasa) return null;
+    const fark = birSonrakiYilDegeri.deger - buYilDegeri.deger;
     const usdKur = sonPiyasa.deger_tl / sonPiyasa.deger_usd;
     const altinKur = sonPiyasa.deger_tl / sonPiyasa.deger_altin_gram;
-    return { tl: fark, usd: Math.round(fark / usdKur), altin: Math.round(fark / altinKur) };
-  }
+    return {
+      tl: fark,
+      usd: Math.round(fark / usdKur),
+      altin: Math.round(fark / altinKur),
+      modelYili,
+    };
+  })();
 
-  const gecenYilKayip = buYilDegeri && birSonrakiYilDegeri
-    ? kayipHesapla(birSonrakiYilDegeri.deger, buYilDegeri.deger) : null;
-  const gelecekYilKayip = buYilDegeri && birOncekiYilDegeri
-    ? kayipHesapla(buYilDegeri.deger, birOncekiYilDegeri.deger) : null;
+  const aracAdi = `${marka.marka_adi} ${detay.tip_adi} ${modelYili}`;
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/" className="hover:underline">
-          Markalar
-        </Link>{" "}
-        /{" "}
-        <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">
-          {marka.marka_adi}
-        </Link>{" "}
-        /{" "}
-        <Link href={`/kasko-deger/${marka.slug}/${modelYili}`} className="hover:underline">
-          {modelYili}
-        </Link>{" "}
-        / <span className="text-gray-900">{detay.tip_adi}</span>
+        <Link href="/" className="hover:underline">Markalar</Link>{" / "}
+        <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">{marka.marka_adi}</Link>{" / "}
+        <Link href={`/kasko-deger/${marka.slug}/${modelYili}`} className="hover:underline">{modelYili}</Link>
+        {" / "}<span className="text-gray-900">{detay.tip_adi}</span>
       </nav>
 
-      <h1 className="mb-1 text-2xl font-semibold text-gray-900">
-        {marka.marka_adi} {detay.tip_adi}
-      </h1>
-      <p className="mb-6 text-sm text-gray-600">{modelYili} model kasko değeri</p>
-
-      <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 px-6 py-5">
+      {/* Ana fiyat kartı */}
+      <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 px-6 py-5">
+        <p className="mb-1 text-sm font-medium text-gray-500">
+          {marka.marka_adi} {detay.tip_adi} · {modelYili} model · {ayLabel(marka.son_snapshot_month)} TSB
+        </p>
         {buYilDegeri ? (
-          <div className="text-3xl font-bold text-blue-600">{formatTL(buYilDegeri.deger)}</div>
+          <p className="text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
         ) : (
           <p className="text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
         )}
       </div>
 
-      <PaylasProvizyonKarti
-        gecmis={fiyatGecmisi}
-        aracAdi={`${marka.marka_adi} ${detay.tip_adi}`}
-        modelYili={modelYili}
+      {/* İki küçük paylaşılabilir kart */}
+      <DetayKartlari
+        enflasyon={enflasyonData}
+        eskime={eskimeData}
+        aracAdi={aracAdi}
       />
 
-      <h2 className="mb-3 text-lg font-semibold text-gray-900">Aylık Fiyat Geçmişi ({modelYili} model)</h2>
+      {/* Aylık fiyat geçmişi */}
+      <h2 className="mb-3 text-base font-semibold text-gray-900">Aylık Fiyat Geçmişi</h2>
       <div className="mb-8 rounded-xl border border-gray-200 p-4">
         <FiyatGecmisiGrafik gecmis={fiyatGecmisi} />
       </div>
 
-      <h2 className="mb-3 text-lg font-semibold text-gray-900">Model Yılına Göre Değer Kaybı</h2>
-      {(gecenYilKayip || gelecekYilKayip) && (
-        <div className="mb-4 grid grid-cols-2 gap-3">
-          {gecenYilKayip && (
-            <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-              <p className="mb-1 text-xs text-gray-500">Geçen yıl kaybı ({modelYili + 1}→{modelYili})</p>
-              <p className="font-semibold text-gray-900">{formatTL(gecenYilKayip.tl)}</p>
-              <p className="text-xs text-gray-500">${gecenYilKayip.usd.toLocaleString("tr-TR")} · {gecenYilKayip.altin} gr altın</p>
-            </div>
-          )}
-          {gelecekYilKayip && (
-            <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-              <p className="mb-1 text-xs text-gray-500">Gelecek yıl kaybı ({modelYili}→{modelYili - 1})</p>
-              <p className="font-semibold text-gray-900">{formatTL(gelecekYilKayip.tl)}</p>
-              <p className="text-xs text-gray-500">${gelecekYilKayip.usd.toLocaleString("tr-TR")} · {gelecekYilKayip.altin} gr altın</p>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Değer kaybı grafiği ±1 yıl */}
+      <h2 className="mb-3 text-base font-semibold text-gray-900">Model Yılına Göre Değer</h2>
       <div className="rounded-xl border border-gray-200 p-4">
         <DegerKaybiGrafik
           gecmis={detay.gecmis.filter((d) =>
