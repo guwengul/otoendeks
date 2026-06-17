@@ -185,6 +185,30 @@ export async function getFiyatGecmisi(markaKodu: number, tipKodu: number, modelY
   });
 }
 
+export type SifirEndeksRow = {
+  tip_kodu: number;
+  tip_adi: string;
+  snapshot_month: string;
+  deger: number;
+};
+
+export async function getSifirEndeks(markaKodu: number, modelYili: number): Promise<SifirEndeksRow[]> {
+  return fetchAll<SifirEndeksRow>("kasko_degerleri", {
+    select: "tip_kodu,tip_adi,snapshot_month,deger",
+    marka_kodu: `eq.${markaKodu}`,
+    model_yili: `eq.${modelYili}`,
+    order: "tip_adi.asc,snapshot_month.asc",
+  });
+}
+
+export function extractModelAdi(tipAdi: string, markaAdi: string): string {
+  const rest = tipAdi.startsWith(markaAdi) ? tipAdi.slice(markaAdi.length).trim() : tipAdi;
+  const words = rest.split(" ");
+  const stopIdx = words.findIndex((w, i) => i > 0 && /\d/.test(w));
+  if (stopIdx <= 0) return words[0] ?? rest;
+  return words.slice(0, stopIdx).join(" ");
+}
+
 export async function getTipDetay(markaKodu: number, tipKodu: number, snapshotMonth: string) {
   const rows = await fetchAll<{ tip_adi: string; marka_adi: string; model_yili: number; deger: number }>(
     "kasko_degerleri",
