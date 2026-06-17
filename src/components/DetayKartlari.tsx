@@ -49,7 +49,7 @@ export function DetayKartlari({
   if (kartSayisi === 0) return null;
 
   return (
-    <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
       {enflasyon ? (() => {
         const tlFark = enflasyon.son.deger_tl - enflasyon.ilk.deger_tl;
         const usdFark = enflasyon.son.deger_usd - enflasyon.ilk.deger_usd;

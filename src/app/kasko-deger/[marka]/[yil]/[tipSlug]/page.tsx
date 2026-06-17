@@ -180,27 +180,32 @@ export default async function TipDetayPage({
         {" / "}<span className="text-gray-900">{detay.tip_adi}</span>
       </nav>
 
-      {/* Ana fiyat kartı — takip + paylaş butonları içinde */}
-      <div className="mb-3 rounded-xl border border-gray-200 bg-gray-50 px-6 py-6">
-        <p className="mb-3 text-center text-sm font-medium text-gray-700">
-          {marka.marka_adi} {detay.tip_adi} · {modelYili} model
-        </p>
-        {buYilDegeri ? (
-          <p className="text-center text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
-        ) : (
-          <p className="text-center text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
-        )}
-        <p className="mt-2 text-center text-xs text-gray-400">{ayLabel(marka.son_snapshot_month)} TSB verisi</p>
+      {/* Wrapper — ana kart + iki karşılaştırma + butonlar tek blok */}
+      <div className="mb-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        {/* Ana fiyat */}
+        <div className="mb-4 rounded-xl bg-gray-50 px-6 py-5 text-center">
+          <p className="mb-2 text-sm font-medium text-gray-600">
+            {marka.marka_adi} {detay.tip_adi} · {modelYili} model
+          </p>
+          {buYilDegeri ? (
+            <p className="text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
+          ) : (
+            <p className="text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
+          )}
+          <p className="mt-2 text-xs text-gray-400">{ayLabel(marka.son_snapshot_month)} TSB verisi</p>
+        </div>
+
+        {/* İki karşılaştırma kartı */}
+        <DetayKartlari enflasyon={enflasyonData} eskime={eskimeData} />
+
+        {/* Takip et + paylaş — wrapper'ın alt kısmı */}
         <AnaKartActions ogParams={ogParams} tumunuMetin={tumunuMetin} />
       </div>
 
-      {/* Mikro feedback — ana kartın hemen altında */}
+      {/* Mikro feedback */}
       <div className="mb-6 border-b border-gray-100 pb-4">
         <MikroFeedback tipKodu={tipKodu} modelYili={modelYili} />
       </div>
-
-      {/* İki karşılaştırma kartı */}
-      <DetayKartlari enflasyon={enflasyonData} eskime={eskimeData} />
 
       {/* Sıfır araç yönlendirme */}
       <div className="mb-8 flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-5 py-4">
