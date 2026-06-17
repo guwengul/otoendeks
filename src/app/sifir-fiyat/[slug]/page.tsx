@@ -53,7 +53,6 @@ export default async function SifirFiyatPage({ params }: { params: Promise<{ slu
       <SifirFiyatListesi rows={rows} />
 
       <p className="mt-8 text-center text-xs text-gray-400">
-        Fiyatlar sifiraracal.com kaynaklıdır, resmi bayi fiyatlarıyla farklılık gösterebilir.
       </p>
     </main>
   );
