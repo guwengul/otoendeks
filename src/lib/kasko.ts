@@ -8,6 +8,7 @@ export type Marka = {
   marka_adi: string;
   slug: string;
   son_snapshot_month: string;
+  model_yillari: number[];
 };
 
 export type Tip = {
@@ -72,9 +73,9 @@ async function fetchAll<T>(table: string, params: Record<string, string>): Promi
 // Marka listesi artık 1.43M satırlık kasko_degerleri'ni hiç taramıyor;
 // TSB import script'i tarafından güncel tutulan küçük özet tablodan (tsb_markalar) okunuyor.
 export async function getMarkalar(): Promise<Marka[]> {
-  const rows = await fetchAll<{ marka_kodu: number; marka_adi: string; slug: string; son_snapshot_month: string }>(
+  const rows = await fetchAll<{ marka_kodu: number; marka_adi: string; slug: string; son_snapshot_month: string; model_yillari: number[] }>(
     "tsb_markalar",
-    { select: "marka_kodu,marka_adi,slug,son_snapshot_month", order: "marka_adi.asc" },
+    { select: "marka_kodu,marka_adi,slug,son_snapshot_month,model_yillari", order: "marka_adi.asc" },
   );
 
   return rows.map((r) => ({
@@ -82,13 +83,14 @@ export async function getMarkalar(): Promise<Marka[]> {
     marka_adi: r.marka_adi,
     slug: r.slug,
     son_snapshot_month: r.son_snapshot_month,
+    model_yillari: r.model_yillari,
   }));
 }
 
 export async function getMarkaBySlug(slug: string): Promise<Marka | null> {
-  const { data } = await restFetch<{ marka_kodu: number; marka_adi: string; slug: string; son_snapshot_month: string }>(
+  const { data } = await restFetch<{ marka_kodu: number; marka_adi: string; slug: string; son_snapshot_month: string; model_yillari: number[] }>(
     "tsb_markalar",
-    { select: "marka_kodu,marka_adi,slug,son_snapshot_month", slug: `eq.${slug}`, limit: "1" },
+    { select: "marka_kodu,marka_adi,slug,son_snapshot_month,model_yillari", slug: `eq.${slug}`, limit: "1" },
     [0, 0],
   );
   if (!data[0]) return null;
@@ -97,18 +99,10 @@ export async function getMarkaBySlug(slug: string): Promise<Marka | null> {
     marka_adi: data[0].marka_adi,
     slug: data[0].slug,
     son_snapshot_month: data[0].son_snapshot_month,
+    model_yillari: data[0].model_yillari,
   };
 }
 
-export async function getYillarForMarka(markaKodu: number, snapshotMonth: string): Promise<number[]> {
-  const rows = await fetchAll<{ model_yili: number }>("kasko_degerleri", {
-    select: "model_yili",
-    marka_kodu: `eq.${markaKodu}`,
-    snapshot_month: `eq.${snapshotMonth}`,
-  });
-
-  return [...new Set(rows.map((row) => row.model_yili))].sort((a, b) => b - a);
-}
 
 export async function getTiplerForMarkaYil(markaKodu: number, modelYili: number, snapshotMonth: string): Promise<Tip[]> {
   return fetchAll<Tip>("kasko_degerleri", {

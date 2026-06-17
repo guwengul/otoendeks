@@ -81,7 +81,7 @@ async function main() {
   }
 
   let totalRows = 0;
-  const markaOzet = new Map<number, { marka_adi: string; son_snapshot_month: string }>();
+  const markaOzet = new Map<number, { marka_adi: string; son_snapshot_month: string; yillar: Set<number> }>();
 
   for (const file of files) {
     const filePath = path.join(DATA_DIR, file);
@@ -103,8 +103,19 @@ async function main() {
 
     for (const row of rows) {
       const mevcut = markaOzet.get(row.marka_kodu);
-      if (!mevcut || row.snapshot_month > mevcut.son_snapshot_month) {
-        markaOzet.set(row.marka_kodu, { marka_adi: row.marka_adi, son_snapshot_month: row.snapshot_month });
+      if (!mevcut) {
+        markaOzet.set(row.marka_kodu, {
+          marka_adi: row.marka_adi,
+          son_snapshot_month: row.snapshot_month,
+          yillar: new Set([row.model_yili]),
+        });
+      } else {
+        if (row.snapshot_month > mevcut.son_snapshot_month) {
+          mevcut.son_snapshot_month = row.snapshot_month;
+          mevcut.yillar = new Set([row.model_yili]);
+        } else if (row.snapshot_month === mevcut.son_snapshot_month) {
+          mevcut.yillar.add(row.model_yili);
+        }
       }
     }
   }
@@ -116,6 +127,7 @@ async function main() {
     marka_adi: v.marka_adi,
     slug: slugify(v.marka_adi),
     son_snapshot_month: v.son_snapshot_month,
+    model_yillari: [...v.yillar].sort((a, b) => b - a),
   }));
 
   console.log(`tsb_markalar özet tablosu güncelleniyor (${markalarRows.length} marka)...`);
