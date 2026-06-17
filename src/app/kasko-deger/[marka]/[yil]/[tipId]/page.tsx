@@ -86,8 +86,8 @@ export default async function TipDetayPage({
       </nav>
 
       {/* Ana fiyat kartı */}
-      <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 px-6 py-5">
-        <p className="mb-1 text-sm font-medium text-gray-500">
+      <div className="mb-4 flex flex-col items-center rounded-xl border border-gray-200 bg-gray-50 px-6 py-6 text-center">
+        <p className="mb-3 text-sm font-medium text-gray-500">
           {marka.marka_adi} {detay.tip_adi} · {modelYili} model · {ayLabel(marka.son_snapshot_month)} TSB
         </p>
         {buYilDegeri ? (
