@@ -39,7 +39,7 @@ export function SifirEndeksListesi({ veri, markaAdi }: { veri: SifirEndeksVeri; 
     const modelMap = new Map<string, TipRow[]>();
     for (const r of veri.current) {
       const model = extractModelAdi(r.tip_adi, markaAdi);
-      const tipAdiKisa = r.tip_adi.slice(markaAdi.length).trim().slice(model.length).trim() || r.tip_adi;
+      const tipAdiKisa = r.tip_adi.startsWith(markaAdi) ? r.tip_adi.slice(markaAdi.length).trim() : r.tip_adi;
       const prev = veri.prevMonthMap.get(r.tip_kodu);
       const yilOnce = veri.prevYearMap.get(r.tip_kodu);
       const aylikPct = prev ? ((r.deger - prev) / prev) * 100 : null;
@@ -84,9 +84,6 @@ export function SifirEndeksListesi({ veri, markaAdi }: { veri: SifirEndeksVeri; 
       <div className="space-y-4">
         {filtreliGruplar.map((g) => (
           <div key={g.model} className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-            <div className="border-b border-gray-100 bg-gray-50 px-4 py-2.5">
-              <h2 className="text-sm font-semibold text-gray-800">{g.model}</h2>
-            </div>
             <div className="divide-y divide-gray-100">
               {g.tipler.map((tip) => (
                 <div key={tip.tip_kodu} className="flex items-center gap-3 px-4 py-3">
