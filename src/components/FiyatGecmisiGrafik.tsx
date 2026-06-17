@@ -7,7 +7,7 @@ type Birim = "tl" | "usd" | "altin";
 
 function formatDeger(value: number, birim: Birim): string {
   if (birim === "tl")
-    return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value) + " TL";
+    return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);
   if (birim === "usd")
     return "$" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);
   return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value) + " gr";

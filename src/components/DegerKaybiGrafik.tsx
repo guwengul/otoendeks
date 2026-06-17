@@ -1,7 +1,7 @@
 import type { DegerNoktasi } from "@/lib/kasko";
 
 function formatTL(value: number): string {
-  return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value) + " TL";
+  return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);
 }
 
 export function DegerKaybiGrafik({ gecmis }: { gecmis: DegerNoktasi[] }) {

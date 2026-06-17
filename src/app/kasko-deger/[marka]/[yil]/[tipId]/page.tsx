@@ -8,7 +8,7 @@ import { DetayKartlari } from "@/components/DetayKartlari";
 export const revalidate = 86400;
 
 function formatTL(value: number): string {
-  return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value) + " TL";
+  return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);
 }
 function fmt(v: number): string {
   return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(Math.abs(v));
