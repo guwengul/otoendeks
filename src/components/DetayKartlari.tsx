@@ -5,7 +5,6 @@ import type { AylikNoktasi } from "@/lib/kasko";
 
 function isaret(v: number) { return v >= 0 ? "+" : "−"; }
 function fmt(v: number) { return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(Math.abs(v)); }
-// ₺ sembolünü JSX olarak küçük render etmek için ayrı component
 function FmtTL({ v }: { v: number }) {
   return <><span className="text-[0.8em]">₺</span>{fmt(v)}</>;
 }
@@ -22,7 +21,8 @@ type EnflasyonData = {
 type EskimeData = {
   yeni: { tl: number; usd: number; altin: number };
   eski: { tl: number; usd: number; altin: number };
-  modelYili: number;
+  yeniYil: number;
+  eskiYil: number;
 };
 
 function PaylasButonu({ metin }: { metin: string }) {
@@ -54,81 +54,134 @@ export function DetayKartlari({
   enflasyon,
   eskime,
   aracAdi,
+  anaFiyat,
+  anaAyLabel,
 }: {
   enflasyon: EnflasyonData | null;
   eskime: EskimeData | null;
   aracAdi: string;
+  anaFiyat: number | null;
+  anaAyLabel: string;
 }) {
   const kartSayisi = (enflasyon ? 1 : 0) + (eskime ? 1 : 0);
   if (kartSayisi === 0) return null;
 
-  return (
-    <div className={`mb-8 grid grid-cols-1 gap-3 ${kartSayisi === 2 ? "sm:grid-cols-2" : ""}`}>
-
-      {enflasyon && (() => {
+  // Enflasyon kartı metni
+  const enflasyonMetin = enflasyon
+    ? (() => {
         const tlFark = enflasyon.son.deger_tl - enflasyon.ilk.deger_tl;
         const usdFark = enflasyon.son.deger_usd - enflasyon.ilk.deger_usd;
         const altinFark = enflasyon.son.deger_altin_gram - enflasyon.ilk.deger_altin_gram;
-        const metin =
+        return (
           `${aracAdi} — ${enflasyon.ilkAyLabel} → ${enflasyon.sonAyLabel}\n` +
           `TL: ${fmtTLstr(enflasyon.ilk.deger_tl)} → ${fmtTLstr(enflasyon.son.deger_tl)} (${isaret(tlFark)}${fmtTLstr(tlFark)})\n` +
           `USD: $${fmt(enflasyon.ilk.deger_usd)} → $${fmt(enflasyon.son.deger_usd)} (${isaret(usdFark)}$${fmt(usdFark)})\n` +
-          `Altın: ${fmt(enflasyon.ilk.deger_altin_gram)} gr → ${fmt(enflasyon.son.deger_altin_gram)} gr (${isaret(altinFark)}${fmt(altinFark)} gr)\n` +
-          `otoendeks.com`;
-
-        return (
-          <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
-              {enflasyon.ilkAyLabel} → {enflasyon.sonAyLabel}
-            </p>
-            <div className="space-y-2">
-              <KarsilastirmaSatiri label="TL"
-                ilk={<FmtTL v={enflasyon.ilk.deger_tl} />} son={<FmtTL v={enflasyon.son.deger_tl} />}
-                fark={tlFark} farkStr={<>{isaret(tlFark)}<FmtTL v={tlFark} /></>} />
-              <KarsilastirmaSatiri label="USD"
-                ilk={`$${fmt(enflasyon.ilk.deger_usd)}`} son={`$${fmt(enflasyon.son.deger_usd)}`}
-                fark={usdFark} farkStr={`${isaret(usdFark)}$${fmt(usdFark)}`} />
-              <KarsilastirmaSatiri label="Altın"
-                ilk={`${fmt(enflasyon.ilk.deger_altin_gram)} gr`} son={`${fmt(enflasyon.son.deger_altin_gram)} gr`}
-                fark={altinFark} farkStr={`${isaret(altinFark)}${fmt(altinFark)} gr`} />
-            </div>
-            <PaylasButonu metin={metin} />
-          </div>
+          `Altın: ${fmt(enflasyon.ilk.deger_altin_gram)} gr → ${fmt(enflasyon.son.deger_altin_gram)} gr (${isaret(altinFark)}${fmt(altinFark)} gr)`
         );
-      })()}
+      })()
+    : null;
 
-      {eskime && (() => {
+  // Eskime kartı metni
+  const eskimeMetin = eskime
+    ? (() => {
         const tlFark = eskime.eski.tl - eskime.yeni.tl;
         const usdFark = eskime.eski.usd - eskime.yeni.usd;
         const altinFark = eskime.eski.altin - eskime.yeni.altin;
-        const metin =
-          `${aracAdi} — ${eskime.modelYili + 1} → ${eskime.modelYili} model karşılaştırması\n` +
+        return (
+          `${aracAdi} — ${eskime.yeniYil} → ${eskime.eskiYil} model karşılaştırması\n` +
           `TL: ${fmtTLstr(eskime.yeni.tl)} → ${fmtTLstr(eskime.eski.tl)} (${isaret(tlFark)}${fmtTLstr(tlFark)})\n` +
           `USD: $${fmt(eskime.yeni.usd)} → $${fmt(eskime.eski.usd)} (${isaret(usdFark)}$${fmt(usdFark)})\n` +
-          `Altın: ${fmt(eskime.yeni.altin)} gr → ${fmt(eskime.eski.altin)} gr (${isaret(altinFark)}${fmt(altinFark)} gr)\n` +
-          `otoendeks.com`;
-
-        return (
-          <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
-              {eskime.modelYili + 1} Model → {eskime.modelYili} Model Karşılaştırması
-            </p>
-            <div className="space-y-2">
-              <KarsilastirmaSatiri label="TL"
-                ilk={<FmtTL v={eskime.yeni.tl} />} son={<FmtTL v={eskime.eski.tl} />}
-                fark={tlFark} farkStr={<>{isaret(tlFark)}<FmtTL v={tlFark} /></>} />
-              <KarsilastirmaSatiri label="USD"
-                ilk={`$${fmt(eskime.yeni.usd)}`} son={`$${fmt(eskime.eski.usd)}`}
-                fark={usdFark} farkStr={`${isaret(usdFark)}$${fmt(usdFark)}`} />
-              <KarsilastirmaSatiri label="Altın"
-                ilk={`${fmt(eskime.yeni.altin)} gr`} son={`${fmt(eskime.eski.altin)} gr`}
-                fark={altinFark} farkStr={`${isaret(altinFark)}${fmt(altinFark)} gr`} />
-            </div>
-            <PaylasButonu metin={metin} />
-          </div>
+          `Altın: ${fmt(eskime.yeni.altin)} gr → ${fmt(eskime.eski.altin)} gr (${isaret(altinFark)}${fmt(altinFark)} gr)`
         );
-      })()}
+      })()
+    : null;
 
+  const tumunuMetin =
+    `${aracAdi}\n` +
+    (anaFiyat ? `Kasko Değeri: ${fmtTLstr(anaFiyat)} (${anaAyLabel} TSB)\n` : "") +
+    "\n" +
+    (enflasyonMetin ?? "") +
+    (enflasyonMetin && eskimeMetin ? "\n\n" : "") +
+    (eskimeMetin ?? "") +
+    "\notoendeks.com";
+
+  return (
+    <div className="mb-8 space-y-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {/* Sol kart: enflasyon */}
+        {enflasyon ? (() => {
+          const tlFark = enflasyon.son.deger_tl - enflasyon.ilk.deger_tl;
+          const usdFark = enflasyon.son.deger_usd - enflasyon.ilk.deger_usd;
+          const altinFark = enflasyon.son.deger_altin_gram - enflasyon.ilk.deger_altin_gram;
+          return (
+            <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
+              <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
+                {enflasyon.ilkAyLabel} → {enflasyon.sonAyLabel}
+              </p>
+              <div className="space-y-2">
+                <KarsilastirmaSatiri label="TL"
+                  ilk={<FmtTL v={enflasyon.ilk.deger_tl} />} son={<FmtTL v={enflasyon.son.deger_tl} />}
+                  fark={tlFark} farkStr={<>{isaret(tlFark)}<FmtTL v={tlFark} /></>} />
+                <KarsilastirmaSatiri label="USD"
+                  ilk={`$${fmt(enflasyon.ilk.deger_usd)}`} son={`$${fmt(enflasyon.son.deger_usd)}`}
+                  fark={usdFark} farkStr={`${isaret(usdFark)}$${fmt(usdFark)}`} />
+                <KarsilastirmaSatiri label="Altın"
+                  ilk={`${fmt(enflasyon.ilk.deger_altin_gram)} gr`} son={`${fmt(enflasyon.son.deger_altin_gram)} gr`}
+                  fark={altinFark} farkStr={`${isaret(altinFark)}${fmt(altinFark)} gr`} />
+              </div>
+              {enflasyonMetin && <PaylasButonu metin={enflasyonMetin + "\notoendeks.com"} />}
+            </div>
+          );
+        })() : (
+          <div className="rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-4">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-300">
+              Dönem Karşılaştırması
+            </p>
+            <p className="text-xs text-gray-300">Yeterli veri yok</p>
+          </div>
+        )}
+
+        {/* Sağ kart: eskime */}
+        {eskime ? (() => {
+          const tlFark = eskime.eski.tl - eskime.yeni.tl;
+          const usdFark = eskime.eski.usd - eskime.yeni.usd;
+          const altinFark = eskime.eski.altin - eskime.yeni.altin;
+          return (
+            <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
+              <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
+                {eskime.yeniYil} → {eskime.eskiYil} Model Karşılaştırması
+              </p>
+              <div className="space-y-2">
+                <KarsilastirmaSatiri label="TL"
+                  ilk={<FmtTL v={eskime.yeni.tl} />} son={<FmtTL v={eskime.eski.tl} />}
+                  fark={tlFark} farkStr={<>{isaret(tlFark)}<FmtTL v={tlFark} /></>} />
+                <KarsilastirmaSatiri label="USD"
+                  ilk={`$${fmt(eskime.yeni.usd)}`} son={`$${fmt(eskime.eski.usd)}`}
+                  fark={usdFark} farkStr={`${isaret(usdFark)}$${fmt(usdFark)}`} />
+                <KarsilastirmaSatiri label="Altın"
+                  ilk={`${fmt(eskime.yeni.altin)} gr`} son={`${fmt(eskime.eski.altin)} gr`}
+                  fark={altinFark} farkStr={`${isaret(altinFark)}${fmt(altinFark)} gr`} />
+              </div>
+              {eskimeMetin && <PaylasButonu metin={eskimeMetin + "\notoendeks.com"} />}
+            </div>
+          );
+        })() : (
+          <div className="rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-4">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-300">
+              Model Yılı Karşılaştırması
+            </p>
+            <p className="text-xs text-gray-300">Yeterli veri yok</p>
+          </div>
+        )}
+      </div>
+
+      {/* 3 kutuyu birden paylaş */}
+      <button
+        onClick={() => navigator.clipboard.writeText(tumunuMetin)}
+        className="w-full rounded-lg border border-gray-200 bg-white py-2 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-50"
+      >
+        Tümünü Kopyala & Paylaş
+      </button>
     </div>
   );
 }

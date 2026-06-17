@@ -42,15 +42,15 @@ export default async function TipDetayPage({
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
   const birSonrakiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili + 1);
+  const birOncekiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili - 1);
   const sonPiyasa = fiyatGecmisi.length > 0 ? fiyatGecmisi[fiyatGecmisi.length - 1] : null;
 
-  // 12 ay öncesine en yakın snapshot
+  // En fazla 12 ay öncesine en yakın snapshot; daha azıyla da çalışır, tek nokta varsa null
   const enflasyonData = (() => {
     if (fiyatGecmisi.length < 2 || !sonPiyasa) return null;
-    const sonTarih = new Date(sonPiyasa.snapshot_month);
-    const hedef = new Date(sonTarih);
+    const hedef = new Date(sonPiyasa.snapshot_month);
     hedef.setFullYear(hedef.getFullYear() - 1);
-    const adaylar = fiyatGecmisi.slice(0, -1); // son hariç
+    const adaylar = fiyatGecmisi.slice(0, -1);
     const ilk = adaylar.reduce((prev, curr) =>
       Math.abs(new Date(curr.snapshot_month).getTime() - hedef.getTime()) <
       Math.abs(new Date(prev.snapshot_month).getTime() - hedef.getTime()) ? curr : prev
@@ -63,16 +63,28 @@ export default async function TipDetayPage({
     };
   })();
 
-  // Eskime maliyeti: modelYili+1 → modelYili farkı
+  // Eskime: modelYili+1 varsa onu karşılaştır, yoksa modelYili-1 ile karşılaştır
   const eskimeData = (() => {
-    if (!buYilDegeri || !birSonrakiYilDegeri || !sonPiyasa) return null;
+    if (!buYilDegeri || !sonPiyasa) return null;
     const usdKur = sonPiyasa.deger_tl / sonPiyasa.deger_usd;
     const altinKur = sonPiyasa.deger_tl / sonPiyasa.deger_altin_gram;
-    return {
-      yeni: { tl: birSonrakiYilDegeri.deger, usd: Math.round(birSonrakiYilDegeri.deger / usdKur), altin: Math.round(birSonrakiYilDegeri.deger / altinKur) },
-      eski: { tl: buYilDegeri.deger, usd: sonPiyasa.deger_usd, altin: sonPiyasa.deger_altin_gram },
-      modelYili,
-    };
+    if (birSonrakiYilDegeri) {
+      return {
+        yeni: { tl: birSonrakiYilDegeri.deger, usd: Math.round(birSonrakiYilDegeri.deger / usdKur), altin: Math.round(birSonrakiYilDegeri.deger / altinKur) },
+        eski: { tl: buYilDegeri.deger, usd: Math.round(buYilDegeri.deger / usdKur), altin: Math.round(buYilDegeri.deger / altinKur) },
+        yeniYil: modelYili + 1,
+        eskiYil: modelYili,
+      };
+    }
+    if (birOncekiYilDegeri) {
+      return {
+        yeni: { tl: buYilDegeri.deger, usd: Math.round(buYilDegeri.deger / usdKur), altin: Math.round(buYilDegeri.deger / altinKur) },
+        eski: { tl: birOncekiYilDegeri.deger, usd: Math.round(birOncekiYilDegeri.deger / usdKur), altin: Math.round(birOncekiYilDegeri.deger / altinKur) },
+        yeniYil: modelYili,
+        eskiYil: modelYili - 1,
+      };
+    }
+    return null;
   })();
 
   const aracAdi = `${marka.marka_adi} ${detay.tip_adi} ${modelYili}`;
@@ -104,6 +116,8 @@ export default async function TipDetayPage({
         enflasyon={enflasyonData}
         eskime={eskimeData}
         aracAdi={aracAdi}
+        anaFiyat={buYilDegeri?.deger ?? null}
+        anaAyLabel={ayLabel(marka.son_snapshot_month)}
       />
 
       {/* Aylık fiyat geçmişi */}
