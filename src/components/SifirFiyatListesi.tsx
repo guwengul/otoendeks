@@ -61,10 +61,9 @@ export function SifirFiyatListesi({ rows }: { rows: SifirFiyat[] }) {
             </div>
             <div className="divide-y divide-gray-100">
               {versiyonlar.map((r) => {
-                const efektif = r.kampanya_fiyati > 0 ? r.kampanya_fiyati : r.liste_fiyati;
                 const kampanya = r.kampanya_fiyati > 0;
                 return (
-                  <div key={r.id} className="flex items-center gap-3 px-4 py-3">
+                  <div key={r.id} className="flex items-start gap-3 px-4 py-3">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-700 leading-snug">{r.versiyon}</p>
                       <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -75,10 +74,18 @@ export function SifirFiyatListesi({ rows }: { rows: SifirFiyat[] }) {
                         {r.guc && <span className="text-[10px] text-gray-400">{r.guc} hp</span>}
                       </div>
                     </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-semibold text-gray-900">{formatTL(efektif)}</p>
+                    <div className="text-right shrink-0 space-y-0.5">
+                      <div className="flex items-baseline justify-end gap-1.5">
+                        <span className="text-[10px] text-gray-400">Liste</span>
+                        <span className={`text-sm font-medium ${kampanya ? "text-gray-400 line-through" : "text-gray-900 font-semibold"}`}>
+                          {formatTL(r.liste_fiyati)}
+                        </span>
+                      </div>
                       {kampanya && (
-                        <p className="text-[10px] text-gray-400 line-through">{formatTL(r.liste_fiyati)}</p>
+                        <div className="flex items-baseline justify-end gap-1.5">
+                          <span className="text-[10px] text-green-600">Kampanya</span>
+                          <span className="text-sm font-semibold text-green-700">{formatTL(r.kampanya_fiyati)}</span>
+                        </div>
                       )}
                     </div>
                   </div>
