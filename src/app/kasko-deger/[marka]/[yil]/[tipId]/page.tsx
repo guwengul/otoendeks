@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getMarkaBySlug, getTipDetay } from "@/lib/kasko";
+import { getMarkaBySlug, getTipDetay, getFiyatGecmisi } from "@/lib/kasko";
 import { DegerKaybiGrafik } from "@/components/DegerKaybiGrafik";
+import { FiyatGecmisiGrafik } from "@/components/FiyatGecmisiGrafik";
 
 export const revalidate = 86400;
 
@@ -22,7 +23,10 @@ export default async function TipDetayPage({
   const marka = await getMarkaBySlug(markaSlug);
   if (!marka) notFound();
 
-  const detay = await getTipDetay(marka.marka_kodu, tipKodu, marka.son_snapshot_month);
+  const [detay, fiyatGecmisi] = await Promise.all([
+    getTipDetay(marka.marka_kodu, tipKodu, marka.son_snapshot_month),
+    getFiyatGecmisi(marka.marka_kodu, tipKodu, modelYili),
+  ]);
   if (!detay) notFound();
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
@@ -55,6 +59,11 @@ export default async function TipDetayPage({
         ) : (
           <p className="text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
         )}
+      </div>
+
+      <h2 className="mb-3 text-lg font-semibold text-gray-900">Aylık Fiyat Geçmişi ({modelYili} model)</h2>
+      <div className="mb-8 rounded-xl border border-gray-200 p-4">
+        <FiyatGecmisiGrafik gecmis={fiyatGecmisi} />
       </div>
 
       <h2 className="mb-3 text-lg font-semibold text-gray-900">Model Yılına Göre Değer Kaybı</h2>

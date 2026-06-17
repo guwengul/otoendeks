@@ -25,6 +25,11 @@ export type DegerNoktasi = {
   deger: number;
 };
 
+export type AylikNoktasi = {
+  snapshot_month: string;
+  deger: number;
+};
+
 async function restFetch<T>(
   table: string,
   params: Record<string, string>,
@@ -102,6 +107,17 @@ export async function getTiplerForMarkaYil(markaKodu: number, modelYili: number,
     snapshot_month: `eq.${snapshotMonth}`,
     order: "tip_adi.asc",
   });
+}
+
+export async function getFiyatGecmisi(markaKodu: number, tipKodu: number, modelYili: number): Promise<AylikNoktasi[]> {
+  const rows = await fetchAll<{ snapshot_month: string; deger: number }>("kasko_degerleri", {
+    select: "snapshot_month,deger",
+    marka_kodu: `eq.${markaKodu}`,
+    tip_kodu: `eq.${tipKodu}`,
+    model_yili: `eq.${modelYili}`,
+    order: "snapshot_month.asc",
+  });
+  return rows;
 }
 
 export async function getTipDetay(markaKodu: number, tipKodu: number, snapshotMonth: string) {
