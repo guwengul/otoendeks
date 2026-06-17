@@ -127,15 +127,11 @@ export async function getFiyatGecmisi(markaKodu: number, tipKodu: number, modelY
   });
   if (kaskoRows.length === 0) return [];
 
-  // snapshot aylarının kapsadığı tarih aralığında piyasa verilerini çek
-  const ilkAy = kaskoRows[0].snapshot_month.slice(0, 7);   // "2025-01"
-  const sonAy = kaskoRows[kaskoRows.length - 1].snapshot_month.slice(0, 7); // "2026-06"
-  const sonGunSonAy = `${sonAy}-31`; // PostgREST lte ile ay sonunu kapsar
+  const ilkAy = kaskoRows[0].snapshot_month.slice(0, 7); // "2025-01"
 
   const piyasaRows = await fetchAll<PiyasaRow>("piyasa_degerleri", {
     select: "tarih,usd_try,gram_altin_try",
     tarih: `gte.${ilkAy}-01`,
-    "tarih.lte": sonGunSonAy,
     order: "tarih.asc",
   });
 
