@@ -88,19 +88,15 @@ export default async function TipDetayPage({
 
       {/* Ana fiyat kartı */}
       <div className="mb-4 flex flex-col items-center rounded-xl border border-gray-200 bg-gray-50 px-6 py-6 text-center">
-        <p className="mb-3 text-sm font-medium text-gray-500">
-          {marka.marka_adi} {detay.tip_adi} · {modelYili} model · {ayLabel(marka.son_snapshot_month)} TSB
+        <p className="mb-3 text-sm font-medium text-gray-700">
+          {marka.marka_adi} {detay.tip_adi} · {modelYili} model
         </p>
-        {buYilDegeri && sonPiyasa ? (
-          <>
-            <p className="text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
-            <p className="mt-2 text-sm text-gray-500">
-              ${fmt(sonPiyasa.deger_usd)} · {fmt(sonPiyasa.deger_altin_gram)} gram altın
-            </p>
-          </>
+        {buYilDegeri ? (
+          <p className="text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
         ) : (
           <p className="text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
         )}
+        <p className="mt-3 text-xs text-gray-400">{ayLabel(marka.son_snapshot_month)} TSB verisi</p>
       </div>
 
       {/* İki küçük paylaşılabilir kart */}
