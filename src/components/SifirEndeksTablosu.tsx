@@ -77,6 +77,33 @@ export function SifirEndeksTablosu({ rows, markaAdi }: { rows: SifirEndeksRow[];
   }
 
   const sonAy = aylar[aylar.length - 1];
+  const oncekiAy = aylar[aylar.length - 2] ?? null;
+  const ilkAy = aylar[0];
+
+  function degisimBadge(pct: number | null, etiket: string) {
+    if (pct === null) return null;
+    const renk = pct > 0 ? "bg-green-50 text-green-700" : pct < 0 ? "bg-orange-50 text-orange-700" : "bg-gray-100 text-gray-500";
+    const isaret = pct > 0 ? "+" : "";
+    return (
+      <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${renk}`}>
+        {etiket} {isaret}{pct.toFixed(1)}%
+      </span>
+    );
+  }
+
+  function modelDegisim(tipler: NonNullable<ReturnType<typeof filtreliGruplar.get>>) {
+    const ort = (ay: string) => {
+      const fs = tipler.map((t) => t.fiyatlar.get(ay)).filter((v): v is number => v !== undefined);
+      if (!fs.length) return null;
+      return fs.reduce((a, b) => a + b, 0) / fs.length;
+    };
+    const son = ort(sonAy);
+    const once = oncekiAy ? ort(oncekiAy) : null;
+    const ilk = ort(ilkAy);
+    const aylik = son && once ? ((son - once) / once) * 100 : null;
+    const yillik = son && ilk && ilkAy !== sonAy ? ((son - ilk) / ilk) * 100 : null;
+    return { aylik, yillik };
+  }
 
   return (
     <div className="w-full">
@@ -95,10 +122,10 @@ export function SifirEndeksTablosu({ rows, markaAdi }: { rows: SifirEndeksRow[];
       <div className="space-y-2">
         {[...filtreliGruplar.entries()].map(([model, tipler]) => {
           const acik = acikModeller.has(model) || query.trim().length > 0;
-          // Son aydaki fiyat aralığı (min-max)
           const sonFiyatlar = tipler!.map((t) => t.fiyatlar.get(sonAy) ?? 0).filter(Boolean);
           const minF = Math.min(...sonFiyatlar);
           const maxF = Math.max(...sonFiyatlar);
+          const { aylik, yillik } = modelDegisim(tipler!);
 
           return (
             <div key={model} className="rounded-xl border border-gray-200 bg-white overflow-hidden">
@@ -108,13 +135,15 @@ export function SifirEndeksTablosu({ rows, markaAdi }: { rows: SifirEndeksRow[];
                 className="flex w-full items-center justify-between gap-4 border-b border-gray-100 bg-gray-50 px-4 py-3 text-left"
               >
                 <span className="text-sm font-semibold text-gray-800">{model}</span>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {sonFiyatlar.length > 0 && (
                     <span className="text-xs text-gray-500">
                       {minF === maxF ? formatTL(minF) : `${formatTL(minF)} – ${formatTL(maxF)}`}
                     </span>
                   )}
-                  <span className="text-xs text-gray-400">{tipler!.length} versiyon</span>
+                  {degisimBadge(aylik, "Aylık")}
+                  {degisimBadge(yillik, "Yıllık")}
+                  <span className="text-xs text-gray-400">{tipler!.length} ver.</span>
                   <svg
                     viewBox="0 0 20 20"
                     className={`h-4 w-4 text-gray-400 transition-transform ${acik ? "rotate-180" : ""}`}
