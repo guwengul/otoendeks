@@ -5,14 +5,17 @@ import { getMarkaBySlug, getTipDetay, getFiyatGecmisi } from "@/lib/kasko";
 import { DegerKaybiGrafik } from "@/components/DegerKaybiGrafik";
 import { FiyatGecmisiGrafik } from "@/components/FiyatGecmisiGrafik";
 import { DetayKartlari } from "@/components/DetayKartlari";
+import { AnaKartActions } from "@/components/AnaKartActions";
 import { MikroFeedback } from "@/components/MikroFeedback";
-import { FavoriButonu } from "@/components/FavoriButonu";
 
 export const revalidate = 86400;
 
 function formatTL(value: number): string {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);
 }
+function fmtNum(v: number) { return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(Math.abs(v)); }
+function isaret(v: number) { return v >= 0 ? "+" : "−"; }
+function fmtTLs(v: number) { return `₺${fmtNum(v)}`; }
 
 function ayLabel(isoDate: string): string {
   const [year, month] = isoDate.split("-");
@@ -31,7 +34,7 @@ async function getPageData(markaSlug: string, tipSlug: string, modelYili: number
     getFiyatGecmisi(marka.marka_kodu, tipKodu, modelYili),
   ]);
   if (!detay) return null;
-  return { marka, detay, fiyatGecmisi };
+  return { marka, detay, fiyatGecmisi, tipKodu };
 }
 
 function buildOgParams(
@@ -43,7 +46,6 @@ function buildOgParams(
   eskimeData: { yeniYil: number; eskiYil: number; yeni: { tl: number; usd: number; altin: number }; eski: { tl: number; usd: number; altin: number } } | null,
 ): string {
   const sonPiyasa = fiyatGecmisi.length > 0 ? fiyatGecmisi[fiyatGecmisi.length - 1] : null;
-
   const enflasyonExtra: Record<string, string> = {};
   if (sonPiyasa && fiyatGecmisi.length >= 2) {
     const hedef = new Date(sonPiyasa.snapshot_month);
@@ -58,7 +60,6 @@ function buildOgParams(
     enflasyonExtra.enUsdFark = String(sonPiyasa.deger_usd - ilk.deger_usd);
     enflasyonExtra.enAltinFark = String(sonPiyasa.deger_altin_gram - ilk.deger_altin_gram);
   }
-
   const eskimeExtra: Record<string, string> = {};
   if (eskimeData) {
     eskimeExtra.esYeniYil = String(eskimeData.yeniYil);
@@ -67,7 +68,6 @@ function buildOgParams(
     eskimeExtra.esUsdFark = String(eskimeData.eski.usd - eskimeData.yeni.usd);
     eskimeExtra.esAltinFark = String(eskimeData.eski.altin - eskimeData.yeni.altin);
   }
-
   return new URLSearchParams({
     baslik: `${marka.marka_adi} ${tipAdi} · ${modelYili} model`,
     fiyat: fiyat ? formatTL(fiyat) : "",
@@ -86,27 +86,17 @@ export async function generateMetadata({
   const modelYili = Number(yil);
   const data = await getPageData(markaSlug, tipSlug, modelYili);
   if (!data) return {};
-
   const { marka, detay, fiyatGecmisi } = data;
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
   const title = `${marka.marka_adi} ${detay.tip_adi} ${modelYili} Kasko Değeri`;
-
   const ogQuery = buildOgParams(marka, detay.tip_adi, modelYili, buYilDegeri?.deger, fiyatGecmisi, null);
-
   return {
     title,
     description: buYilDegeri
       ? `${marka.marka_adi} ${detay.tip_adi} ${modelYili} model kasko değeri: ${formatTL(buYilDegeri.deger)} (${ayLabel(marka.son_snapshot_month)} TSB)`
       : title,
-    openGraph: {
-      title,
-      images: [{ url: `/api/og?${ogQuery}`, width: 1200, height: 630 }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      images: [`/api/og?${ogQuery}`],
-    },
+    openGraph: { title, images: [{ url: `/api/og?${ogQuery}`, width: 1200, height: 630 }] },
+    twitter: { card: "summary_large_image", title, images: [`/api/og?${ogQuery}`] },
   };
 }
 
@@ -120,7 +110,7 @@ export default async function TipDetayPage({
 
   const data = await getPageData(markaSlug, tipSlug, modelYili);
   if (!data) notFound();
-  const { marka, detay, fiyatGecmisi } = data;
+  const { marka, detay, fiyatGecmisi, tipKodu } = data;
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
   const birSonrakiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili + 1);
@@ -136,12 +126,7 @@ export default async function TipDetayPage({
       Math.abs(new Date(curr.snapshot_month).getTime() - hedef.getTime()) <
       Math.abs(new Date(prev.snapshot_month).getTime() - hedef.getTime()) ? curr : prev
     );
-    return {
-      ilk,
-      son: sonPiyasa,
-      ilkAyLabel: ayLabel(ilk.snapshot_month),
-      sonAyLabel: ayLabel(sonPiyasa.snapshot_month),
-    };
+    return { ilk, son: sonPiyasa, ilkAyLabel: ayLabel(ilk.snapshot_month), sonAyLabel: ayLabel(sonPiyasa.snapshot_month) };
   })();
 
   const eskimeData = (() => {
@@ -152,23 +137,38 @@ export default async function TipDetayPage({
       return {
         yeni: { tl: birSonrakiYilDegeri.deger, usd: Math.round(birSonrakiYilDegeri.deger / usdKur), altin: Math.round(birSonrakiYilDegeri.deger / altinKur) },
         eski: { tl: buYilDegeri.deger, usd: Math.round(buYilDegeri.deger / usdKur), altin: Math.round(buYilDegeri.deger / altinKur) },
-        yeniYil: modelYili + 1,
-        eskiYil: modelYili,
+        yeniYil: modelYili + 1, eskiYil: modelYili,
       };
     }
     if (birOncekiYilDegeri) {
       return {
         yeni: { tl: buYilDegeri.deger, usd: Math.round(buYilDegeri.deger / usdKur), altin: Math.round(buYilDegeri.deger / altinKur) },
         eski: { tl: birOncekiYilDegeri.deger, usd: Math.round(birOncekiYilDegeri.deger / usdKur), altin: Math.round(birOncekiYilDegeri.deger / altinKur) },
-        yeniYil: modelYili,
-        eskiYil: modelYili - 1,
+        yeniYil: modelYili, eskiYil: modelYili - 1,
       };
     }
     return null;
   })();
 
-  const tipKodu = Number(tipSlug.split("-")[0]);
-  const aracAdi = `${marka.marka_adi} ${detay.tip_adi} ${modelYili}`;
+  // Paylaş metni (tüm içerik)
+  const tumunuMetin = [
+    `${marka.marka_adi} ${detay.tip_adi} ${modelYili} model`,
+    buYilDegeri ? `Kasko: ${formatTL(buYilDegeri.deger)} (${ayLabel(marka.son_snapshot_month)} TSB)` : null,
+    enflasyonData ? [
+      `\n${enflasyonData.ilkAyLabel} → ${enflasyonData.sonAyLabel}`,
+      `TL: ${fmtTLs(enflasyonData.ilk.deger_tl)} → ${fmtTLs(enflasyonData.son.deger_tl)} (${isaret(enflasyonData.son.deger_tl - enflasyonData.ilk.deger_tl)}${fmtTLs(Math.abs(enflasyonData.son.deger_tl - enflasyonData.ilk.deger_tl))})`,
+      `USD: $${fmtNum(enflasyonData.ilk.deger_usd)} → $${fmtNum(enflasyonData.son.deger_usd)} (${isaret(enflasyonData.son.deger_usd - enflasyonData.ilk.deger_usd)}$${fmtNum(Math.abs(enflasyonData.son.deger_usd - enflasyonData.ilk.deger_usd))})`,
+      `Altın: ${fmtNum(enflasyonData.ilk.deger_altin_gram)} gr → ${fmtNum(enflasyonData.son.deger_altin_gram)} gr (${isaret(enflasyonData.son.deger_altin_gram - enflasyonData.ilk.deger_altin_gram)}${fmtNum(Math.abs(enflasyonData.son.deger_altin_gram - enflasyonData.ilk.deger_altin_gram))} gr)`,
+    ].join("\n") : null,
+    eskimeData ? [
+      `\n${eskimeData.yeniYil} → ${eskimeData.eskiYil} model`,
+      `TL: ${fmtTLs(eskimeData.yeni.tl)} → ${fmtTLs(eskimeData.eski.tl)} (${isaret(eskimeData.eski.tl - eskimeData.yeni.tl)}${fmtTLs(Math.abs(eskimeData.eski.tl - eskimeData.yeni.tl))})`,
+      `USD: $${fmtNum(eskimeData.yeni.usd)} → $${fmtNum(eskimeData.eski.usd)} (${isaret(eskimeData.eski.usd - eskimeData.yeni.usd)}$${fmtNum(Math.abs(eskimeData.eski.usd - eskimeData.yeni.usd))})`,
+      `Altın: ${fmtNum(eskimeData.yeni.altin)} gr → ${fmtNum(eskimeData.eski.altin)} gr (${isaret(eskimeData.eski.altin - eskimeData.yeni.altin)}${fmtNum(Math.abs(eskimeData.eski.altin - eskimeData.yeni.altin))} gr)`,
+    ].join("\n") : null,
+    "\notoendeks.com",
+  ].filter(Boolean).join("\n");
+
   const ogParams = buildOgParams(marka, detay.tip_adi, modelYili, buYilDegeri?.deger, fiyatGecmisi, eskimeData);
 
   return (
@@ -180,66 +180,56 @@ export default async function TipDetayPage({
         {" / "}<span className="text-gray-900">{detay.tip_adi}</span>
       </nav>
 
-      <div className="mb-4 flex flex-col items-center rounded-xl border border-gray-200 bg-gray-50 px-6 py-6 text-center">
-        <p className="mb-3 text-sm font-medium text-gray-700">
+      {/* Ana fiyat kartı — takip + paylaş butonları içinde */}
+      <div className="mb-3 rounded-xl border border-gray-200 bg-gray-50 px-6 py-6">
+        <p className="mb-3 text-center text-sm font-medium text-gray-700">
           {marka.marka_adi} {detay.tip_adi} · {modelYili} model
         </p>
         {buYilDegeri ? (
-          <p className="text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
+          <p className="text-center text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
         ) : (
-          <p className="text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
+          <p className="text-center text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
         )}
-        <p className="mt-3 text-xs text-gray-400">{ayLabel(marka.son_snapshot_month)} TSB verisi</p>
+        <p className="mt-2 text-center text-xs text-gray-400">{ayLabel(marka.son_snapshot_month)} TSB verisi</p>
+        <AnaKartActions ogParams={ogParams} tumunuMetin={tumunuMetin} />
       </div>
 
-      <DetayKartlari
-        enflasyon={enflasyonData}
-        eskime={eskimeData}
-        aracAdi={aracAdi}
-        anaFiyat={buYilDegeri?.deger ?? null}
-        anaAyLabel={ayLabel(marka.son_snapshot_month)}
-        ogParams={ogParams}
-      />
+      {/* Mikro feedback — ana kartın hemen altında */}
+      <div className="mb-6 border-b border-gray-100 pb-4">
+        <MikroFeedback tipKodu={tipKodu} modelYili={modelYili} />
+      </div>
 
+      {/* İki karşılaştırma kartı */}
+      <DetayKartlari enflasyon={enflasyonData} eskime={eskimeData} />
+
+      {/* Sıfır araç yönlendirme */}
+      <div className="mb-8 flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-5 py-4">
+        <div>
+          <p className="text-sm font-medium text-gray-700">{marka.marka_adi} sıfır araç fiyatları</p>
+          <p className="text-xs text-gray-400">Güncel liste fiyatları ve kampanyalar</p>
+        </div>
+        <Link
+          href={`/sifir-fiyat/${marka.slug}`}
+          className="shrink-0 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+        >
+          Sıfır fiyatları →
+        </Link>
+      </div>
+
+      {/* Grafikler */}
       <h2 className="mb-3 text-base font-semibold text-gray-900">Aylık Fiyat Geçmişi</h2>
       <div className="mb-8 rounded-xl border border-gray-200 p-4">
         <FiyatGecmisiGrafik gecmis={fiyatGecmisi} />
       </div>
 
       <h2 className="mb-3 text-base font-semibold text-gray-900">Model Yılına Göre Değer</h2>
-      <div className="mb-8 rounded-xl border border-gray-200 p-4">
+      <div className="rounded-xl border border-gray-200 p-4">
         <DegerKaybiGrafik
           gecmis={detay.gecmis.filter((d) =>
             d.model_yili >= modelYili - 1 && d.model_yili <= modelYili + 1,
           )}
           modelYili={modelYili}
         />
-      </div>
-
-      {/* Takip et */}
-      <div className="mb-4">
-        <FavoriButonu />
-      </div>
-
-      {/* Sıfır araç yönlendirme */}
-      <div className="mb-8 rounded-xl border border-gray-100 bg-gray-50 px-5 py-4">
-        <p className="mb-1 text-sm font-medium text-gray-700">
-          {marka.marka_adi} sıfır araç fiyatlarına bak
-        </p>
-        <p className="mb-3 text-xs text-gray-400">
-          Güncel liste fiyatları ve kampanyalar
-        </p>
-        <Link
-          href={`/sifir-fiyat/${marka.slug}`}
-          className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
-        >
-          {marka.marka_adi} sıfır fiyatları →
-        </Link>
-      </div>
-
-      {/* Mikro feedback */}
-      <div className="border-t border-gray-100 pt-4">
-        <MikroFeedback tipKodu={tipKodu} modelYili={modelYili} />
       </div>
     </main>
   );
