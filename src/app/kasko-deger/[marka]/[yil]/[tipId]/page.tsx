@@ -32,21 +32,21 @@ export default async function TipDetayPage({
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
   const birSonrakiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili + 1);
-
-  // 1 model yılı değer kaybı: 2019 model - 2018 model = 2018 modelin eskime maliyeti
+  const birOncekiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili - 1);
   const sonPiyasa = fiyatGecmisi.length > 0 ? fiyatGecmisi[fiyatGecmisi.length - 1] : null;
-  const yillikKayip = buYilDegeri && birSonrakiYilDegeri && sonPiyasa
-    ? (() => {
-        const tlFark = birSonrakiYilDegeri.deger - buYilDegeri.deger;
-        const usdKur = sonPiyasa.deger_tl / sonPiyasa.deger_usd;
-        const altinKur = sonPiyasa.deger_tl / sonPiyasa.deger_altin_gram;
-        return {
-          tl: tlFark,
-          usd: Math.round(tlFark / usdKur),
-          altin: Math.round(tlFark / altinKur),
-        };
-      })()
-    : null;
+
+  function kayipHesapla(yeniDeger: number, eskiDeger: number) {
+    if (!sonPiyasa) return null;
+    const fark = yeniDeger - eskiDeger;
+    const usdKur = sonPiyasa.deger_tl / sonPiyasa.deger_usd;
+    const altinKur = sonPiyasa.deger_tl / sonPiyasa.deger_altin_gram;
+    return { tl: fark, usd: Math.round(fark / usdKur), altin: Math.round(fark / altinKur) };
+  }
+
+  const gecenYilKayip = buYilDegeri && birSonrakiYilDegeri
+    ? kayipHesapla(birSonrakiYilDegeri.deger, buYilDegeri.deger) : null;
+  const gelecekYilKayip = buYilDegeri && birOncekiYilDegeri
+    ? kayipHesapla(buYilDegeri.deger, birOncekiYilDegeri.deger) : null;
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
@@ -90,16 +90,23 @@ export default async function TipDetayPage({
       </div>
 
       <h2 className="mb-3 text-lg font-semibold text-gray-900">Model Yılına Göre Değer Kaybı</h2>
-      {yillikKayip && (
-        <p className="mb-3 text-sm text-gray-500">
-          {modelYili} → {modelYili + 1} model yılı farkı yaklaşık{" "}
-          <span className="font-medium text-gray-800">{formatTL(Math.abs(yillikKayip.tl))}</span>
-          {" / "}
-          <span className="font-medium text-gray-800">${Math.abs(yillikKayip.usd).toLocaleString("tr-TR")}</span>
-          {" / "}
-          <span className="font-medium text-gray-800">{Math.abs(yillikKayip.altin)} gram altın</span>
-          {" "}değer kaybı
-        </p>
+      {(gecenYilKayip || gelecekYilKayip) && (
+        <div className="mb-4 grid grid-cols-2 gap-3">
+          {gecenYilKayip && (
+            <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+              <p className="mb-1 text-xs text-gray-500">Geçen yıl kaybı ({modelYili + 1}→{modelYili})</p>
+              <p className="font-semibold text-gray-900">{formatTL(gecenYilKayip.tl)}</p>
+              <p className="text-xs text-gray-500">${gecenYilKayip.usd.toLocaleString("tr-TR")} · {gecenYilKayip.altin} gr altın</p>
+            </div>
+          )}
+          {gelecekYilKayip && (
+            <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+              <p className="mb-1 text-xs text-gray-500">Gelecek yıl kaybı ({modelYili}→{modelYili - 1})</p>
+              <p className="font-semibold text-gray-900">{formatTL(gelecekYilKayip.tl)}</p>
+              <p className="text-xs text-gray-500">${gelecekYilKayip.usd.toLocaleString("tr-TR")} · {gelecekYilKayip.altin} gr altın</p>
+            </div>
+          )}
+        </div>
       )}
       <div className="rounded-xl border border-gray-200 p-4">
         <DegerKaybiGrafik gecmis={detay.gecmis} />
