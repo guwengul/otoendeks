@@ -42,9 +42,7 @@ export default async function SifirEndeksMarkaPage({
           {marka.marka_adi} — {modelYili} Model Güncel Fiyatlar
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          TSB kasko verisi · {marka.son_snapshot_month.slice(0, 7)}
-          {veri.oncekiAy && ` · Aylık: ${veri.oncekiAy.slice(0, 7)} karşılaştırması`}
-          {` · Yıllık: ${modelYili - 1} model ${String(modelYili - 1)}-${marka.son_snapshot_month.slice(5, 7)} karşılaştırması`}
+          {modelYili} model · {marka.son_snapshot_month.slice(0, 7)} verisi
         </p>
       </div>
 
