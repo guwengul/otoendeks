@@ -1,10 +1,15 @@
 "use client";
 
+import React from "react";
 import type { AylikNoktasi } from "@/lib/kasko";
 
 function isaret(v: number) { return v >= 0 ? "+" : "−"; }
 function fmt(v: number) { return new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(Math.abs(v)); }
-function fmtTL(v: number) { return `₺${fmt(v)}`; }
+// ₺ sembolünü JSX olarak küçük render etmek için ayrı component
+function FmtTL({ v }: { v: number }) {
+  return <><span className="text-[0.8em]">₺</span>{fmt(v)}</>;
+}
+function fmtTLstr(v: number) { return `₺${fmt(v)}`; }
 function farkRenk(v: number) { return v >= 0 ? "text-green-600" : "text-orange-500"; }
 
 type EnflasyonData = {
@@ -31,7 +36,7 @@ function PaylasButonu({ metin }: { metin: string }) {
   );
 }
 
-type SatirProps = { label: string; ilk: string; son: string; fark: number; farkStr: string };
+type SatirProps = { label: string; ilk: React.ReactNode; son: React.ReactNode; fark: number; farkStr: React.ReactNode };
 
 function KarsilastirmaSatiri({ label, ilk, son, fark, farkStr }: SatirProps) {
   return (
@@ -63,7 +68,7 @@ export function DetayKartlari({
         const altinFark = enflasyon.son.deger_altin_gram - enflasyon.ilk.deger_altin_gram;
         const metin =
           `${aracAdi} — ${enflasyon.ilkAyLabel} → ${enflasyon.sonAyLabel}\n` +
-          `TL: ${fmtTL(enflasyon.ilk.deger_tl)} → ${fmtTL(enflasyon.son.deger_tl)} (${isaret(tlFark)}${fmtTL(tlFark)})\n` +
+          `TL: ${fmtTLstr(enflasyon.ilk.deger_tl)} → ${fmtTLstr(enflasyon.son.deger_tl)} (${isaret(tlFark)}${fmtTLstr(tlFark)})\n` +
           `USD: $${fmt(enflasyon.ilk.deger_usd)} → $${fmt(enflasyon.son.deger_usd)} (${isaret(usdFark)}$${fmt(usdFark)})\n` +
           `Altın: ${fmt(enflasyon.ilk.deger_altin_gram)} gr → ${fmt(enflasyon.son.deger_altin_gram)} gr (${isaret(altinFark)}${fmt(altinFark)} gr)\n` +
           `otoendeks.com`;
@@ -75,8 +80,8 @@ export function DetayKartlari({
             </p>
             <div className="space-y-2">
               <KarsilastirmaSatiri label="TL"
-                ilk={`${fmtTL(enflasyon.ilk.deger_tl)}`} son={`${fmtTL(enflasyon.son.deger_tl)}`}
-                fark={tlFark} farkStr={`${isaret(tlFark)}${fmtTL(tlFark)}`} />
+                ilk={<FmtTL v={enflasyon.ilk.deger_tl} />} son={<FmtTL v={enflasyon.son.deger_tl} />}
+                fark={tlFark} farkStr={<>{isaret(tlFark)}<FmtTL v={tlFark} /></>} />
               <KarsilastirmaSatiri label="USD"
                 ilk={`$${fmt(enflasyon.ilk.deger_usd)}`} son={`$${fmt(enflasyon.son.deger_usd)}`}
                 fark={usdFark} farkStr={`${isaret(usdFark)}$${fmt(usdFark)}`} />
@@ -95,7 +100,7 @@ export function DetayKartlari({
         const altinFark = eskime.eski.altin - eskime.yeni.altin;
         const metin =
           `${aracAdi} — ${eskime.modelYili + 1} → ${eskime.modelYili} model karşılaştırması\n` +
-          `TL: ${fmtTL(eskime.yeni.tl)} → ${fmtTL(eskime.eski.tl)} (${isaret(tlFark)}${fmtTL(tlFark)})\n` +
+          `TL: ${fmtTLstr(eskime.yeni.tl)} → ${fmtTLstr(eskime.eski.tl)} (${isaret(tlFark)}${fmtTLstr(tlFark)})\n` +
           `USD: $${fmt(eskime.yeni.usd)} → $${fmt(eskime.eski.usd)} (${isaret(usdFark)}$${fmt(usdFark)})\n` +
           `Altın: ${fmt(eskime.yeni.altin)} gr → ${fmt(eskime.eski.altin)} gr (${isaret(altinFark)}${fmt(altinFark)} gr)\n` +
           `otoendeks.com`;
@@ -107,8 +112,8 @@ export function DetayKartlari({
             </p>
             <div className="space-y-2">
               <KarsilastirmaSatiri label="TL"
-                ilk={`${fmtTL(eskime.yeni.tl)}`} son={`${fmtTL(eskime.eski.tl)}`}
-                fark={tlFark} farkStr={`${isaret(tlFark)}${fmtTL(tlFark)}`} />
+                ilk={<FmtTL v={eskime.yeni.tl} />} son={<FmtTL v={eskime.eski.tl} />}
+                fark={tlFark} farkStr={<>{isaret(tlFark)}<FmtTL v={tlFark} /></>} />
               <KarsilastirmaSatiri label="USD"
                 ilk={`$${fmt(eskime.yeni.usd)}`} son={`$${fmt(eskime.eski.usd)}`}
                 fark={usdFark} farkStr={`${isaret(usdFark)}$${fmt(usdFark)}`} />
