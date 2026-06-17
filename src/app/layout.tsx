@@ -36,11 +36,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <header className="border-b border-gray-100 bg-white">
           <nav className="mx-auto flex w-full max-w-5xl items-center gap-6 px-6 py-3">
-            <Link href="/" className="text-sm font-semibold text-gray-900 hover:text-blue-600">
+            <Link href="/" className="text-sm font-medium text-gray-700 hover:text-gray-900">
               Kasko Değeri
             </Link>
-            <Link href="/sifir-endeks" className="text-sm text-gray-500 hover:text-gray-900">
-              Sıfır Endeks
+            <Link href="/sifir-endeks" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+              Sıfır Araç Fiyatları
             </Link>
           </nav>
         </header>
