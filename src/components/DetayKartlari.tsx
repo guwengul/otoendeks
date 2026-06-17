@@ -75,16 +75,22 @@ function IconShare() {
   );
 }
 
-function PaylasIkonlari({ metin }: { metin: string }) {
+function IconImage() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2}>
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+      <circle cx="8.5" cy="8.5" r="1.5"/>
+      <polyline points="21 15 16 10 5 21"/>
+    </svg>
+  );
+}
+
+function PaylasIkonlari({ metin, ogParams }: { metin: string; ogParams: string }) {
   const [kopyalandi, setKopyalandi] = useState(false);
-  const [canNativeShare, setCanNativeShare] = useState(false);
+  const [resimYukleniyor, setResimYukleniyor] = useState(false);
 
-  useEffect(() => {
-    setCanNativeShare(typeof navigator !== "undefined" && "share" in navigator);
-  }, []);
-
-  const encodedText = encodeURIComponent(metin);
   const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+  const encodedText = encodeURIComponent(metin);
   const encodedUrl = encodeURIComponent(pageUrl);
 
   function handleKopyala() {
@@ -93,11 +99,28 @@ function PaylasIkonlari({ metin }: { metin: string }) {
     setTimeout(() => setKopyalandi(false), 2000);
   }
 
-  async function handleNativeShare() {
+  async function handleResimPaylas() {
+    setResimYukleniyor(true);
     try {
-      await navigator.share({ text: metin, url: pageUrl });
+      const ogUrl = `${window.location.origin}/api/og?${ogParams}`;
+      const res = await fetch(ogUrl);
+      const blob = await res.blob();
+      const file = new File([blob], "kasko-degeri.png", { type: "image/png" });
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], url: pageUrl });
+      } else {
+        // Fallback: indir
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "kasko-degeri.png";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
     } catch {
       // kullanıcı iptal etti
+    } finally {
+      setResimYukleniyor(false);
     }
   }
 
@@ -107,7 +130,7 @@ function PaylasIkonlari({ metin }: { metin: string }) {
         href={`https://wa.me/?text=${encodedText}%0A${encodedUrl}`}
         target="_blank" rel="noopener noreferrer"
         className="flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white transition-opacity hover:opacity-80"
-        title="WhatsApp'ta paylaş"
+        title="WhatsApp'ta paylaş (metin)"
       >
         <IconWhatsApp />
       </a>
@@ -122,7 +145,7 @@ function PaylasIkonlari({ metin }: { metin: string }) {
       <button
         onClick={handleKopyala}
         className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
-        title="Kopyala"
+        title="Metni kopyala"
       >
         {kopyalandi ? (
           <svg viewBox="0 0 24 24" className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -130,15 +153,18 @@ function PaylasIkonlari({ metin }: { metin: string }) {
           </svg>
         ) : <IconCopy />}
       </button>
-      {canNativeShare && (
-        <button
-          onClick={handleNativeShare}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
-          title="Paylaş"
-        >
-          <IconShare />
-        </button>
-      )}
+      <button
+        onClick={handleResimPaylas}
+        disabled={resimYukleniyor}
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+        title="Resim olarak paylaş / indir"
+      >
+        {resimYukleniyor ? (
+          <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+        ) : <IconImage />}
+      </button>
     </div>
   );
 }
@@ -149,12 +175,14 @@ export function DetayKartlari({
   aracAdi,
   anaFiyat,
   anaAyLabel,
+  ogParams,
 }: {
   enflasyon: EnflasyonData | null;
   eskime: EskimeData | null;
   aracAdi: string;
   anaFiyat: number | null;
   anaAyLabel: string;
+  ogParams: string;
 }) {
   const kartSayisi = (enflasyon ? 1 : 0) + (eskime ? 1 : 0);
   if (kartSayisi === 0) return null;
@@ -256,7 +284,7 @@ export function DetayKartlari({
         )}
       </div>
 
-      <PaylasIkonlari metin={tumunuMetin} />
+      <PaylasIkonlari metin={tumunuMetin} ogParams={ogParams} />
     </div>
   );
 }

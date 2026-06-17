@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getMarkaBySlug, getTipDetay, getFiyatGecmisi } from "@/lib/kasko";
 import { DegerKaybiGrafik } from "@/components/DegerKaybiGrafik";
 import { FiyatGecmisiGrafik } from "@/components/FiyatGecmisiGrafik";
@@ -18,6 +19,95 @@ function ayLabel(isoDate: string): string {
   return `${aylar[Number(month) - 1]} ${year}`;
 }
 
+async function getPageData(markaSlug: string, tipSlug: string, modelYili: number) {
+  const tipKodu = Number(tipSlug.split("-")[0]);
+  if (!Number.isFinite(tipKodu) || tipKodu === 0) return null;
+  const marka = await getMarkaBySlug(markaSlug);
+  if (!marka) return null;
+  const [detay, fiyatGecmisi] = await Promise.all([
+    getTipDetay(marka.marka_kodu, tipKodu, marka.son_snapshot_month),
+    getFiyatGecmisi(marka.marka_kodu, tipKodu, modelYili),
+  ]);
+  if (!detay) return null;
+  return { marka, detay, fiyatGecmisi };
+}
+
+function buildOgParams(
+  marka: { marka_adi: string; son_snapshot_month: string },
+  tipAdi: string,
+  modelYili: number,
+  fiyat: number | undefined,
+  fiyatGecmisi: { snapshot_month: string; deger_tl: number; deger_usd: number; deger_altin_gram: number }[],
+  eskimeData: { yeniYil: number; eskiYil: number; yeni: { tl: number; usd: number; altin: number }; eski: { tl: number; usd: number; altin: number } } | null,
+): string {
+  const sonPiyasa = fiyatGecmisi.length > 0 ? fiyatGecmisi[fiyatGecmisi.length - 1] : null;
+
+  const enflasyonExtra: Record<string, string> = {};
+  if (sonPiyasa && fiyatGecmisi.length >= 2) {
+    const hedef = new Date(sonPiyasa.snapshot_month);
+    hedef.setFullYear(hedef.getFullYear() - 1);
+    const adaylar = fiyatGecmisi.slice(0, -1);
+    const ilk = adaylar.reduce((p, c) =>
+      Math.abs(new Date(c.snapshot_month).getTime() - hedef.getTime()) <
+      Math.abs(new Date(p.snapshot_month).getTime() - hedef.getTime()) ? c : p);
+    enflasyonExtra.enIlkAy = ayLabel(ilk.snapshot_month);
+    enflasyonExtra.enSonAy = ayLabel(sonPiyasa.snapshot_month);
+    enflasyonExtra.enTlFark = String(sonPiyasa.deger_tl - ilk.deger_tl);
+    enflasyonExtra.enUsdFark = String(sonPiyasa.deger_usd - ilk.deger_usd);
+    enflasyonExtra.enAltinFark = String(sonPiyasa.deger_altin_gram - ilk.deger_altin_gram);
+  }
+
+  const eskimeExtra: Record<string, string> = {};
+  if (eskimeData) {
+    eskimeExtra.esYeniYil = String(eskimeData.yeniYil);
+    eskimeExtra.esEskiYil = String(eskimeData.eskiYil);
+    eskimeExtra.esTlFark = String(eskimeData.eski.tl - eskimeData.yeni.tl);
+    eskimeExtra.esUsdFark = String(eskimeData.eski.usd - eskimeData.yeni.usd);
+    eskimeExtra.esAltinFark = String(eskimeData.eski.altin - eskimeData.yeni.altin);
+  }
+
+  return new URLSearchParams({
+    baslik: `${marka.marka_adi} ${tipAdi} · ${modelYili} model`,
+    fiyat: fiyat ? formatTL(fiyat) : "",
+    donem: ayLabel(marka.son_snapshot_month),
+    ...enflasyonExtra,
+    ...eskimeExtra,
+  }).toString();
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ marka: string; yil: string; tipSlug: string }>;
+}): Promise<Metadata> {
+  const { marka: markaSlug, yil, tipSlug } = await params;
+  const modelYili = Number(yil);
+  const data = await getPageData(markaSlug, tipSlug, modelYili);
+  if (!data) return {};
+
+  const { marka, detay, fiyatGecmisi } = data;
+  const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
+  const title = `${marka.marka_adi} ${detay.tip_adi} ${modelYili} Kasko Değeri`;
+
+  const ogQuery = buildOgParams(marka, detay.tip_adi, modelYili, buYilDegeri?.deger, fiyatGecmisi, null);
+
+  return {
+    title,
+    description: buYilDegeri
+      ? `${marka.marka_adi} ${detay.tip_adi} ${modelYili} model kasko değeri: ${formatTL(buYilDegeri.deger)} (${ayLabel(marka.son_snapshot_month)} TSB)`
+      : title,
+    openGraph: {
+      title,
+      images: [{ url: `/api/og?${ogQuery}`, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      images: [`/api/og?${ogQuery}`],
+    },
+  };
+}
+
 export default async function TipDetayPage({
   params,
 }: {
@@ -25,18 +115,10 @@ export default async function TipDetayPage({
 }) {
   const { marka: markaSlug, yil, tipSlug } = await params;
   const modelYili = Number(yil);
-  // slug format: "{tipKodu}-{slug-of-tip-adi}"
-  const tipKodu = Number(tipSlug.split("-")[0]);
-  if (!Number.isFinite(modelYili) || !Number.isFinite(tipKodu) || tipKodu === 0) notFound();
 
-  const marka = await getMarkaBySlug(markaSlug);
-  if (!marka) notFound();
-
-  const [detay, fiyatGecmisi] = await Promise.all([
-    getTipDetay(marka.marka_kodu, tipKodu, marka.son_snapshot_month),
-    getFiyatGecmisi(marka.marka_kodu, tipKodu, modelYili),
-  ]);
-  if (!detay) notFound();
+  const data = await getPageData(markaSlug, tipSlug, modelYili);
+  if (!data) notFound();
+  const { marka, detay, fiyatGecmisi } = data;
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
   const birSonrakiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili + 1);
@@ -84,6 +166,7 @@ export default async function TipDetayPage({
   })();
 
   const aracAdi = `${marka.marka_adi} ${detay.tip_adi} ${modelYili}`;
+  const ogParams = buildOgParams(marka, detay.tip_adi, modelYili, buYilDegeri?.deger, fiyatGecmisi, eskimeData);
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
@@ -94,7 +177,6 @@ export default async function TipDetayPage({
         {" / "}<span className="text-gray-900">{detay.tip_adi}</span>
       </nav>
 
-      {/* Ana fiyat kartı */}
       <div className="mb-4 flex flex-col items-center rounded-xl border border-gray-200 bg-gray-50 px-6 py-6 text-center">
         <p className="mb-3 text-sm font-medium text-gray-700">
           {marka.marka_adi} {detay.tip_adi} · {modelYili} model
@@ -113,6 +195,7 @@ export default async function TipDetayPage({
         aracAdi={aracAdi}
         anaFiyat={buYilDegeri?.deger ?? null}
         anaAyLabel={ayLabel(marka.son_snapshot_month)}
+        ogParams={ogParams}
       />
 
       <h2 className="mb-3 text-base font-semibold text-gray-900">Aylık Fiyat Geçmişi</h2>
