@@ -25,36 +25,35 @@ export function DegerKaybiGrafik({ gecmis }: { gecmis: DegerNoktasi[] }) {
     return { x, y, ...d };
   });
 
-  const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-
   return (
     <svg viewBox={`0 0 ${width} ${height}`} className="w-full" role="img" aria-label="Değer kaybı grafiği">
-      <line
-        x1={padding.left}
-        y1={padding.top + innerHeight}
-        x2={width - padding.right}
-        y2={padding.top + innerHeight}
-        stroke="#d1d5db"
-      />
-      <line x1={padding.left} y1={padding.top} x2={padding.left} y2={padding.top + innerHeight} stroke="#d1d5db" />
+      <line x1={padding.left} y1={padding.top + innerHeight} x2={width - padding.right} y2={padding.top + innerHeight} stroke="#e5e7eb" />
+      <line x1={padding.left} y1={padding.top} x2={padding.left} y2={padding.top + innerHeight} stroke="#e5e7eb" />
 
-      <text x={padding.left - 8} y={padding.top + 4} textAnchor="end" fontSize="10" fill="#6b7280">
-        {formatTL(maxDeger)}
-      </text>
-      <text x={padding.left - 8} y={padding.top + innerHeight} textAnchor="end" fontSize="10" fill="#6b7280">
-        {formatTL(minDeger)}
-      </text>
+      <text x={padding.left - 8} y={padding.top + 4} textAnchor="end" fontSize="10" fill="#9ca3af">{formatTL(maxDeger)}</text>
+      <text x={padding.left - 8} y={padding.top + innerHeight} textAnchor="end" fontSize="10" fill="#9ca3af">{formatTL(minDeger)}</text>
 
-      <path d={pathD} fill="none" stroke="#2563eb" strokeWidth={2} />
+      {/* Segmentleri ayrı ayrı renklendir */}
+      {points.slice(1).map((p, i) => {
+        const prev = points[i];
+        const artiyor = p.deger > prev.deger;
+        return (
+          <line key={i} x1={prev.x} y1={prev.y} x2={p.x} y2={p.y}
+            stroke={artiyor ? "#16a34a" : "#f97316"} strokeWidth={2.5} />
+        );
+      })}
 
-      {points.map((p) => (
-        <g key={p.model_yili}>
-          <circle cx={p.x} cy={p.y} r={3.5} fill="#2563eb" />
-          <text x={p.x} y={height - 8} textAnchor="middle" fontSize="10" fill="#6b7280">
-            {p.model_yili}
-          </text>
-        </g>
-      ))}
+      {points.map((p, i) => {
+        const renk = i === 0
+          ? "#9ca3af"
+          : p.deger > points[i - 1].deger ? "#16a34a" : "#f97316";
+        return (
+          <g key={p.model_yili}>
+            <circle cx={p.x} cy={p.y} r={4} fill={renk} />
+            <text x={p.x} y={height - 8} textAnchor="middle" fontSize="10" fill="#6b7280">{p.model_yili}</text>
+          </g>
+        );
+      })}
     </svg>
   );
 }

@@ -30,22 +30,16 @@ function PaylasButonu({ metin }: { metin: string }) {
   );
 }
 
-type SatirProps = {
-  label: string;
-  ilk: string;
-  son: string;
-  fark: number;
-  farkStr: string;
-};
+type SatirProps = { label: string; ilk: string; son: string; fark: number; farkStr: string };
 
 function KarsilastirmaSatiri({ label, ilk, son, fark, farkStr }: SatirProps) {
   return (
-    <div className="grid grid-cols-[2.5rem_1fr_0.5rem_1fr_auto] items-center gap-x-1 text-sm">
-      <span className="text-xs text-gray-400">{label}</span>
-      <span className="text-right text-gray-500">{ilk}</span>
-      <span className="text-center text-gray-300">→</span>
-      <span className="text-right font-medium text-gray-800">{son}</span>
-      <span className={`pl-2 text-right text-xs font-semibold ${farkRenk(fark)}`}>{farkStr}</span>
+    <div className="flex items-center gap-1 font-mono text-sm tabular-nums">
+      <span className="w-8 shrink-0 font-sans text-xs text-gray-400">{label}</span>
+      <span className="flex-1 text-right text-gray-500">{ilk}</span>
+      <span className="shrink-0 px-1 text-gray-300">→</span>
+      <span className="flex-1 text-right font-medium text-gray-800">{son}</span>
+      <span className={`w-24 shrink-0 text-right text-xs font-semibold ${farkRenk(fark)}`}>{farkStr}</span>
     </div>
   );
 }
@@ -78,7 +72,7 @@ export function DetayKartlari({
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
               {enflasyon.ilkAyLabel} → {enflasyon.sonAyLabel}
             </p>
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               <KarsilastirmaSatiri label="TL"
                 ilk={`${fmt(enflasyon.ilk.deger_tl)} TL`} son={`${fmt(enflasyon.son.deger_tl)} TL`}
                 fark={tlFark} farkStr={`${isaret(tlFark)}${fmt(tlFark)} TL`} />
@@ -99,8 +93,7 @@ export function DetayKartlari({
         const usdFark = eskime.eski.usd - eskime.yeni.usd;
         const altinFark = eskime.eski.altin - eskime.yeni.altin;
         const metin =
-          `${aracAdi} — 1 yıl eskimesinin bedeli\n` +
-          `${eskime.modelYili + 1} → ${eskime.modelYili} model\n` +
+          `${aracAdi} — ${eskime.modelYili + 1} → ${eskime.modelYili} model karşılaştırması\n` +
           `TL: ${fmt(eskime.yeni.tl)} → ${fmt(eskime.eski.tl)} (${isaret(tlFark)}${fmt(tlFark)})\n` +
           `USD: $${fmt(eskime.yeni.usd)} → $${fmt(eskime.eski.usd)} (${isaret(usdFark)}$${fmt(usdFark)})\n` +
           `Altın: ${fmt(eskime.yeni.altin)} gr → ${fmt(eskime.eski.altin)} gr (${isaret(altinFark)}${fmt(altinFark)} gr)\n` +
@@ -109,9 +102,9 @@ export function DetayKartlari({
         return (
           <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-400">
-              {eskime.modelYili + 1} → {eskime.modelYili} model
+              {eskime.modelYili + 1} Model → {eskime.modelYili} Model Karşılaştırması
             </p>
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               <KarsilastirmaSatiri label="TL"
                 ilk={`${fmt(eskime.yeni.tl)} TL`} son={`${fmt(eskime.eski.tl)} TL`}
                 fark={tlFark} farkStr={`${isaret(tlFark)}${fmt(tlFark)} TL`} />

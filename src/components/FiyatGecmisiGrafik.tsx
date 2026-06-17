@@ -19,7 +19,7 @@ function formatAy(isoDate: string): string {
   return `${aylar[Number(month) - 1]} ${year.slice(2)}`;
 }
 
-function Grafik({ noktalar, birim }: { noktalar: number[]; birim: Birim }) {
+function Grafik({ noktalar, birim, artiyor }: { noktalar: number[]; birim: Birim; artiyor: boolean }) {
   const width = 600;
   const height = 200;
   const pad = { top: 20, right: 20, bottom: 28, left: 72 };
@@ -45,8 +45,8 @@ function Grafik({ noktalar, birim }: { noktalar: number[]; birim: Birim }) {
       <line x1={pad.left} y1={pad.top} x2={pad.left} y2={pad.top + ih} stroke="#e5e7eb" />
       <text x={pad.left - 6} y={pad.top + 4} textAnchor="end" fontSize="10" fill="#9ca3af">{formatDeger(max, birim)}</text>
       <text x={pad.left - 6} y={pad.top + ih} textAnchor="end" fontSize="10" fill="#9ca3af">{formatDeger(min, birim)}</text>
-      <path d={pathD} fill="none" stroke="#2563eb" strokeWidth={2} />
-      {pts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={3} fill="#2563eb" />)}
+      <path d={pathD} fill="none" stroke={artiyor ? "#16a34a" : "#f97316"} strokeWidth={2} />
+      {pts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={3} fill={artiyor ? "#16a34a" : "#f97316"} />)}
     </svg>
   );
 }
@@ -98,7 +98,7 @@ export function FiyatGecmisiGrafik({ gecmis }: { gecmis: AylikNoktasi[] }) {
             >
               <span className="text-xs text-gray-500">{t.label}</span>
               {d && (
-                <span className={`text-sm font-semibold ${d.pozitif ? "text-red-500" : "text-green-600"}`}>
+                <span className={`text-sm font-semibold ${d.pozitif ? "text-green-600" : "text-orange-500"}`}>
                   {d.label}
                 </span>
               )}
@@ -109,7 +109,7 @@ export function FiyatGecmisiGrafik({ gecmis }: { gecmis: AylikNoktasi[] }) {
           {formatAy(ilk.snapshot_month)} – {formatAy(son.snapshot_month)}
         </span>
       </div>
-      <Grafik noktalar={noktalar[birim]} birim={birim} />
+      <Grafik noktalar={noktalar[birim]} birim={birim} artiyor={degisimler[birim]?.pozitif ?? true} />
     </div>
   );
 }
