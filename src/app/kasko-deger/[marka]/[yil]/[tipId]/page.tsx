@@ -109,7 +109,11 @@ export default async function TipDetayPage({
         </div>
       )}
       <div className="rounded-xl border border-gray-200 p-4">
-        <DegerKaybiGrafik gecmis={detay.gecmis} />
+        <DegerKaybiGrafik
+          gecmis={detay.gecmis.filter((d) =>
+            d.model_yili >= modelYili - 1 && d.model_yili <= modelYili + 1,
+          )}
+        />
       </div>
     </main>
   );
