@@ -164,7 +164,7 @@ export function SifirEndeksListesi({
               onClick={() => toggleGrup(g.model)}
               className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
             >
-              <span className="text-sm font-semibold text-gray-900">{g.model}</span>
+              <span className="text-sm font-semibold text-gray-900">{markaAdi} {g.model}</span>
               <span className="flex items-center gap-2 text-xs text-gray-400">
                 {g.tipler.length} versiyon
                 <svg className={`w-4 h-4 transition-transform ${acik ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
