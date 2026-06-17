@@ -191,45 +191,36 @@ export function SifirEndeksListesi({
 
             {acik && <div className="divide-y divide-gray-100 border-t border-gray-100">
               {g.tipler.map((tip) => (
-                <div key={tip.tip_kodu} className="px-4 py-3">
-                  {/* Araç adı */}
-                  <p className="text-sm font-medium text-gray-900 leading-snug mb-3">{tip.tipAdi}</p>
-
-                  {/* Fiyat kolonları */}
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    {/* TSB Değeri */}
-                    <div>
-                      <p className="text-gray-400 mb-0.5">TSB Değeri</p>
-                      <p className="text-sm font-semibold text-gray-900">{formatTL(tip.deger)}</p>
-                    </div>
-
-                    {/* Önceki Ay */}
-                    <div>
-                      <p className="text-gray-400 mb-0.5">{oncekiAyAdi ?? "Önceki Ay"}</p>
-                      <p className="text-sm font-medium text-gray-700">
-                        {tip.oncekiAy ? formatTL(tip.oncekiAy) : <span className="text-gray-300">—</span>}
-                      </p>
-                      <DegisimBadge pct={tip.aylikPct} />
-                    </div>
-
-                    {/* Önceki Yıl */}
-                    <div>
-                      <p className="text-gray-400 mb-0.5">{oncekiYilAdi}</p>
-                      <p className="text-sm font-medium text-gray-700">
-                        {tip.oncekiYil ? formatTL(tip.oncekiYil) : <span className="text-gray-300">—</span>}
-                      </p>
-                      <DegisimBadge pct={tip.yillikPct} />
-                    </div>
-                  </div>
-
-                  {/* Bayi fiyatı CTA */}
-                  <div className="mt-3 flex justify-end">
+                <div key={tip.tip_kodu} className="flex items-start justify-between gap-4 px-4 py-3">
+                  {/* Sol: araç adı + CTA */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 leading-snug">{tip.tipAdi}</p>
                     <button
                       onClick={() => setModalAcik(true)}
-                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                      className="mt-1.5 text-xs text-blue-600 hover:text-blue-800 font-medium"
                     >
                       Güncel bayi fiyatı →
                     </button>
+                  </div>
+
+                  {/* Sağ: fiyatlar */}
+                  <div className="shrink-0 text-right">
+                    {/* Güncel fiyat — büyük */}
+                    <p className="text-base font-bold text-gray-900 tabular-nums">{formatTL(tip.deger)}</p>
+                    {/* Önceki ay */}
+                    {tip.oncekiAy && (
+                      <p className="mt-1 text-xs text-gray-400 tabular-nums">
+                        {oncekiAyAdi}: {formatTL(tip.oncekiAy)}{" "}
+                        <DegisimBadge pct={tip.aylikPct} />
+                      </p>
+                    )}
+                    {/* Önceki yıl */}
+                    {tip.oncekiYil && (
+                      <p className="text-xs text-gray-400 tabular-nums">
+                        {oncekiYilAdi}: {formatTL(tip.oncekiYil)}{" "}
+                        <DegisimBadge pct={tip.yillikPct} />
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}

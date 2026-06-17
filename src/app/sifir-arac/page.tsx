@@ -23,7 +23,7 @@ export default async function SifirEndeksPage() {
         items={sirali.map((m) => ({
           key: String(m.marka_kodu),
           label: m.marka_adi,
-          href: `/sifir-endeks/${m.slug}`,
+          href: `/sifir-arac/${m.slug}`,
         }))}
       />
     </main>

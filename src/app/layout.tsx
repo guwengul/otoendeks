@@ -39,7 +39,7 @@ export default function RootLayout({
             <Link href="/" className="text-sm font-medium text-gray-700 hover:text-gray-900">
               Kasko Değeri
             </Link>
-            <Link href="/sifir-endeks" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+            <Link href="/sifir-arac" className="text-sm font-medium text-gray-700 hover:text-gray-900">
               Sıfır Araç Fiyatları
             </Link>
           </nav>
