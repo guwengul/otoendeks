@@ -32,8 +32,6 @@ export default async function SifirEndeksMarkaPage({
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
       <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/" className="hover:underline">Kasko Değeri</Link>
-        {" / "}
         <Link href="/sifir-endeks" className="hover:underline">Sıfır Araç Fiyatları</Link>
         {" / "}
         <span className="text-gray-900">{marka.marka_adi}</span>
