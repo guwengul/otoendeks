@@ -40,7 +40,10 @@ export default async function YilPage({
             <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={64} height={40} className="h-full w-full object-contain opacity-60" />
           </div>
         ) : null; })()}
-        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">{marka.marka_adi} {modelYili}</h1>
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">{marka.marka_adi} · {modelYili} Model</h1>
+          <p className="mt-1 text-sm text-slate-500">Aracınızın tipini seçin.</p>
+        </div>
       </div>
       <AramaListesi
         placeholder="Tip ara..."

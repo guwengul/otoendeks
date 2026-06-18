@@ -19,7 +19,8 @@ export default async function MarkaPage({ params }: { params: Promise<{ marka: s
         </Link>{" "}
         / <span className="text-slate-900">{marka.marka_adi}</span>
       </nav>
-      <h1 className="mb-6 text-2xl font-semibold text-slate-900">{marka.marka_adi} — Model Yılı</h1>
+      <h1 className="mb-2 text-2xl font-semibold text-slate-900">{marka.marka_adi}</h1>
+      <p className="mb-6 text-sm text-slate-500">Kasko değerini görmek istediğiniz model yılını seçin.</p>
       <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
         {yillar.map((yil) => (
           <li key={yil}>
