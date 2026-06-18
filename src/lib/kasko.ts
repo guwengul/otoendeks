@@ -187,12 +187,16 @@ export async function getFiyatGecmisi(markaKodu: number, tipKodu: number, modelY
 
 type RawKaskoRow = { tip_kodu: number; tip_adi: string; deger: number };
 
+type AracOzellik = { tip_kodu: number; arac_tipi: string | null; model_adi: string | null };
+
 export type SifirEndeksVeri = {
   sonAy: string;
   oncekiAy: string | null;
   current: RawKaskoRow[];
   prevMonthMap: Map<number, number>;
   prevYearMap: Map<number, number>;
+  aracTipiMap: Map<number, string>;
+  modelAdiMap: Map<number, string>;
 };
 
 export async function getSifirEndeksVeri(
@@ -210,7 +214,7 @@ export async function getSifirEndeksVeri(
   const yilOncesiAy = String(modelYili - 1) + sonAy.slice(4);
   const yilOncesiModel = modelYili - 1;
 
-  const [current, prevMonth, prevYear] = await Promise.all([
+  const [current, prevMonth, prevYear, ozellikler] = await Promise.all([
     fetchAll<RawKaskoRow>("kasko_degerleri", {
       select: "tip_kodu,tip_adi,deger",
       marka_kodu: `eq.${markaKodu}`,
@@ -232,6 +236,10 @@ export async function getSifirEndeksVeri(
       snapshot_month: `eq.${yilOncesiAy}`,
       order: "tip_adi.asc",
     }),
+    fetchAll<AracOzellik>("arac_ozellikleri", {
+      select: "tip_kodu,arac_tipi,model_adi",
+      marka_kodu: `eq.${markaKodu}`,
+    }),
   ]);
 
   return {
@@ -240,6 +248,8 @@ export async function getSifirEndeksVeri(
     current,
     prevMonthMap: new Map(prevMonth.map((r) => [r.tip_kodu, r.deger])),
     prevYearMap: new Map(prevYear.map((r) => [r.tip_kodu, r.deger])),
+    aracTipiMap: new Map(ozellikler.filter((r) => r.arac_tipi).map((r) => [r.tip_kodu, r.arac_tipi!])),
+    modelAdiMap: new Map(ozellikler.filter((r) => r.model_adi).map((r) => [r.tip_kodu, r.model_adi!])),
   };
 }
 

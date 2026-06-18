@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { SifirEndeksVeri } from "@/lib/kasko";
-import { extractModelAdi, isTicari } from "@/lib/kasko";
+import { extractModelAdi } from "@/lib/kasko";
 
 function formatTL(v: number) {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(v);
@@ -95,7 +95,6 @@ export function SifirEndeksListesi({
   const [query, setQuery] = useState("");
   const [modalAcik, setModalAcik] = useState(false);
   const [acikGruplar, setAcikGruplar] = useState<Set<string>>(new Set());
-  const [filtre, setFiltre] = useState<"binek" | "ticari">("binek");
 
   function toggleGrup(model: string) {
     setAcikGruplar((prev) => {
@@ -108,11 +107,8 @@ export function SifirEndeksListesi({
 
   const gruplar = useMemo((): ModelGrup[] => {
     const modelMap = new Map<string, TipRow[]>();
-    const kaynak = veri.current.filter((r) =>
-      filtre === "ticari" ? isTicari(r.tip_adi) : !isTicari(r.tip_adi),
-    );
-    for (const r of kaynak) {
-      const model = extractModelAdi(r.tip_adi, markaAdi);
+    for (const r of veri.current) {
+      const model = veri.modelAdiMap.get(r.tip_kodu) ?? extractModelAdi(r.tip_adi, markaAdi);
       const tipAdi = r.tip_adi.startsWith(markaAdi) ? r.tip_adi.slice(markaAdi.length).trim() : r.tip_adi;
       const prev = veri.prevMonthMap.get(r.tip_kodu) ?? null;
       const yilOnce = veri.prevYearMap.get(r.tip_kodu) ?? null;
@@ -124,7 +120,7 @@ export function SifirEndeksListesi({
       modelMap.set(model, list);
     }
     return [...modelMap.entries()].map(([model, tipler]) => ({ model, tipler }));
-  }, [veri, markaAdi, filtre]);
+  }, [veri, markaAdi]);
 
   const filtreliGruplar = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("tr");
@@ -146,18 +142,6 @@ export function SifirEndeksListesi({
 
   return (
     <div className="w-full">
-      <div className="mb-4 flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 w-fit">
-        {(["binek", "ticari"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => { setFiltre(f); setAcikGruplar(new Set()); setQuery(""); }}
-            className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${filtre === f ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
-          >
-            {f === "binek" ? "Binek" : "Ticari"}
-          </button>
-        ))}
-      </div>
-
       <input
         type="text"
         value={query}
