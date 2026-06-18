@@ -5,7 +5,7 @@ import Link from "next/link";
 import { aracSil, tarihKaydet, fiyatBildirimiGuncelle } from "@/app/actions/garaj";
 import { slugify } from "@/lib/slug";
 
-const BOSH_TARIH = BOSH_TARIH;
+const BOSH_TARIH = "1970-01-01";
 
 type AracTarih = { id: string; tip: string; tarih: string };
 type Arac = {
