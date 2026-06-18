@@ -38,7 +38,7 @@ export async function izlemeEkle(data: {
   const { error } = await supabase
     .from("izleme_listesi")
     .upsert(
-      { ...data, user_id: user.id, usd_kayit, altin_kayit },
+      { ...data, user_id: user.id, usd_kayit, altin_kayit, fiyat_bildirimi: false },
       { onConflict: "user_id,marka_kodu,tip_kodu" }
     );
 
