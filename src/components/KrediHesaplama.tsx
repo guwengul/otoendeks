@@ -3,7 +3,15 @@
 import { useState, useMemo } from "react";
 import { aylikTaksit, type KrediTipi } from "@/lib/kredi";
 
-const VADELER = [6, 12, 18, 24, 36, 48];
+const VADELER_TASIT   = [6, 12, 18, 24, 36, 48, 60];
+const VADELER_IHTIYAC = [6, 12, 18, 24, 36];
+
+// BDDK ihtiyaç kredisi vade sınırları (tutar bazlı)
+function ihtiyacMaxVade(tutar: number): number {
+  if (tutar > 250000) return 12;
+  if (tutar > 125000) return 24;
+  return 36;
+}
 
 function fmt(v: number) {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(v);
@@ -39,15 +47,18 @@ export function KrediHesaplama() {
   }
 
   const sonuc = useMemo(() => {
-    const taksit = aylikTaksit(tutar, aylikFaiz, vade);
-    const toplam = taksit * vade;
+    const maxV = tip === "ihtiyac" ? ihtiyacMaxVade(tutar) : 60;
+    const v = Math.min(vade, maxV);
+    const taksit = aylikTaksit(tutar, aylikFaiz, v);
+    const toplam = taksit * v;
     const faizToplam = toplam - tutar;
     const yillikFaiz = aylikFaiz * 12;
-    return { taksit, toplam, faizToplam, yillikFaiz };
-  }, [tutar, aylikFaiz, vade]);
+    return { taksit, toplam, faizToplam, yillikFaiz, efektifVade: v };
+  }, [tutar, aylikFaiz, vade, tip]);
 
-  const maxVade = tip === "ihtiyac" ? 36 : 48;
-  const vadeler = VADELER.filter(v => v <= maxVade);
+  const maxVade = tip === "ihtiyac" ? ihtiyacMaxVade(tutar) : 60;
+  const vadeler = (tip === "ihtiyac" ? VADELER_IHTIYAC : VADELER_TASIT).filter(v => v <= maxVade);
+  const gecerliVade = vade > maxVade ? maxVade : vade;
 
   return (
     <div className="w-full max-w-xl">
@@ -95,13 +106,20 @@ export function KrediHesaplama() {
 
         {/* Vade */}
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">Vade</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-sm font-medium text-slate-700">Vade</label>
+            {tip === "ihtiyac" && maxVade < 36 && (
+              <span className="text-[11px] text-amber-600 font-medium">
+                BDDK: bu tutar için maks. {maxVade} ay
+              </span>
+            )}
+          </div>
           <div className="flex flex-wrap gap-2">
             {vadeler.map((v) => (
               <button
                 key={v}
                 onClick={() => setVade(v)}
-                className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${vade === v ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-700 hover:border-slate-300"}`}
+                className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${gecerliVade === v ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-700 hover:border-slate-300"}`}
               >
                 {v} ay
               </button>
@@ -150,7 +168,7 @@ export function KrediHesaplama() {
           <Satir label="Toplam ödeme" deger={fmt(Math.round(sonuc.toplam))} />
           <Satir label="Toplam faiz" deger={fmt(Math.round(sonuc.faizToplam))} />
           <Satir label="Yıllık faiz oranı" deger={`%${sonuc.yillikFaiz.toFixed(1)}`} />
-          <Satir label="Vade" deger={`${vade} ay`} />
+          <Satir label="Vade" deger={`${sonuc.efektifVade} ay`} />
         </div>
       </div>
     </div>
