@@ -8,8 +8,13 @@ export async function kayitOl(formData: FormData) {
   const supabase = await createClient();
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const adSoyad = (formData.get("ad_soyad") as string | null)?.trim() || undefined;
 
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { full_name: adSoyad } },
+  });
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");

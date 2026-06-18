@@ -14,7 +14,7 @@ export default function KayitPage() {
           </Link>
         </p>
       </div>
-      <AuthForm action={kayitOl} submitLabel="Kayıt ol" />
+      <AuthForm action={kayitOl} submitLabel="Kayıt ol" adSoyadAl />
     </main>
   );
 }
