@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMarkaBySlug, getSifirEndeksVeri } from "@/lib/kasko";
 import { SifirEndeksListesi } from "@/components/SifirEndeksListesi";
