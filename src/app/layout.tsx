@@ -87,6 +87,7 @@ export default async function RootLayout({
                   <ul className="space-y-1.5">
                     <li><span className="text-sm text-slate-400">Kaynak: TSB</span></li>
                     <li><span className="text-sm text-slate-400">Aylık güncellenir</span></li>
+                    <li><Link href="/gizlilik" className="text-sm text-slate-500 hover:text-indigo-600">Gizlilik Politikası</Link></li>
                   </ul>
                 </div>
               </div>

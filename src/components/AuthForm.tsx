@@ -99,6 +99,15 @@ export function AuthForm({
       >
         {pending ? "Bekleniyor..." : submitLabel}
       </button>
+      {adSoyadAl && (
+        <p className="text-center text-xs text-slate-400">
+          Kayıt olarak{" "}
+          <a href="/gizlilik" className="text-indigo-500 hover:underline">
+            Gizlilik Politikası
+          </a>
+          &apos;nı okuduğunu kabul ediyorsun.
+        </p>
+      )}
     </form>
   );
 }
