@@ -50,6 +50,9 @@ export default async function RootLayout({
             <Link href="/sifir-arac" className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
               Sıfır Araç Fiyatları
             </Link>
+            <Link href="/kredi" className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
+              Kredi
+            </Link>
             <div className="ml-auto">
               {user ? (
                 <Link href="/araclarim" className="px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors rounded-md">
@@ -80,6 +83,7 @@ export default async function RootLayout({
                   <ul className="space-y-1.5">
                     <li><Link href="/" className="text-sm text-slate-500 hover:text-indigo-600">Kasko Değeri</Link></li>
                     <li><Link href="/sifir-arac" className="text-sm text-slate-500 hover:text-indigo-600">Sıfır Araç Fiyatları</Link></li>
+                    <li><Link href="/kredi" className="text-sm text-slate-500 hover:text-indigo-600">Kredi Karşılaştırma</Link></li>
                   </ul>
                 </div>
                 <div>
