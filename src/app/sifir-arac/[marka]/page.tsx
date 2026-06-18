@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMarkaBySlug, getSifirEndeksVeri } from "@/lib/kasko";
 import { SifirEndeksListesi } from "@/components/SifirEndeksListesi";
@@ -26,8 +25,6 @@ export default async function SifirEndeksMarkaPage({
   if (!marka) notFound();
 
   const veri = await getSifirEndeksVeri(marka.marka_kodu, marka.son_snapshot_month);
-  if (veri.current.length === 0) notFound();
-
   const modelYili = Number(marka.son_snapshot_month.slice(0, 4));
 
   const supabase = await createClient();
@@ -60,14 +57,26 @@ export default async function SifirEndeksMarkaPage({
         </p>
       </div>
 
-      <SifirEndeksListesi
-        veri={veri}
-        markaAdi={marka.marka_adi}
-        markaKodu={marka.marka_kodu}
-        markaSlug={marka.slug}
-        girisYapilmis={!!user}
-        izlenenler={izlenenler}
-      />
+      {veri.current.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-slate-300 py-16 text-center">
+          <p className="text-slate-500 text-sm">{marka.marka_adi} için henüz sıfır araç fiyatı verisi bulunmuyor.</p>
+          <Link
+            href="/sifir-arac"
+            className="mt-4 inline-block text-sm text-indigo-600 hover:underline"
+          >
+            ← Tüm markalara dön
+          </Link>
+        </div>
+      ) : (
+        <SifirEndeksListesi
+          veri={veri}
+          markaAdi={marka.marka_adi}
+          markaKodu={marka.marka_kodu}
+          markaSlug={marka.slug}
+          girisYapilmis={!!user}
+          izlenenler={izlenenler}
+        />
+      )}
     </main>
   );
 }
