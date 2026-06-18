@@ -31,33 +31,24 @@ export function IkonKasko(props: Props) {
   );
 }
 
-// Sedan yan silüet — 48×24 viewBox (2:1 oran, gerçekçi sedan)
-export function IkonArac({ size = 20, className }: Props) {
+// Sedan yan silüet — 24×24 viewBox, diğer ikonlarla aynı boyut
+export function IkonArac(props: Props) {
   return (
-    <svg
-      width={size * 2}
-      height={size}
-      viewBox="0 0 48 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      {/* dış gövde: ön tampon → kaput eğimi → ön cam → düz tavan → arka cam → bagaj → arka tampon */}
-      <path d="M2 15 L7 13 L14 9 L19 7 H29 L36 11 L44 12 L46 15 V21 H40" />
-      <path d="M32 21 H16" />
-      <path d="M8 21 H2 V15" />
+    <Base {...props}>
+      {/* gövde üst hattı: ön tampon → kaput → ön cam → tavan → arka cam → bagaj → arka tampon */}
+      <path d="M1 13.5 L4 12 L9 9 L12 7 H17 L21 11 L23 12 V17" />
+      <path d="M1 13.5 V17" />
+      {/* zemin: ön tampon-tekerlek, arası, arka tekerlek-tampon */}
+      <path d="M1 17 H4.5" />
+      <path d="M9.5 17 H14.5" />
+      <path d="M19.5 17 H23" />
       {/* ön tekerlek */}
-      <circle cx="12" cy="17" r="4" />
+      <circle cx="7" cy="17" r="2.5" />
       {/* arka tekerlek */}
-      <circle cx="36" cy="17" r="4" />
-      {/* cam alanı + B-pillar */}
-      <path d="M15 9.5 L19.5 7.5 H28.5 L34.5 11.5 H15 Z" />
-      <line x1="24" y1="7.5" x2="24" y2="11.5" />
-    </svg>
+      <circle cx="17" cy="17" r="2.5" />
+      {/* cam alanı */}
+      <path d="M10 9.5 L12.5 7.5 H16.5 L20 11 H10 Z" />
+    </Base>
   );
 }
 
