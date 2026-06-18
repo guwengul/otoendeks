@@ -114,15 +114,26 @@ export default async function TipDetayPage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   let zatenEklendi = false;
+  let zatenTakipte = false;
   if (user) {
-    const { data: mevcut } = await supabase
-      .from("kullanici_araclar")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("tip_kodu", tipKodu)
-      .eq("model_yili", modelYili)
-      .maybeSingle();
+    const [{ data: mevcut }, { data: takipte }] = await Promise.all([
+      supabase
+        .from("kullanici_araclar")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("tip_kodu", tipKodu)
+        .eq("model_yili", modelYili)
+        .maybeSingle(),
+      supabase
+        .from("izleme_listesi")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("marka_kodu", marka.marka_kodu)
+        .eq("tip_kodu", tipKodu)
+        .maybeSingle(),
+    ]);
     zatenEklendi = !!mevcut;
+    zatenTakipte = !!takipte;
   }
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
@@ -222,6 +233,7 @@ export default async function TipDetayPage({
           tumunuMetin={tumunuMetin}
           girisYapilmis={!!user}
           zatenEklendi={zatenEklendi}
+          zatenTakipte={zatenTakipte}
           arac={{
             markaKodu: marka.marka_kodu,
             tipKodu,
@@ -229,6 +241,7 @@ export default async function TipDetayPage({
             tipAdi: detay.tip_adi,
             modelYili,
             markaSlug: marka.slug,
+            fiyatKayit: buYilDegeri?.deger ?? 0,
           }}
         />
       </div>

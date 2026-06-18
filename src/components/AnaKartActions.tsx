@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { aracEkle } from "@/app/actions/garaj";
+import { izlemeEkle } from "@/app/actions/izleme";
 
 function IconWhatsApp() {
   return (
@@ -37,6 +38,7 @@ type AracBilgi = {
   tipAdi: string;
   modelYili: number;
   markaSlug: string;
+  fiyatKayit?: number;
 };
 
 export function AnaKartActions({
@@ -45,15 +47,18 @@ export function AnaKartActions({
   arac,
   girisYapilmis,
   zatenEklendi,
+  zatenTakipte = false,
 }: {
   ozet: string;
   tumunuMetin: string;
   arac: AracBilgi;
   girisYapilmis: boolean;
   zatenEklendi: boolean;
+  zatenTakipte?: boolean;
 }) {
   const router = useRouter();
   const [eklendi, setEklendi] = useState(zatenEklendi);
+  const [takipte, setTakipte] = useState(zatenTakipte);
   const [secimAcik, setSecimAcik] = useState(false);
   const [pending, setPending] = useState(false);
   const [kopyalandi, setKopyalandi] = useState(false);
@@ -72,12 +77,31 @@ export function AnaKartActions({
       router.push("/araclarim");
       return;
     }
+    if (takipte) {
+      router.push("/araclarim?sekme=izliyorum");
+      return;
+    }
     setSecimAcik(true);
   }
 
   async function handleEkle(sahipMi: boolean) {
     setSecimAcik(false);
     setPending(true);
+    if (!sahipMi) {
+      const sonuc = await izlemeEkle({
+        marka_kodu: arac.markaKodu,
+        tip_kodu: arac.tipKodu,
+        marka_adi: arac.markaAdi,
+        tip_adi: arac.tipAdi,
+        marka_slug: arac.markaSlug,
+        fiyat_kayit: arac.fiyatKayit ?? 0,
+        model_yili: arac.modelYili,
+      });
+      setPending(false);
+      if (!sonuc?.error) setTakipte(true);
+      else alert("Eklenemedi: " + sonuc.error);
+      return;
+    }
     const sonuc = await aracEkle({
       marka_kodu: arac.markaKodu,
       tip_kodu: arac.tipKodu,
@@ -85,14 +109,11 @@ export function AnaKartActions({
       tip_adi: arac.tipAdi,
       model_yili: arac.modelYili,
       marka_slug: arac.markaSlug,
-      sahip_mi: sahipMi,
+      sahip_mi: true,
     });
     setPending(false);
-    if (!sonuc?.error) {
-      setEklendi(true);
-    } else {
-      alert("Eklenemedi: " + sonuc.error);
-    }
+    if (!sonuc?.error) setEklendi(true);
+    else alert("Eklenemedi: " + sonuc.error);
   }
 
   function handleKopyala() {
@@ -108,13 +129,13 @@ export function AnaKartActions({
           onClick={handleTakip}
           disabled={pending}
           className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:opacity-50 ${
-            eklendi
+            eklendi || takipte
               ? "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
               : "border-slate-200 text-slate-600 hover:bg-slate-50"
           }`}
         >
-          <span>{eklendi ? "★" : "☆"}</span>
-          <span>{pending ? "Ekleniyor..." : eklendi ? "Araçlarımda" : "Bu aracı takip et"}</span>
+          <span>{eklendi || takipte ? "★" : "☆"}</span>
+          <span>{pending ? "Ekleniyor..." : eklendi ? "Araçlarımda" : takipte ? "Takipteyim" : "Bu aracı takip et"}</span>
         </button>
         {secimAcik && (
           <div className="absolute left-0 top-full mt-1 z-10 w-52 rounded-xl border border-slate-200 bg-white shadow-lg">

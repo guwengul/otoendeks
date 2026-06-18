@@ -26,6 +26,7 @@ export async function izlemeEkle(data: {
   tip_adi: string;
   marka_slug: string;
   fiyat_kayit: number;
+  model_yili?: number;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

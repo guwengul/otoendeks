@@ -57,7 +57,7 @@ export default async function AraclarimPage({
 
   const izlemelerWithFiyat = await Promise.all(
     (izlemeler ?? []).map(async (item) => {
-      const fiyat = await getKaskoFiyati(item.marka_kodu, item.tip_kodu, new Date().getFullYear());
+      const fiyat = await getKaskoFiyati(item.marka_kodu, item.tip_kodu, item.model_yili ?? new Date().getFullYear());
       return { ...item, guncel_fiyat: fiyat };
     })
   );
