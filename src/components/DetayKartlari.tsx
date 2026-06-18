@@ -27,14 +27,14 @@ function DegisimSatiri({ label, ilk, son, fark }: { label: string; ilk: string; 
   const isaretStr = fark > 0 ? "+" : fark < 0 ? "−" : "";
 
   return (
-    <div className="grid items-center gap-x-2 py-2" style={{ gridTemplateColumns: "2rem 1fr 0.75rem 1fr auto" }}>
-      <span className="text-xs text-slate-400">{label}</span>
-      <span className="text-right text-xs tabular-nums text-slate-400">{ilk}</span>
+    <>
+      <span className="text-xs text-slate-400 py-2">{label}</span>
+      <span className="text-right text-xs tabular-nums text-slate-400 py-2">{ilk}</span>
       <svg className="h-3 w-3 text-slate-300 justify-self-center" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M2 6h8M7 3l3 3-3 3" />
       </svg>
-      <span className="text-right text-sm font-semibold tabular-nums text-slate-800">{son}</span>
-      <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium ${renk} ${bgRenk}`}>
+      <span className="text-right text-sm font-semibold tabular-nums text-slate-800 py-2">{son}</span>
+      <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium justify-self-end ${renk} ${bgRenk}`}>
         {!notr && (
           <svg className="h-2.5 w-2.5 shrink-0" viewBox="0 0 10 10" fill="currentColor">
             {yukari ? <path d="M5 2L9 8H1L5 2Z" /> : <path d="M5 8L1 2H9L5 8Z" />}
@@ -42,7 +42,7 @@ function DegisimSatiri({ label, ilk, son, fark }: { label: string; ilk: string; 
         )}
         {isaretStr}{fmt(fark)}
       </span>
-    </div>
+    </>
   );
 }
 
@@ -57,7 +57,7 @@ function Kart({ baslik, donem, satirlar }: {
         <p className="text-xs font-medium text-slate-600">{baslik}</p>
         <p className="text-xs text-slate-400 shrink-0">{donem}</p>
       </div>
-      <div className="divide-y divide-slate-100">
+      <div className="grid items-center gap-x-2" style={{ gridTemplateColumns: "2rem 1fr 0.75rem 1fr auto" }}>
         {satirlar.map((s) => (
           <DegisimSatiri key={s.label} label={s.label} ilk={s.ilk} son={s.son} fark={s.fark} />
         ))}
