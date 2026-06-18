@@ -82,8 +82,12 @@ export default async function RootLayout({
           <div className="mx-auto w-full max-w-5xl px-6 py-8">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900 w-fit">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-indigo-600 text-white text-[10px] font-bold">O</span>
+                <Link href="/" className="flex items-center gap-1.5 font-semibold text-slate-900 w-fit">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path d="M4.2 17.5A9 9 0 1 1 19.8 17.5" stroke="#1e293b" strokeWidth="2.2" strokeLinecap="round"/>
+                    <line x1="12" y1="13" x2="6.2" y2="9.6" stroke="#4f46e5" strokeWidth="2.5" strokeLinecap="round"/>
+                    <circle cx="12" cy="13" r="2" fill="#4f46e5"/>
+                  </svg>
                   <span className="text-sm">otoendeks</span>
                 </Link>
                 <p className="mt-2 text-xs text-slate-400 max-w-xs">Türkiye Sigorta Birliği (TSB) verilerine dayalı güncel kasko değerleri ve sıfır araç fiyatları.</p>
