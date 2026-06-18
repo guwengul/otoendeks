@@ -75,8 +75,8 @@ export function DetayKartlari({
     <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
       {enflasyon ? (
         <Kart
-          baslik="Dönem Değişimi"
-          donem={`${enflasyon.ilkAyLabel} → ${enflasyon.sonAyLabel}`}
+          baslik={`${enflasyon.ilkAyLabel} → ${enflasyon.sonAyLabel}`}
+          donem="1 yıllık değişim"
           satirlar={[
             { label: "TL", deger: `₺${fmt(enflasyon.son.deger_tl)}`, fark: enflasyon.son.deger_tl - enflasyon.ilk.deger_tl },
             { label: "USD", deger: `$${fmt(enflasyon.son.deger_usd)}`, fark: enflasyon.son.deger_usd - enflasyon.ilk.deger_usd },
@@ -92,8 +92,8 @@ export function DetayKartlari({
 
       {eskime ? (
         <Kart
-          baslik="Model Yılı Farkı"
-          donem={`${eskime.yeniYil} → ${eskime.eskiYil} model`}
+          baslik={`${eskime.yeniYil} model → ${eskime.eskiYil} model`}
+          donem="model yılı farkı"
           satirlar={[
             { label: "TL", deger: `₺${fmt(eskime.eski.tl)}`, fark: eskime.eski.tl - eskime.yeni.tl },
             { label: "USD", deger: `$${fmt(eskime.eski.usd)}`, fark: eskime.eski.usd - eskime.yeni.usd },
