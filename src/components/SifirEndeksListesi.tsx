@@ -231,22 +231,17 @@ export function SifirEndeksListesi({
                     </button>
                   </div>
 
-                  {/* Sağ: fiyatlar */}
-                  <div className="shrink-0 text-right">
-                    {/* Güncel fiyat — büyük */}
+                  {/* Sağ: fiyatlar — sola yaslanmış */}
+                  <div className="shrink-0 text-left">
                     <p className="text-base font-bold text-gray-900 tabular-nums">{formatTL(tip.deger)}</p>
-                    {/* Önceki ay */}
                     {tip.oncekiAy && (
-                      <p className="mt-1 text-xs text-gray-400 tabular-nums">
-                        {oncekiAyAdi}: {formatTL(tip.oncekiAy)}{" "}
-                        <DegisimBadge pct={tip.aylikPct} />
+                      <p className="mt-0.5 text-xs text-gray-400 tabular-nums">
+                        {oncekiAyAdi}: {formatTL(tip.oncekiAy)} <DegisimBadge pct={tip.aylikPct} />
                       </p>
                     )}
-                    {/* Önceki yıl */}
                     {tip.oncekiYil && (
                       <p className="text-xs text-gray-400 tabular-nums">
-                        {oncekiYilAdi}: {formatTL(tip.oncekiYil)}{" "}
-                        <DegisimBadge pct={tip.yillikPct} />
+                        {oncekiYilAdi}: {formatTL(tip.oncekiYil)} <DegisimBadge pct={tip.yillikPct} />
                       </p>
                     )}
                   </div>
