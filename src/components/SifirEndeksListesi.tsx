@@ -310,7 +310,6 @@ export function SifirEndeksListesi({
                             </div>
                           )}
                           <div className="mt-2 flex items-center gap-3">
-                            <span className="text-xs text-slate-300">Güncel bayi fiyatı yakında</span>
                             <button
                               onClick={() => handleTakip(tip)}
                               disabled={takipPending === tip.tip_kodu}
