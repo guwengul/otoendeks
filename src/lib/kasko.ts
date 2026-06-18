@@ -217,6 +217,7 @@ export type SifirEndeksVeri = {
   aracTipiMap: Record<number, string>;
   modelAdiMap: Record<number, string>;
   spekMap: Record<number, AracSpek>;
+  trendMap: Record<number, number[]>;
 };
 
 export async function getSifirEndeksVeri(
@@ -234,7 +235,12 @@ export async function getSifirEndeksVeri(
   const yilOncesiAy = String(modelYili - 1) + sonAy.slice(4);
   const yilOncesiModel = modelYili - 1;
 
-  const [current, prevMonth, prevYear, ozellikler] = await Promise.all([
+  // Son 6 ay için başlangıç tarihi
+  const d6 = new Date(sonAy);
+  d6.setMonth(d6.getMonth() - 5);
+  const altiAyOnce = d6.toISOString().slice(0, 7) + "-01";
+
+  const [current, prevMonth, prevYear, ozellikler, trend6Ay] = await Promise.all([
     fetchAll<RawKaskoRow>("kasko_degerleri", {
       select: "tip_kodu,tip_adi,deger",
       marka_kodu: `eq.${markaKodu}`,
@@ -260,7 +266,22 @@ export async function getSifirEndeksVeri(
       select: "tip_kodu,arac_tipi,model_adi,kasa,yakit,vites,motor_guc_hp,motor_hacmi,cekis",
       marka_kodu: `eq.${markaKodu}`,
     }),
+    fetchAll<{ tip_kodu: number; snapshot_month: string; deger: number }>("kasko_degerleri", {
+      select: "tip_kodu,snapshot_month,deger",
+      marka_kodu: `eq.${markaKodu}`,
+      model_yili: `eq.${modelYili}`,
+      snapshot_month: `gte.${altiAyOnce}`,
+      order: "snapshot_month.asc",
+    }),
   ]);
+
+  // tip_kodu başına kronolojik deger dizisi
+  const trendByTip = new Map<number, number[]>();
+  for (const r of trend6Ay) {
+    const arr = trendByTip.get(r.tip_kodu) ?? [];
+    arr.push(r.deger);
+    trendByTip.set(r.tip_kodu, arr);
+  }
 
   return {
     sonAy,
@@ -271,6 +292,7 @@ export async function getSifirEndeksVeri(
     aracTipiMap: Object.fromEntries(ozellikler.filter((r) => r.arac_tipi).map((r) => [r.tip_kodu, r.arac_tipi!])),
     modelAdiMap: Object.fromEntries(ozellikler.filter((r) => r.model_adi).map((r) => [r.tip_kodu, r.model_adi!])),
     spekMap: Object.fromEntries(ozellikler.map((r) => [r.tip_kodu, { kasa: r.kasa, yakit: r.yakit, vites: r.vites, motor_guc_hp: r.motor_guc_hp, motor_hacmi: r.motor_hacmi, cekis: r.cekis }])),
+    trendMap: Object.fromEntries(trendByTip.entries()),
   };
 }
 
