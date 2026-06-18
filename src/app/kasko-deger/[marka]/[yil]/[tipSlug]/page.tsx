@@ -214,21 +214,25 @@ export default async function TipDetayPage({
       {/* Wrapper — ana kart + iki karşılaştırma + butonlar tek blok */}
       <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         {/* Ana fiyat */}
-        <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 px-6 py-6 text-center">
-          {(() => { const logo = getLogoSlug(marka.marka_adi); return logo ? (
-            <div className="mb-3 flex justify-center">
-              <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={64} height={32} className="object-contain opacity-60" style={{ maxHeight: 32 }} />
+        <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 px-6 py-5">
+          <div className="flex items-center gap-5">
+            {(() => { const logo = getLogoSlug(marka.marka_adi); return logo ? (
+              <div className="shrink-0 flex items-center justify-center w-16 h-16">
+                <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={64} height={64} className="w-full h-full object-contain opacity-70" />
+              </div>
+            ) : null; })()}
+            <div>
+              <p className="text-sm font-medium text-indigo-700 mb-1">
+                {marka.marka_adi} {detay.tip_adi} · {modelYili} model
+              </p>
+              {buYilDegeri ? (
+                <p className="text-4xl font-bold tracking-tight text-slate-900">{formatTL(buYilDegeri.deger)}</p>
+              ) : (
+                <p className="text-sm text-slate-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
+              )}
+              <p className="mt-1 text-xs text-indigo-400">{ayLabel(marka.son_snapshot_month)} · TSB kasko değeri</p>
             </div>
-          ) : null; })()}
-          <p className="mb-1 text-sm font-medium text-indigo-700">
-            {marka.marka_adi} {detay.tip_adi} · {modelYili} model
-          </p>
-          {buYilDegeri ? (
-            <p className="text-5xl font-bold tracking-tight text-slate-900">{formatTL(buYilDegeri.deger)}</p>
-          ) : (
-            <p className="text-sm text-slate-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
-          )}
-          <p className="mt-2 text-xs text-indigo-400">{ayLabel(marka.son_snapshot_month)} · TSB kasko değeri</p>
+          </div>
         </div>
 
         {/* İki karşılaştırma kartı */}

@@ -37,9 +37,11 @@ export default async function YilPage({
         </Link>{" "}
         / <span className="text-slate-900">{modelYili}</span>
       </nav>
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-4">
         {(() => { const logo = getLogoSlug(marka.marka_adi); return logo ? (
-          <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={48} height={28} className="object-contain opacity-60 shrink-0" style={{ maxHeight: 28 }} />
+          <div className="shrink-0 h-10 w-16 flex items-center">
+            <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={64} height={40} className="h-full w-full object-contain opacity-60" />
+          </div>
         ) : null; })()}
         <h1 className="text-2xl font-semibold text-slate-900">{marka.marka_adi} {modelYili} — Tip Seç</h1>
       </div>
