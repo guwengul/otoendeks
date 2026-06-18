@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getMarkaBySlug, getTipDetay, getFiyatGecmisi } from "@/lib/kasko";
+import { getLogoSlug } from "@/lib/logo";
+import Image from "next/image";
 import { DegerKaybiGrafik } from "@/components/DegerKaybiGrafik";
 import { FiyatGecmisiGrafik } from "@/components/FiyatGecmisiGrafik";
 import { DetayKartlari } from "@/components/DetayKartlari";
@@ -213,6 +215,11 @@ export default async function TipDetayPage({
       <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         {/* Ana fiyat */}
         <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 px-6 py-6 text-center">
+          {(() => { const logo = getLogoSlug(marka.marka_adi); return logo ? (
+            <div className="mb-3 flex justify-center">
+              <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={64} height={32} className="object-contain opacity-60" style={{ maxHeight: 32 }} />
+            </div>
+          ) : null; })()}
           <p className="mb-1 text-sm font-medium text-indigo-700">
             {marka.marka_adi} {detay.tip_adi} · {modelYili} model
           </p>

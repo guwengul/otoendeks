@@ -1,5 +1,6 @@
 ﻿import { getMarkalar } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
+import { getLogoSlug } from "@/lib/logo";
 
 export const revalidate = 86400;
 
@@ -24,6 +25,7 @@ export default async function SifirEndeksPage() {
           key: String(m.marka_kodu),
           label: m.marka_adi,
           href: `/sifir-arac/${m.slug}`,
+          logoSlug: getLogoSlug(m.marka_adi) ?? undefined,
         }))}
       />
     </main>

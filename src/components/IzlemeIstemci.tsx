@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { izlemeSil, izlemeBildirimiGuncelle } from "@/app/actions/izleme";
+import { getLogoSlug } from "@/lib/logo";
 
 type IzlemeItem = {
   id: string;
@@ -50,9 +52,16 @@ function IzlemeKarti({ item }: { item: IzlemeItem }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex items-start justify-between gap-3 mb-3">
-        <div>
-          <p className="font-semibold text-slate-900 text-sm">{item.marka_adi}</p>
-          <p className="text-xs text-slate-500">{item.tip_adi}{item.model_yili ? ` · ${item.model_yili}` : ""}</p>
+        <div className="flex items-start gap-2.5 min-w-0">
+          {(() => { const logo = getLogoSlug(item.marka_adi); return logo ? (
+            <div className="shrink-0 mt-0.5 h-6 w-10 flex items-center">
+              <Image src={`/logos/${logo}.svg`} alt={item.marka_adi} width={40} height={24} className="h-full w-full object-contain opacity-60" />
+            </div>
+          ) : null; })()}
+          <div className="min-w-0">
+            <p className="font-semibold text-slate-900 text-sm">{item.marka_adi}</p>
+            <p className="text-xs text-slate-500">{item.tip_adi}{item.model_yili ? ` · ${item.model_yili}` : ""}</p>
+          </div>
         </div>
         <div className="text-right shrink-0">
           {item.guncel_fiyat ? (

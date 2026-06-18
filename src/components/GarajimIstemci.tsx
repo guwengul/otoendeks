@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { aracSil, tarihKaydet, fiyatBildirimiGuncelle } from "@/app/actions/garaj";
 import { slugify } from "@/lib/slug";
+import Image from "next/image";
+import { getLogoSlug } from "@/lib/logo";
 
 const BOSH_TARIH = "1970-01-01";
 
@@ -158,18 +160,25 @@ function AracKarti({ arac }: { arac: Arac }) {
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       {/* Başlık */}
       <div className="flex items-start justify-between gap-3 mb-3">
-        <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-              arac.sahip_mi ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"
-            }`}>
-              {arac.sahip_mi ? "Benim arabam" : "Takip"}
-            </span>
+        <div className="flex items-start gap-2.5 min-w-0">
+          {(() => { const logo = getLogoSlug(arac.marka_adi); return logo ? (
+            <div className="shrink-0 mt-1 h-6 w-10 flex items-center">
+              <Image src={`/logos/${logo}.svg`} alt={arac.marka_adi} width={40} height={24} className="h-full w-full object-contain opacity-60" />
+            </div>
+          ) : null; })()}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                arac.sahip_mi ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"
+              }`}>
+                {arac.sahip_mi ? "Benim arabam" : "Takip"}
+              </span>
+            </div>
+            <Link href={detayHref} className="font-semibold text-slate-900 hover:text-indigo-600 text-sm">
+              {arac.marka_adi} {arac.model_yili}
+            </Link>
+            <p className="text-xs text-slate-500">{arac.tip_adi}</p>
           </div>
-          <Link href={detayHref} className="font-semibold text-slate-900 hover:text-indigo-600 text-sm">
-            {arac.marka_adi} {arac.model_yili}
-          </Link>
-          <p className="text-xs text-slate-500">{arac.tip_adi}</p>
         </div>
         <div className="text-right shrink-0">
           <Link href={detayHref} className="hover:opacity-80">

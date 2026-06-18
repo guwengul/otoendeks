@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMarkaBySlug, getTiplerForMarkaYil, slugify } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
+import { getLogoSlug } from "@/lib/logo";
+import Image from "next/image";
 
 export const revalidate = 86400;
 
@@ -35,9 +37,12 @@ export default async function YilPage({
         </Link>{" "}
         / <span className="text-slate-900">{modelYili}</span>
       </nav>
-      <h1 className="mb-6 text-2xl font-semibold text-slate-900">
-        {marka.marka_adi} {modelYili} — Tip Seç
-      </h1>
+      <div className="mb-6 flex items-center gap-3">
+        {(() => { const logo = getLogoSlug(marka.marka_adi); return logo ? (
+          <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={48} height={28} className="object-contain opacity-60 shrink-0" style={{ maxHeight: 28 }} />
+        ) : null; })()}
+        <h1 className="text-2xl font-semibold text-slate-900">{marka.marka_adi} {modelYili} — Tip Seç</h1>
+      </div>
       <AramaListesi
         placeholder="Tip ara..."
         tekSutun
