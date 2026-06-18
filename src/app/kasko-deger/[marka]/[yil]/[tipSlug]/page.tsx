@@ -173,26 +173,26 @@ export default async function TipDetayPage({
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
-      <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/" className="hover:underline">Kasko Değeri</Link>{" / "}
-        <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">{marka.marka_adi}</Link>{" / "}
-        <Link href={`/kasko-deger/${marka.slug}/${modelYili}`} className="hover:underline">{modelYili}</Link>
-        {" / "}<span className="text-gray-900">{detay.tip_adi}</span>
+      <nav className="mb-6 text-sm text-slate-400">
+        <Link href="/" className="hover:text-slate-700">Kasko Değeri</Link>{" / "}
+        <Link href={`/kasko-deger/${marka.slug}`} className="hover:text-slate-700">{marka.marka_adi}</Link>{" / "}
+        <Link href={`/kasko-deger/${marka.slug}/${modelYili}`} className="hover:text-slate-700">{modelYili}</Link>
+        {" / "}<span className="text-slate-900">{detay.tip_adi}</span>
       </nav>
 
       {/* Wrapper — ana kart + iki karşılaştırma + butonlar tek blok */}
-      <div className="mb-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         {/* Ana fiyat */}
-        <div className="mb-4 rounded-xl bg-gray-50 px-6 py-5 text-center">
-          <p className="mb-2 text-sm font-medium text-gray-600">
+        <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 px-6 py-6 text-center">
+          <p className="mb-1 text-sm font-medium text-indigo-700">
             {marka.marka_adi} {detay.tip_adi} · {modelYili} model
           </p>
           {buYilDegeri ? (
-            <p className="text-4xl font-bold text-gray-900">{formatTL(buYilDegeri.deger)}</p>
+            <p className="text-5xl font-bold tracking-tight text-slate-900">{formatTL(buYilDegeri.deger)}</p>
           ) : (
-            <p className="text-sm text-gray-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
+            <p className="text-sm text-slate-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
           )}
-          <p className="mt-2 text-xs text-gray-400">{ayLabel(marka.son_snapshot_month)} TSB verisi</p>
+          <p className="mt-2 text-xs text-indigo-400">{ayLabel(marka.son_snapshot_month)} · TSB kasko değeri</p>
         </div>
 
         {/* İki karşılaştırma kartı */}
@@ -203,32 +203,32 @@ export default async function TipDetayPage({
       </div>
 
       {/* Mikro feedback */}
-      <div className="mb-6 border-b border-gray-100 pb-4">
+      <div className="mb-6 border-b border-slate-100 pb-4">
         <MikroFeedback tipKodu={tipKodu} modelYili={modelYili} />
       </div>
 
       {/* Sıfır araç yönlendirme */}
-      <div className="mb-8 flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-5 py-4">
+      <div className="mb-8 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
         <div>
-          <p className="text-sm font-medium text-gray-700">{marka.marka_adi} sıfır araç fiyatları</p>
-          <p className="text-xs text-gray-400">Güncel liste fiyatları ve kampanyalar</p>
+          <p className="text-sm font-medium text-slate-700">{marka.marka_adi} sıfır araç fiyatları</p>
+          <p className="text-xs text-slate-400">Güncel liste fiyatları ve kampanyalar</p>
         </div>
         <Link
           href={`/sifir-fiyat/${marka.slug}`}
-          className="shrink-0 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+          className="shrink-0 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
         >
           Sıfır fiyatları →
         </Link>
       </div>
 
       {/* Grafikler */}
-      <h2 className="mb-3 text-base font-semibold text-gray-900">Aylık Fiyat Geçmişi</h2>
-      <div className="mb-8 rounded-xl border border-gray-200 p-4">
+      <h2 className="mb-3 text-base font-semibold text-slate-900">Aylık Fiyat Geçmişi</h2>
+      <div className="mb-8 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <FiyatGecmisiGrafik gecmis={fiyatGecmisi} />
       </div>
 
-      <h2 className="mb-3 text-base font-semibold text-gray-900">Model Yılına Göre Değer</h2>
-      <div className="rounded-xl border border-gray-200 p-4">
+      <h2 className="mb-3 text-base font-semibold text-slate-900">Model Yılına Göre Değer</h2>
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <DegerKaybiGrafik
           gecmis={detay.gecmis.filter((d) =>
             d.model_yili >= modelYili - 1 && d.model_yili <= modelYili + 1,

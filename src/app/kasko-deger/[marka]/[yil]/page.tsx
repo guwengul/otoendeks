@@ -25,7 +25,7 @@ export default async function YilPage({
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
-      <nav className="mb-6 text-sm text-gray-500">
+      <nav className="mb-6 text-sm text-slate-500">
         <Link href="/" className="hover:underline">
           Markalar
         </Link>{" "}
@@ -33,9 +33,9 @@ export default async function YilPage({
         <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">
           {marka.marka_adi}
         </Link>{" "}
-        / <span className="text-gray-900">{modelYili}</span>
+        / <span className="text-slate-900">{modelYili}</span>
       </nav>
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">
+      <h1 className="mb-6 text-2xl font-semibold text-slate-900">
         {marka.marka_adi} {modelYili} — Tip Seç
       </h1>
       <AramaListesi
