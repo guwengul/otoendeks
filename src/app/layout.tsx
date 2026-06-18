@@ -33,17 +33,17 @@ export default function RootLayout({
       lang="tr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <header className="border-b border-gray-200 bg-white shadow-sm">
+      <body className="min-h-full flex flex-col bg-slate-50">
+        <header className="border-b border-slate-200 bg-white">
           <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 h-14">
-            <Link href="/" className="mr-6 flex items-center gap-2 font-bold text-gray-900 tracking-tight">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-xs font-black">O</span>
+            <Link href="/" className="mr-6 flex items-center gap-2 font-semibold text-slate-900 tracking-tight">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white text-xs font-bold">O</span>
               <span className="text-base">otoendeks</span>
             </Link>
-            <Link href="/" className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 transition-colors rounded-md hover:bg-red-50">
+            <Link href="/" className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
               Kasko Değeri
             </Link>
-            <Link href="/sifir-arac" className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 transition-colors rounded-md hover:bg-red-50">
+            <Link href="/sifir-arac" className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
               Sıfır Araç Fiyatları
             </Link>
           </nav>

@@ -7,7 +7,7 @@ export function FavoriButonu() {
 
   if (tiklandiMi) {
     return (
-      <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+      <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-center text-sm text-indigo-700">
         Fiyat değişimlerini takip etmek için üye ol — yakında!
       </div>
     );

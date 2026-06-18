@@ -46,17 +46,17 @@ export function AramaListesi({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
-        className="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+        className="mb-4 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
       <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
         {gosterilecek.map((item) => (
           <li key={item.key}>
             <Link
               href={item.href}
-              className="block rounded-lg border border-gray-200 px-4 py-3 text-sm transition-colors hover:border-red-400 hover:bg-red-50"
+              className="block rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm transition-colors hover:border-indigo-400 hover:bg-indigo-50"
             >
-              <div className="font-medium text-gray-900">{item.label}</div>
-              {item.sublabel && <div className="text-xs text-gray-500">{item.sublabel}</div>}
+              <div className="font-medium text-slate-900">{item.label}</div>
+              {item.sublabel && <div className="text-xs text-slate-500">{item.sublabel}</div>}
             </Link>
           </li>
         ))}
@@ -64,7 +64,7 @@ export function AramaListesi({
       {gizlenenSayi > 0 && (
         <button
           onClick={() => setTumunuGoster(true)}
-          className="mt-4 w-full rounded-lg border border-gray-200 py-2.5 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-50"
+          className="mt-4 w-full rounded-lg border border-slate-200 bg-white py-2.5 text-sm text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-50"
         >
           + {gizlenenSayi} marka daha göster
         </button>

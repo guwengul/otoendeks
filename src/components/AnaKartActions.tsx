@@ -86,7 +86,7 @@ export function AnaKartActions({
     <div className="mt-4 flex items-center gap-2 border-t border-gray-200 pt-4">
       {/* Takip et */}
       {takipAktif ? (
-        <span className="text-xs text-red-600">Takip için kayıt ol — yakında!</span>
+        <span className="text-xs text-indigo-600">Takip için kayıt ol — yakında!</span>
       ) : (
         <button
           onClick={() => setTakipAktif(true)}
