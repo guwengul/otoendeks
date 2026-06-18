@@ -2,6 +2,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+import { createClient } from "@/lib/supabase/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +24,14 @@ export const metadata: Metadata = {
   description: "Aracının marka, model yılı ve tipine göre güncel kasko değerini sorgula.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <html
       lang="tr"
@@ -46,6 +50,17 @@ export default function RootLayout({
             <Link href="/sifir-arac" className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
               Sıfır Araç Fiyatları
             </Link>
+            <div className="ml-auto">
+              {user ? (
+                <Link href="/garajim" className="px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors rounded-md">
+                  Garajım
+                </Link>
+              ) : (
+                <Link href="/giris" className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
+                  Giriş yap
+                </Link>
+              )}
+            </div>
           </nav>
         </header>
         {children}

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { aracEkle } from "@/app/actions/garaj";
 
 function IconWhatsApp() {
   return (
@@ -28,20 +30,57 @@ function IconCopy() {
   );
 }
 
+type AracBilgi = {
+  tipKodu: number;
+  markaAdi: string;
+  tipAdi: string;
+  modelYili: number;
+  markaSlug: string;
+};
+
 export function AnaKartActions({
   ozet,
   tumunuMetin,
+  arac,
+  girisYapilmis,
+  zatenEklendi,
 }: {
   ozet: string;
   tumunuMetin: string;
+  arac: AracBilgi;
+  girisYapilmis: boolean;
+  zatenEklendi: boolean;
 }) {
-  const [takipAktif, setTakipAktif] = useState(false);
+  const router = useRouter();
+  const [eklendi, setEklendi] = useState(zatenEklendi);
+  const [pending, setPending] = useState(false);
   const [kopyalandi, setKopyalandi] = useState(false);
 
   const pageUrl = typeof window !== "undefined" ? window.location.href : "";
   const waMetin = encodeURIComponent(ozet + "\n" + pageUrl);
   const xMetin = encodeURIComponent(ozet);
   const encodedUrl = encodeURIComponent(pageUrl);
+
+  async function handleTakip() {
+    if (!girisYapilmis) {
+      router.push(`/giris?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    if (eklendi) {
+      router.push("/garajim");
+      return;
+    }
+    setPending(true);
+    await aracEkle({
+      tip_kodu: arac.tipKodu,
+      marka_adi: arac.markaAdi,
+      tip_adi: arac.tipAdi,
+      model_yili: arac.modelYili,
+      marka_slug: arac.markaSlug,
+    });
+    setEklendi(true);
+    setPending(false);
+  }
 
   function handleKopyala() {
     navigator.clipboard.writeText(tumunuMetin + "\n" + pageUrl);
@@ -51,17 +90,18 @@ export function AnaKartActions({
 
   return (
     <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
-      {takipAktif ? (
-        <span className="text-xs text-indigo-600">Takip için kayıt ol — yakında!</span>
-      ) : (
-        <button
-          onClick={() => setTakipAktif(true)}
-          className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition-colors hover:bg-slate-50"
-        >
-          <span>☆</span>
-          <span>Bu aracı takip et</span>
-        </button>
-      )}
+      <button
+        onClick={handleTakip}
+        disabled={pending}
+        className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:opacity-50 ${
+          eklendi
+            ? "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+            : "border-slate-200 text-slate-600 hover:bg-slate-50"
+        }`}
+      >
+        <span>{eklendi ? "★" : "☆"}</span>
+        <span>{pending ? "Ekleniyor..." : eklendi ? "Garajımda" : "Bu aracı takip et"}</span>
+      </button>
 
       <div className="ml-auto flex items-center gap-1.5">
         <a

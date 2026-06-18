@@ -7,8 +7,7 @@ import { FiyatGecmisiGrafik } from "@/components/FiyatGecmisiGrafik";
 import { DetayKartlari } from "@/components/DetayKartlari";
 import { AnaKartActions } from "@/components/AnaKartActions";
 import { MikroFeedback } from "@/components/MikroFeedback";
-
-export const revalidate = 86400;
+import { createClient } from "@/lib/supabase/server";
 
 function formatTL(value: number): string {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);
@@ -112,6 +111,20 @@ export default async function TipDetayPage({
   if (!data) notFound();
   const { marka, detay, fiyatGecmisi, tipKodu } = data;
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  let zatenEklendi = false;
+  if (user) {
+    const { data: mevcut } = await supabase
+      .from("kullanici_araclar")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("tip_kodu", tipKodu)
+      .eq("model_yili", modelYili)
+      .maybeSingle();
+    zatenEklendi = !!mevcut;
+  }
+
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
   const birSonrakiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili + 1);
   const birOncekiYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili - 1);
@@ -204,7 +217,19 @@ export default async function TipDetayPage({
         <DetayKartlari enflasyon={enflasyonData} eskime={eskimeData} />
 
         {/* Takip et + paylaş — wrapper'ın alt kısmı */}
-        <AnaKartActions ozet={ozet} tumunuMetin={tumunuMetin} />
+        <AnaKartActions
+          ozet={ozet}
+          tumunuMetin={tumunuMetin}
+          girisYapilmis={!!user}
+          zatenEklendi={zatenEklendi}
+          arac={{
+            tipKodu,
+            markaAdi: marka.marka_adi,
+            tipAdi: detay.tip_adi,
+            modelYili,
+            markaSlug: marka.slug,
+          }}
+        />
       </div>
 
       {/* Mikro feedback */}
