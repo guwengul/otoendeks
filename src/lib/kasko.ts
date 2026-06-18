@@ -187,7 +187,26 @@ export async function getFiyatGecmisi(markaKodu: number, tipKodu: number, modelY
 
 type RawKaskoRow = { tip_kodu: number; tip_adi: string; deger: number };
 
-type AracOzellik = { tip_kodu: number; arac_tipi: string | null; model_adi: string | null };
+type AracOzellik = {
+  tip_kodu: number;
+  arac_tipi: string | null;
+  model_adi: string | null;
+  kasa: string | null;
+  yakit: string | null;
+  vites: string | null;
+  motor_guc_hp: number | null;
+  motor_hacmi: string | null;
+  cekis: string | null;
+};
+
+export type AracSpek = {
+  kasa: string | null;
+  yakit: string | null;
+  vites: string | null;
+  motor_guc_hp: number | null;
+  motor_hacmi: string | null;
+  cekis: string | null;
+};
 
 export type SifirEndeksVeri = {
   sonAy: string;
@@ -197,6 +216,7 @@ export type SifirEndeksVeri = {
   prevYearMap: Map<number, number>;
   aracTipiMap: Map<number, string>;
   modelAdiMap: Map<number, string>;
+  spekMap: Map<number, AracSpek>;
 };
 
 export async function getSifirEndeksVeri(
@@ -237,7 +257,7 @@ export async function getSifirEndeksVeri(
       order: "tip_adi.asc",
     }),
     fetchAll<AracOzellik>("arac_ozellikleri", {
-      select: "tip_kodu,arac_tipi,model_adi",
+      select: "tip_kodu,arac_tipi,model_adi,kasa,yakit,vites,motor_guc_hp,motor_hacmi,cekis",
       marka_kodu: `eq.${markaKodu}`,
     }),
   ]);
@@ -250,6 +270,7 @@ export async function getSifirEndeksVeri(
     prevYearMap: new Map(prevYear.map((r) => [r.tip_kodu, r.deger])),
     aracTipiMap: new Map(ozellikler.filter((r) => r.arac_tipi).map((r) => [r.tip_kodu, r.arac_tipi!])),
     modelAdiMap: new Map(ozellikler.filter((r) => r.model_adi).map((r) => [r.tip_kodu, r.model_adi!])),
+    spekMap: new Map(ozellikler.map((r) => [r.tip_kodu, { kasa: r.kasa, yakit: r.yakit, vites: r.vites, motor_guc_hp: r.motor_guc_hp, motor_hacmi: r.motor_hacmi, cekis: r.cekis }])),
   };
 }
 

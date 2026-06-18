@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { SifirEndeksVeri } from "@/lib/kasko";
+import type { AracSpek, SifirEndeksVeri } from "@/lib/kasko";
 import { extractModelAdi } from "@/lib/kasko";
 
 function formatTL(v: number) {
@@ -81,6 +81,7 @@ type TipRow = {
   oncekiYil: number | null;
   aylikPct: number | null;
   yillikPct: number | null;
+  spek: AracSpek | null;
 };
 
 type ModelGrup = { model: string; tipler: TipRow[] };
@@ -131,7 +132,7 @@ export function SifirEndeksListesi({
       const yilOnce = veri.prevYearMap.get(r.tip_kodu) ?? null;
       const aylikPct = prev ? ((r.deger - prev) / prev) * 100 : null;
       const yillikPct = yilOnce ? ((r.deger - yilOnce) / yilOnce) * 100 : null;
-      const tip: TipRow = { tip_kodu: r.tip_kodu, tipAdi, deger: r.deger, oncekiAy: prev, oncekiYil: yilOnce, aylikPct, yillikPct };
+      const tip: TipRow = { tip_kodu: r.tip_kodu, tipAdi, deger: r.deger, oncekiAy: prev, oncekiYil: yilOnce, aylikPct, yillikPct, spek: veri.spekMap.get(r.tip_kodu) ?? null };
       const list = modelMap.get(model) ?? [];
       list.push(tip);
       modelMap.set(model, list);
@@ -207,9 +208,19 @@ export function SifirEndeksListesi({
             {acik && <div className="divide-y divide-gray-100 border-t border-gray-100">
               {g.tipler.map((tip) => (
                 <div key={tip.tip_kodu} className="flex items-start justify-between gap-4 px-4 py-3">
-                  {/* Sol: araç adı + CTA */}
+                  {/* Sol: araç adı + spek chip'leri + CTA */}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 leading-snug">{tip.tipAdi}</p>
+                    {tip.spek && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {tip.spek.yakit && <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{tip.spek.yakit}</span>}
+                        {tip.spek.motor_guc_hp && <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{tip.spek.motor_guc_hp} hp</span>}
+                        {tip.spek.motor_hacmi && <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{tip.spek.motor_hacmi}L</span>}
+                        {tip.spek.vites && <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{tip.spek.vites}</span>}
+                        {tip.spek.kasa && <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{tip.spek.kasa}</span>}
+                        {tip.spek.cekis && tip.spek.cekis !== "2wd" && <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{tip.spek.cekis}</span>}
+                      </div>
+                    )}
                     <button
                       onClick={() => setModalAcik(true)}
                       className="mt-1.5 text-xs text-blue-600 hover:text-blue-800 font-medium"
