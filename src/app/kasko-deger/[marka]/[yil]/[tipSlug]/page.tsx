@@ -219,7 +219,7 @@ export default async function TipDetayPage({
           <p className="text-xs text-slate-400">Güncel liste fiyatları ve kampanyalar</p>
         </div>
         <Link
-          href={`/sifir-fiyat/${marka.slug}`}
+          href={`/sifir-arac/${marka.slug}`}
           className="shrink-0 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
         >
           Sıfır fiyatları →
