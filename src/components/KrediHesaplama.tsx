@@ -163,7 +163,7 @@ export function KrediHesaplama() {
           <div className="flex items-center justify-between mb-1.5">
             <label className="text-sm font-medium text-slate-700">Vade</label>
             {tip === "ihtiyac" && maxVade < 36 && (
-              <span className="text-[11px] text-amber-600 font-medium">BDDK: bu tutar için maks. {maxVade} ay</span>
+              <span className="text-[11px] text-amber-600 font-medium">Bu tutar için azami vade {maxVade} ay (BDDK)</span>
             )}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -205,16 +205,16 @@ export function KrediHesaplama() {
       </div>
 
       {/* Sonuç özeti */}
-      <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-6">
-        <p className="mb-1 text-xs font-medium text-indigo-500 uppercase tracking-wide">Aylık taksit</p>
-        <p className="text-5xl font-bold tracking-tight text-slate-900 tabular-nums mb-4">{fmt(Math.round(sonuc.taksit))}</p>
-        <div className="rounded-xl bg-white/70 px-4 divide-y divide-slate-100">
-          <Satir label="Toplam ödeme"  deger={fmt(Math.round(sonuc.toplam))} />
-          <Satir label="Toplam faiz"   deger={fmt(Math.round(sonuc.toplamFaiz))} />
-          {gosterKKDF && <Satir label="Toplam KKDF" deger={fmt(Math.round(sonuc.toplamKKDF))} />}
-          <Satir label="Toplam BSMV"   deger={fmt(Math.round(sonuc.toplamBSMV))} />
-          <Satir label="Toplam vergi"  deger={fmt(Math.round(sonuc.toplamKKDF + sonuc.toplamBSMV))} />
-          <Satir label="Vade"          deger={`${gecerliVade} ay`} />
+      <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 px-5 py-4">
+        <div className="flex items-baseline justify-between mb-3">
+          <span className="text-xs font-medium text-indigo-500 uppercase tracking-wide">Aylık taksit</span>
+          <span className="text-3xl font-bold tabular-nums text-slate-900">{fmt(Math.round(sonuc.taksit))}</span>
+        </div>
+        <div className="rounded-xl bg-white/70 px-3 divide-y divide-slate-100">
+          <Satir label="Toplam ödeme" deger={fmt(Math.round(sonuc.toplam))} />
+          <Satir label="Toplam faiz"  deger={fmt(Math.round(sonuc.toplamFaiz))} />
+          <Satir label={gosterKKDF ? "Vergi (KKDF + BSMV)" : "Vergi (BSMV)"} deger={fmt(Math.round(sonuc.toplamKKDF + sonuc.toplamBSMV))} />
+          <Satir label="Vade"         deger={`${gecerliVade} ay`} />
         </div>
       </div>
 
