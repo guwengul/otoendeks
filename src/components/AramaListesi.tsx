@@ -14,10 +14,12 @@ export function AramaListesi({
   items,
   placeholder,
   defaultCount,
+  tekSutun,
 }: {
   items: Item[];
   placeholder: string;
   defaultCount?: number;
+  tekSutun?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [tumunuGoster, setTumunuGoster] = useState(false);
@@ -48,15 +50,17 @@ export function AramaListesi({
         placeholder={placeholder}
         className="mb-4 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
-      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+      <ul className={`grid gap-2 ${tekSutun ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"}`}>
         {gosterilecek.map((item) => (
           <li key={item.key}>
             <Link
               href={item.href}
               className="block rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm transition-colors hover:border-indigo-400 hover:bg-indigo-50"
             >
-              <div className="font-medium text-slate-900">{item.label}</div>
-              {item.sublabel && <div className="text-xs text-slate-500">{item.sublabel}</div>}
+              <div className={`flex items-center justify-between gap-4 ${tekSutun ? "" : "flex-col items-start gap-0.5"}`}>
+                <div className="font-medium text-slate-900">{item.label}</div>
+                {item.sublabel && <div className={`text-xs text-slate-500 shrink-0 ${tekSutun ? "font-semibold" : ""}`}>{item.sublabel}</div>}
+              </div>
             </Link>
           </li>
         ))}

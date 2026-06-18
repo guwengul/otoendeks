@@ -40,6 +40,7 @@ export default async function YilPage({
       </h1>
       <AramaListesi
         placeholder="Tip ara..."
+        tekSutun
         items={tipler.map((tip) => ({
           key: String(tip.tip_kodu),
           label: tip.tip_adi,
