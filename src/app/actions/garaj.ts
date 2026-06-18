@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export type KullaniciArac = {
   id: string;
+  marka_kodu: number;
   tip_kodu: number;
   marka_adi: string;
   tip_adi: string;

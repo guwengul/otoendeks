@@ -31,6 +31,7 @@ function IconCopy() {
 }
 
 type AracBilgi = {
+  markaKodu: number;
   tipKodu: number;
   markaAdi: string;
   tipAdi: string;
@@ -78,6 +79,7 @@ export function AnaKartActions({
     setSecimAcik(false);
     setPending(true);
     const sonuc = await aracEkle({
+      marka_kodu: arac.markaKodu,
       tip_kodu: arac.tipKodu,
       marka_adi: arac.markaAdi,
       tip_adi: arac.tipAdi,

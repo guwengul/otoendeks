@@ -8,10 +8,11 @@ export const dynamic = "force-dynamic";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-async function getKaskoFiyati(tipKodu: number, modelYili: number): Promise<number | null> {
+async function getKaskoFiyati(markaKodu: number | null, tipKodu: number, modelYili: number): Promise<number | null> {
   try {
+    const markaFilter = markaKodu ? `&marka_kodu=eq.${markaKodu}` : "";
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/kasko_degerleri?tip_kodu=eq.${tipKodu}&model_yili=eq.${modelYili}&order=snapshot_month.desc&limit=1&select=deger`,
+      `${SUPABASE_URL}/rest/v1/kasko_degerleri?tip_kodu=eq.${tipKodu}&model_yili=eq.${modelYili}${markaFilter}&order=snapshot_month.desc&limit=1&select=deger`,
       { headers: { apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` }, cache: "no-store" }
     );
     const data = await res.json();
@@ -33,7 +34,7 @@ export default async function AraclarimPage() {
 
   const araclarWithFiyat = await Promise.all(
     (araclar ?? []).map(async (a) => {
-      const fiyat = await getKaskoFiyati(a.tip_kodu, a.model_yili);
+      const fiyat = await getKaskoFiyati(a.marka_kodu ?? null, a.tip_kodu, a.model_yili);
       return { ...a, kasko_fiyati: fiyat };
     })
   );

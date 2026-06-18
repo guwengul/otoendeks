@@ -223,6 +223,7 @@ export default async function TipDetayPage({
           girisYapilmis={!!user}
           zatenEklendi={zatenEklendi}
           arac={{
+            markaKodu: marka.marka_kodu,
             tipKodu,
             markaAdi: marka.marka_adi,
             tipAdi: detay.tip_adi,
