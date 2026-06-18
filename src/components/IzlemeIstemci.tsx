@@ -11,6 +11,7 @@ type IzlemeItem = {
   marka_adi: string;
   tip_adi: string;
   marka_slug: string;
+  model_yili: number | null;
   fiyat_kayit: number;
   usd_kayit: number | null;
   altin_kayit: number | null;
@@ -51,7 +52,7 @@ function IzlemeKarti({ item }: { item: IzlemeItem }) {
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
           <p className="font-semibold text-slate-900 text-sm">{item.marka_adi}</p>
-          <p className="text-xs text-slate-500">{item.tip_adi}</p>
+          <p className="text-xs text-slate-500">{item.tip_adi}{item.model_yili ? ` · ${item.model_yili}` : ""}</p>
         </div>
         <div className="text-right shrink-0">
           {item.guncel_fiyat ? (
