@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMarkaBySlug, getSifirEndeksVeri } from "@/lib/kasko";
 import { SifirEndeksListesi } from "@/components/SifirEndeksListesi";
+import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 86400;
 
@@ -29,6 +30,19 @@ export default async function SifirEndeksMarkaPage({
 
   const modelYili = Number(marka.son_snapshot_month.slice(0, 4));
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let izlenenler = new Set<number>();
+  if (user) {
+    const { data } = await supabase
+      .from("izleme_listesi")
+      .select("tip_kodu")
+      .eq("user_id", user.id)
+      .eq("marka_kodu", marka.marka_kodu);
+    izlenenler = new Set((data ?? []).map((r: { tip_kodu: number }) => r.tip_kodu));
+  }
+
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
       <nav className="mb-6 text-sm text-slate-500">
@@ -46,7 +60,14 @@ export default async function SifirEndeksMarkaPage({
         </p>
       </div>
 
-      <SifirEndeksListesi veri={veri} markaAdi={marka.marka_adi} />
+      <SifirEndeksListesi
+        veri={veri}
+        markaAdi={marka.marka_adi}
+        markaKodu={marka.marka_kodu}
+        markaSlug={marka.slug}
+        girisYapilmis={!!user}
+        izlenenler={izlenenler}
+      />
     </main>
   );
 }

@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { GarajimIstemci } from "@/components/GarajimIstemci";
+import { IzlemeIstemci } from "@/components/IzlemeIstemci";
+import { AraclarimSekmeler } from "@/components/AraclarimSekmeler";
 
 export const dynamic = "force-dynamic";
 
@@ -22,11 +24,19 @@ async function getKaskoFiyati(markaKodu: number | null, tipKodu: number, modelYi
   }
 }
 
-export default async function AraclarimPage() {
+export default async function AraclarimPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sekme?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/giris");
 
+  const { sekme } = await searchParams;
+  const aktifSekme = sekme === "izliyorum" ? "izliyorum" : "araclarim";
+
+  // Araçlarım verisi
   const { data: araclar } = await supabase
     .from("kullanici_araclar")
     .select("*, arac_tarihler(*)")
@@ -39,6 +49,20 @@ export default async function AraclarimPage() {
     })
   );
 
+  // İzleme listesi verisi
+  const { data: izlemeler } = await supabase
+    .from("izleme_listesi")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const izlemelerWithFiyat = await Promise.all(
+    (izlemeler ?? []).map(async (item) => {
+      const fiyat = await getKaskoFiyati(item.marka_kodu, item.tip_kodu, new Date().getFullYear());
+      return { ...item, guncel_fiyat: fiyat };
+    })
+  );
+
+  // Yaklaşan tarihler (30 gün içinde)
   const bugun = new Date();
   const otuzGunSonra = new Date(bugun);
   otuzGunSonra.setDate(otuzGunSonra.getDate() + 30);
@@ -48,7 +72,7 @@ export default async function AraclarimPage() {
   for (const arac of araclarWithFiyat) {
     for (const t of arac.arac_tarihler ?? []) {
       const d = new Date(t.tarih);
-      if (d >= bugun && d <= otuzGunSonra) {
+      if (d >= bugun && d <= otuzGunSonra && t.tarih !== "1970-01-01") {
         const tipLabel = t.tip === "mtv" ? "MTV" : t.tip === "muayene" ? "Muayene" : "Kasko";
         yaklasanTarihler.push({
           tip: tipLabel,
@@ -62,47 +86,52 @@ export default async function AraclarimPage() {
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-10">
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-slate-900">Araçlarım</h1>
         <Link href="/hesabim" className="text-sm text-slate-500 hover:text-indigo-600">
           Hesabım →
         </Link>
       </div>
 
+      {/* Yaklaşan tarihler */}
       {yaklasanTarihler.length > 0 && (
         <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-600">
-            30 gün içinde
-          </p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-600">30 gün içinde</p>
           <ul className="space-y-1">
             {yaklasanTarihler.map((t, i) => (
               <li key={i} className="flex items-center justify-between text-sm">
                 <span className="text-slate-700">{t.arac}</span>
-                <span className="text-amber-700 font-medium">
-                  {t.tip} — {new Date(t.tarih).toLocaleDateString("tr-TR")}
-                </span>
+                <span className="text-amber-700 font-medium">{t.tip} — {new Date(t.tarih).toLocaleDateString("tr-TR")}</span>
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      {araclarWithFiyat.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 py-16 text-center">
-          <p className="text-slate-400 text-sm">Henüz araç eklemedin.</p>
-          <p className="mt-1 text-xs text-slate-400">
-            Kasko detay sayfasında "Bu aracı takip et" ile ekleyebilirsin.
-          </p>
-          <Link
-            href="/"
-            className="mt-4 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-          >
-            Araç sorgula
-          </Link>
-        </div>
-      ) : (
-        <GarajimIstemci araclar={araclarWithFiyat} />
-      )}
+      {/* Sekmeler */}
+      <AraclarimSekmeler
+        aktif={aktifSekme}
+        aracSayisi={araclarWithFiyat.length}
+        izlemeSayisi={izlemelerWithFiyat.length}
+      />
+
+      <div className="mt-6">
+        {aktifSekme === "araclarim" ? (
+          araclarWithFiyat.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 py-16 text-center">
+              <p className="text-slate-400 text-sm">Henüz araç eklemedin.</p>
+              <p className="mt-1 text-xs text-slate-400">Kasko detay sayfasında "Bu aracı takip et" ile ekleyebilirsin.</p>
+              <Link href="/" className="mt-4 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                Araç sorgula
+              </Link>
+            </div>
+          ) : (
+            <GarajimIstemci araclar={araclarWithFiyat} />
+          )
+        ) : (
+          <IzlemeIstemci items={izlemelerWithFiyat} />
+        )}
+      </div>
     </main>
   );
 }

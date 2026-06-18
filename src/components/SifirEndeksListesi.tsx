@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { AracSpek, SifirEndeksVeri } from "@/lib/kasko";
 import { extractModelAdi } from "@/lib/kasko";
+import { izlemeEkle } from "@/app/actions/izleme";
 
 function formatTL(v: number) {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(v);
@@ -124,9 +126,17 @@ type ModelGrup = { model: string; tipler: TipRow[] };
 export function SifirEndeksListesi({
   veri,
   markaAdi,
+  markaKodu,
+  markaSlug,
+  girisYapilmis,
+  izlenenler,
 }: {
   veri: SifirEndeksVeri;
   markaAdi: string;
+  markaKodu?: number;
+  markaSlug?: string;
+  girisYapilmis?: boolean;
+  izlenenler?: Set<number>;
 }) {
   const tablar = useMemo(() => {
     const tipler = new Set(veri.current.map((r) => veri.aracTipiMap[r.tip_kodu] ?? "binek"));
@@ -136,10 +146,40 @@ export function SifirEndeksListesi({
     return null;
   }, [veri]);
 
+  const router = useRouter();
   const [aktifTab, setAktifTab] = useState<"binek" | "ticari">("binek");
   const [query, setQuery] = useState("");
   const [modalAcik, setModalAcik] = useState(false);
   const [acikGruplar, setAcikGruplar] = useState<Set<string>>(new Set());
+  const [izlenenSet, setIzlenenSet] = useState<Set<number>>(izlenenler ?? new Set());
+  const [takipPending, setTakipPending] = useState<number | null>(null);
+
+  async function handleTakip(tip: TipRow) {
+    if (!girisYapilmis) {
+      router.push(`/giris?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    if (izlenenSet.has(tip.tip_kodu)) {
+      router.push("/araclarim");
+      return;
+    }
+    if (!markaKodu || !markaSlug) return;
+    setTakipPending(tip.tip_kodu);
+    const sonuc = await izlemeEkle({
+      marka_kodu: markaKodu,
+      tip_kodu: tip.tip_kodu,
+      marka_adi: markaAdi,
+      tip_adi: tip.tipAdi,
+      marka_slug: markaSlug,
+      fiyat_kayit: tip.deger,
+    });
+    setTakipPending(null);
+    if (!sonuc?.error) {
+      setIzlenenSet(prev => new Set([...prev, tip.tip_kodu]));
+    } else {
+      alert("Eklenemedi: " + sonuc.error);
+    }
+  }
 
   function toggleGrup(model: string) {
     setAcikGruplar((prev) => {
@@ -269,12 +309,26 @@ export function SifirEndeksListesi({
                               {tip.spek.cekis && tip.spek.cekis !== "2wd" && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500">{tip.spek.cekis}</span>}
                             </div>
                           )}
-                          <button
-                            onClick={() => setModalAcik(true)}
-                            className="mt-2 text-xs text-indigo-600 hover:text-indigo-800 font-medium"
-                          >
-                            Güncel bayi fiyatı →
-                          </button>
+                          <div className="mt-2 flex items-center gap-3">
+                            <button
+                              onClick={() => setModalAcik(true)}
+                              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+                            >
+                              Güncel bayi fiyatı →
+                            </button>
+                            <button
+                              onClick={() => handleTakip(tip)}
+                              disabled={takipPending === tip.tip_kodu}
+                              className={`flex items-center gap-1 text-xs disabled:opacity-50 ${
+                                izlenenSet.has(tip.tip_kodu)
+                                  ? "text-indigo-600 font-medium"
+                                  : "text-slate-400 hover:text-slate-600"
+                              }`}
+                            >
+                              <span>{izlenenSet.has(tip.tip_kodu) ? "★" : "☆"}</span>
+                              <span>{takipPending === tip.tip_kodu ? "..." : izlenenSet.has(tip.tip_kodu) ? "İzliyorum" : "İzle"}</span>
+                            </button>
+                          </div>
                         </div>
 
                         {/* Sağ: sparkline + fiyatlar */}
