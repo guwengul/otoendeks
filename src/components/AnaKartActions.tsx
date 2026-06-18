@@ -127,7 +127,7 @@ export function AnaKartActions({
   return (
     <div className="mt-4 border-t border-slate-100 pt-4">
       {hata && <p className="mb-2 text-xs text-red-600">{hata}</p>}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
       <div className="relative">
         <button
           onClick={handleTakip}
@@ -162,7 +162,7 @@ export function AnaKartActions({
         )}
       </div>
 
-      <div className="ml-auto flex items-center gap-1.5">
+      <div className="ml-auto flex items-center gap-1.5 shrink-0">
         <a
           href={`https://wa.me/?text=${waMetin}`}
           target="_blank" rel="noopener noreferrer"

@@ -57,7 +57,7 @@ function Kart({ baslik, donem, satirlar }: {
         <p className="text-xs font-medium text-slate-600">{baslik}</p>
         <p className="text-xs text-slate-400 shrink-0">{donem}</p>
       </div>
-      <div className="grid items-center gap-x-2" style={{ gridTemplateColumns: "2rem 1fr 0.75rem 1fr auto" }}>
+      <div className="grid items-center gap-x-2 min-w-0 overflow-x-auto" style={{ gridTemplateColumns: "2rem minmax(0,1fr) 0.75rem minmax(0,1fr) auto" }}>
         {satirlar.map((s) => (
           <DegisimSatiri key={s.label} label={s.label} ilk={s.ilk} son={s.son} fark={s.fark} />
         ))}

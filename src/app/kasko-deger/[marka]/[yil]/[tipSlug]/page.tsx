@@ -204,29 +204,32 @@ export default async function TipDetayPage({
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
-      <nav className="mb-6 text-sm text-slate-400">
-        <Link href="/" className="hover:text-slate-700">Kasko Değeri</Link>{" / "}
-        <Link href={`/kasko-deger/${marka.slug}`} className="hover:text-slate-700">{marka.marka_adi}</Link>{" / "}
-        <Link href={`/kasko-deger/${marka.slug}/${modelYili}`} className="hover:text-slate-700">{modelYili}</Link>
-        {" / "}<span className="text-slate-900">{detay.tip_adi}</span>
+      <nav className="mb-6 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-slate-400">
+        <Link href="/" className="hover:text-slate-700 shrink-0">Kasko Değeri</Link>
+        <span className="shrink-0">/</span>
+        <Link href={`/kasko-deger/${marka.slug}`} className="hover:text-slate-700 shrink-0">{marka.marka_adi}</Link>
+        <span className="shrink-0">/</span>
+        <Link href={`/kasko-deger/${marka.slug}/${modelYili}`} className="hover:text-slate-700 shrink-0">{modelYili}</Link>
+        <span className="shrink-0">/</span>
+        <span className="text-slate-900 min-w-0 truncate">{detay.tip_adi}</span>
       </nav>
 
       {/* Wrapper — ana kart + iki karşılaştırma + butonlar tek blok */}
       <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         {/* Ana fiyat */}
-        <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 px-6 py-5">
-          <div className="flex items-center gap-5">
+        <div className="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 px-5 py-4">
+          <div className="flex items-center gap-4 min-w-0">
             {(() => { const logo = getLogoSlug(marka.marka_adi); return logo ? (
-              <div className="shrink-0 flex items-center justify-center w-16 h-16">
-                <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={64} height={64} className="w-full h-full object-contain opacity-70" />
+              <div className="shrink-0 flex items-center justify-center w-12 h-12">
+                <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={48} height={48} className="w-full h-full object-contain opacity-70" />
               </div>
             ) : null; })()}
-            <div>
-              <p className="text-sm font-medium text-indigo-700 mb-1">
-                {marka.marka_adi} {detay.tip_adi} · {modelYili} model
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-indigo-700 mb-1 truncate">
+                {marka.marka_adi} {detay.tip_adi} · {modelYili}
               </p>
               {buYilDegeri ? (
-                <p className="text-4xl font-bold tracking-tight text-slate-900">{formatTL(buYilDegeri.deger)}</p>
+                <p className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{formatTL(buYilDegeri.deger)}</p>
               ) : (
                 <p className="text-sm text-slate-500">{modelYili} model yılı için bu tipte değer bulunamadı.</p>
               )}

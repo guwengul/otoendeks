@@ -120,12 +120,12 @@ export function KrediHesaplama() {
   return (
     <div className="w-full max-w-2xl">
       {/* Sekme */}
-      <div className="mb-6 flex gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1 w-fit">
+      <div className="mb-6 flex gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1 w-full sm:w-fit">
         {(["tasit", "ihtiyac"] as KrediTipi[]).map((t) => (
           <button
             key={t}
             onClick={() => { setTip(t); if (t === "ihtiyac" && vade > 36) setVade(36); }}
-            className={`rounded-md px-5 py-2 text-sm font-medium transition-colors ${tip === t ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
+            className={`flex-1 sm:flex-none rounded-md px-5 py-2 text-sm font-medium transition-colors ${tip === t ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
           >
             {t === "tasit" ? "Taşıt Kredisi" : "İhtiyaç Kredisi"}
           </button>

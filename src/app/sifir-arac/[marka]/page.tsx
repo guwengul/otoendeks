@@ -58,8 +58,8 @@ export default async function SifirEndeksMarkaPage({
           </div>
         ) : null; })()}
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            {marka.marka_adi} — {modelYili} Model Güncel Fiyatlar
+          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+            {marka.marka_adi} — {modelYili} Model
           </h1>
           <p className="mt-1 text-sm text-slate-500">
             {modelYili} model · {marka.son_snapshot_month.slice(0, 7)} verisi

@@ -27,15 +27,12 @@ export default async function YilPage({
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
-      <nav className="mb-6 text-sm text-slate-500">
-        <Link href="/" className="hover:underline">
-          Kasko Değeri
-        </Link>{" "}
-        /{" "}
-        <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">
-          {marka.marka_adi}
-        </Link>{" "}
-        / <span className="text-slate-900">{modelYili}</span>
+      <nav className="mb-6 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-slate-500">
+        <Link href="/" className="hover:underline shrink-0">Kasko Değeri</Link>
+        <span className="shrink-0">/</span>
+        <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline shrink-0">{marka.marka_adi}</Link>
+        <span className="shrink-0">/</span>
+        <span className="text-slate-900 shrink-0">{modelYili}</span>
       </nav>
       <div className="mb-6 flex items-center gap-4">
         {(() => { const logo = getLogoSlug(marka.marka_adi); return logo ? (
@@ -43,7 +40,7 @@ export default async function YilPage({
             <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={64} height={40} className="h-full w-full object-contain opacity-60" />
           </div>
         ) : null; })()}
-        <h1 className="text-2xl font-semibold text-slate-900">{marka.marka_adi} {modelYili} — Tip Seç</h1>
+        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">{marka.marka_adi} {modelYili}</h1>
       </div>
       <AramaListesi
         placeholder="Tip ara..."
