@@ -172,6 +172,7 @@ export function SifirEndeksListesi({
       tip_adi: tip.tipAdi,
       marka_slug: markaSlug,
       fiyat_kayit: tip.deger,
+      model_yili: new Date().getFullYear(),
     });
     setTakipPending(null);
     if (!sonuc?.error) {
