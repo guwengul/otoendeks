@@ -42,17 +42,26 @@ function DegisimSatiri({ label, deger, fark }: { label: string; deger: string; f
   );
 }
 
-function Kart({ baslik, donem, satirlar }: {
+function Kart({ baslik, donem, tlFark, satirlar }: {
   baslik: string;
   donem: string;
+  tlFark: number;
   satirlar: { label: string; deger: string; fark: number }[];
 }) {
+  const yukari = tlFark > 0;
+  const notr = tlFark === 0;
+  const renk = yukari ? "text-emerald-600" : notr ? "text-slate-400" : "text-orange-500";
+  const isaretStr = tlFark > 0 ? "+" : tlFark < 0 ? "−" : "";
+
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
-      <div className="mb-3 flex items-baseline justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{baslik}</p>
-        <p className="text-xs text-slate-400">{donem}</p>
+      <div className="mb-1 flex items-start justify-between gap-2">
+        <p className="text-xs text-slate-500">{baslik}</p>
+        <p className="text-xs text-slate-400 shrink-0">{donem}</p>
       </div>
+      <p className={`mb-3 text-xl font-bold tabular-nums ${renk}`}>
+        {isaretStr}₺{fmt(tlFark)}
+      </p>
       <div className="divide-y divide-slate-100">
         {satirlar.map((s) => (
           <DegisimSatiri key={s.label} label={s.label} deger={s.deger} fark={s.fark} />
@@ -77,6 +86,7 @@ export function DetayKartlari({
         <Kart
           baslik={`${enflasyon.ilkAyLabel} → ${enflasyon.sonAyLabel}`}
           donem="1 yıllık değişim"
+          tlFark={enflasyon.son.deger_tl - enflasyon.ilk.deger_tl}
           satirlar={[
             { label: "TL", deger: `₺${fmt(enflasyon.son.deger_tl)}`, fark: enflasyon.son.deger_tl - enflasyon.ilk.deger_tl },
             { label: "USD", deger: `$${fmt(enflasyon.son.deger_usd)}`, fark: enflasyon.son.deger_usd - enflasyon.ilk.deger_usd },
@@ -94,6 +104,7 @@ export function DetayKartlari({
         <Kart
           baslik={`${eskime.yeniYil} model → ${eskime.eskiYil} model`}
           donem="model yılı farkı"
+          tlFark={eskime.eski.tl - eskime.yeni.tl}
           satirlar={[
             { label: "TL", deger: `₺${fmt(eskime.eski.tl)}`, fark: eskime.eski.tl - eskime.yeni.tl },
             { label: "USD", deger: `$${fmt(eskime.eski.usd)}`, fark: eskime.eski.usd - eskime.yeni.usd },
