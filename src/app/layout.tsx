@@ -49,6 +49,38 @@ export default function RootLayout({
           </nav>
         </header>
         {children}
+        <footer className="mt-auto border-t border-slate-200 bg-white">
+          <div className="mx-auto w-full max-w-5xl px-6 py-8">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900 w-fit">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-indigo-600 text-white text-[10px] font-bold">O</span>
+                  <span className="text-sm">otoendeks</span>
+                </Link>
+                <p className="mt-2 text-xs text-slate-400 max-w-xs">Türkiye Sigorta Birliği (TSB) verilerine dayalı güncel kasko değerleri ve sıfır araç fiyatları.</p>
+              </div>
+              <div className="flex gap-12">
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">Araçlar</p>
+                  <ul className="space-y-1.5">
+                    <li><Link href="/" className="text-sm text-slate-500 hover:text-indigo-600">Kasko Değeri</Link></li>
+                    <li><Link href="/sifir-arac" className="text-sm text-slate-500 hover:text-indigo-600">Sıfır Araç Fiyatları</Link></li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">Veri</p>
+                  <ul className="space-y-1.5">
+                    <li><span className="text-sm text-slate-400">Kaynak: TSB</span></li>
+                    <li><span className="text-sm text-slate-400">Aylık güncellenir</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div className="mt-8 border-t border-slate-100 pt-4 text-xs text-slate-400">
+              © {new Date().getFullYear()} Otoendeks. Bilgi amaçlıdır, resmi sigorta değeri için sigorta şirketinize danışın.
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
