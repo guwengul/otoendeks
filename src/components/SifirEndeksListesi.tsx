@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import type { AracSpek, SifirEndeksVeri } from "@/lib/kasko";
@@ -57,9 +57,9 @@ function BayiFiyatModal({ onKapat }: { onKapat: () => void }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ornek@email.com"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
               />
-              <button type="submit" className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700">
+              <button type="submit" className="w-full rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700">
                 Bildir
               </button>
             </form>
@@ -181,7 +181,7 @@ export function SifirEndeksListesi({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Model veya versiyon ara..."
-        className="mb-6 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="mb-6 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
       />
 
       {filtreliGruplar.length === 0 && (
@@ -225,7 +225,7 @@ export function SifirEndeksListesi({
                     )}
                     <button
                       onClick={() => setModalAcik(true)}
-                      className="mt-1.5 text-xs text-blue-600 hover:text-blue-800 font-medium"
+                      className="mt-1.5 text-xs text-red-600 hover:text-red-800 font-medium"
                     >
                       Güncel bayi fiyatı →
                     </button>

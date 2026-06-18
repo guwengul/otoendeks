@@ -1,4 +1,4 @@
-export function slugify(str: string): string {
+﻿export function slugify(str: string): string {
   return str
     .toLowerCase()
     .replace(/ç/g, "c").replace(/ğ/g, "g").replace(/ı/g, "i")

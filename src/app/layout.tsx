@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
@@ -34,12 +34,16 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <header className="border-b border-gray-100 bg-white">
-          <nav className="mx-auto flex w-full max-w-5xl items-center gap-6 px-6 py-3">
-            <Link href="/" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+        <header className="border-b border-gray-200 bg-white shadow-sm">
+          <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 h-14">
+            <Link href="/" className="mr-6 flex items-center gap-2 font-bold text-gray-900 tracking-tight">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-xs font-black">O</span>
+              <span className="text-base">otoendeks</span>
+            </Link>
+            <Link href="/" className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 transition-colors rounded-md hover:bg-red-50">
               Kasko Değeri
             </Link>
-            <Link href="/sifir-arac" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+            <Link href="/sifir-arac" className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 transition-colors rounded-md hover:bg-red-50">
               Sıfır Araç Fiyatları
             </Link>
           </nav>

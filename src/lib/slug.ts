@@ -1,4 +1,4 @@
-const TR_MAP: Record<string, string> = {
+﻿const TR_MAP: Record<string, string> = {
   ç: "c", Ç: "c",
   ğ: "g", Ğ: "g",
   ı: "i", I: "i",

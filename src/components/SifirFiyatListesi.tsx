@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import type { SifirFiyat } from "@/lib/kasko";
@@ -11,7 +11,7 @@ const YAKIT_RENK: Record<string, string> = {
   "Benzin": "bg-orange-50 text-orange-700",
   "Dizel": "bg-gray-100 text-gray-600",
   "Elektrik": "bg-green-50 text-green-700",
-  "Hibrit": "bg-blue-50 text-blue-700",
+  "Hibrit": "bg-red-50 text-red-700",
   "Mild Hibrit": "bg-teal-50 text-teal-700",
   "LPG": "bg-purple-50 text-purple-700",
 };
@@ -59,7 +59,7 @@ export function SifirFiyatListesi({ rows }: { rows: SifirFiyat[] }) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Model veya versiyon ara..."
-        className="mb-6 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="mb-6 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
       />
 
       {grouped.size === 0 && (

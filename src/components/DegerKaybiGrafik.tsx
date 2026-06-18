@@ -1,4 +1,4 @@
-import type { DegerNoktasi } from "@/lib/kasko";
+﻿import type { DegerNoktasi } from "@/lib/kasko";
 
 function fmt(value: number): string {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);

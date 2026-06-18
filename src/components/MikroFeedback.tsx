@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -66,12 +66,12 @@ export function MikroFeedback({ tipKodu, modelYili }: { tipKodu: number; modelYi
             placeholder="İsteğe bağlı..."
             maxLength={200}
             autoFocus
-            className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="flex-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
           />
           <button
             onClick={() => gonder(yorum)}
             disabled={gonderiyor}
-            className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-600 disabled:opacity-40"
+            className="rounded-lg bg-red-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-40"
           >
             Gönder
           </button>

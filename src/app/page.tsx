@@ -1,4 +1,4 @@
-import { getMarkalar } from "@/lib/kasko";
+﻿import { getMarkalar } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 
 export const revalidate = 86400;

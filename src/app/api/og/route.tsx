@@ -1,4 +1,4 @@
-import { ImageResponse } from "next/og";
+﻿import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
 
 function fmt(v: number) {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import type { AylikNoktasi } from "@/lib/kasko";

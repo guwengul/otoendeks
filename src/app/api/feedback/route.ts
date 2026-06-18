@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server";
+﻿import type { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   const { tip_kodu, model_yili, oy, yorum } = await req.json();

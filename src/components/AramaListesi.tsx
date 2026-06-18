@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -46,14 +46,14 @@ export function AramaListesi({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
-        className="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
       />
       <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
         {gosterilecek.map((item) => (
           <li key={item.key}>
             <Link
               href={item.href}
-              className="block rounded-lg border border-gray-200 px-4 py-3 text-sm transition-colors hover:border-blue-400 hover:bg-blue-50"
+              className="block rounded-lg border border-gray-200 px-4 py-3 text-sm transition-colors hover:border-red-400 hover:bg-red-50"
             >
               <div className="font-medium text-gray-900">{item.label}</div>
               {item.sublabel && <div className="text-xs text-gray-500">{item.sublabel}</div>}

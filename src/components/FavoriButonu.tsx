@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -7,7 +7,7 @@ export function FavoriButonu() {
 
   if (tiklandiMi) {
     return (
-      <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-center text-sm text-blue-700">
+      <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
         Fiyat değişimlerini takip etmek için üye ol — yakında!
       </div>
     );
