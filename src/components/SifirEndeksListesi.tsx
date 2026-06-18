@@ -92,6 +92,16 @@ export function SifirEndeksListesi({
   veri: SifirEndeksVeri;
   markaAdi: string;
 }) {
+  // Tab: markanın hem binek hem ticari/özel araçları varsa göster
+  const tablar = useMemo(() => {
+    const tipler = new Set(veri.current.map((r) => veri.aracTipiMap.get(r.tip_kodu) ?? "binek"));
+    const binekVar = tipler.has("binek");
+    const ticariVar = tipler.has("ticari") || tipler.has("özel");
+    if (binekVar && ticariVar) return ["binek", "ticari"] as const;
+    return null; // tek tür → tab yok
+  }, [veri]);
+
+  const [aktifTab, setAktifTab] = useState<"binek" | "ticari">("binek");
   const [query, setQuery] = useState("");
   const [modalAcik, setModalAcik] = useState(false);
   const [acikGruplar, setAcikGruplar] = useState<Set<string>>(new Set());
@@ -108,9 +118,13 @@ export function SifirEndeksListesi({
   const gruplar = useMemo((): ModelGrup[] => {
     const modelMap = new Map<string, TipRow[]>();
     for (const r of veri.current) {
-      const aracTipi = veri.aracTipiMap.get(r.tip_kodu);
-      // arac_ozellikleri'nde kayıt varsa ve binek değilse atla
-      if (aracTipi && aracTipi !== "binek") continue;
+      const aracTipi = veri.aracTipiMap.get(r.tip_kodu) ?? "binek";
+      if (tablar) {
+        // Tab varsa: aktif taba göre filtrele
+        const isBinek = aracTipi === "binek";
+        if (aktifTab === "binek" && !isBinek) continue;
+        if (aktifTab === "ticari" && isBinek) continue;
+      }
       const model = veri.modelAdiMap.get(r.tip_kodu) ?? extractModelAdi(r.tip_adi, markaAdi);
       const tipAdi = r.tip_adi.startsWith(markaAdi) ? r.tip_adi.slice(markaAdi.length).trim() : r.tip_adi;
       const prev = veri.prevMonthMap.get(r.tip_kodu) ?? null;
@@ -123,7 +137,7 @@ export function SifirEndeksListesi({
       modelMap.set(model, list);
     }
     return [...modelMap.entries()].map(([model, tipler]) => ({ model, tipler }));
-  }, [veri, markaAdi]);
+  }, [veri, markaAdi, tablar, aktifTab]);
 
   const filtreliGruplar = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("tr");
@@ -145,6 +159,20 @@ export function SifirEndeksListesi({
 
   return (
     <div className="w-full">
+      {tablar && (
+        <div className="mb-4 flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 w-fit">
+          {tablar.map((t) => (
+            <button
+              key={t}
+              onClick={() => { setAktifTab(t); setAcikGruplar(new Set()); setQuery(""); }}
+              className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${aktifTab === t ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
+            >
+              {t === "binek" ? "Binek" : "Ticari"}
+            </button>
+          ))}
+        </div>
+      )}
+
       <input
         type="text"
         value={query}
