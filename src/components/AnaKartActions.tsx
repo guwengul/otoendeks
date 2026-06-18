@@ -77,7 +77,7 @@ export function AnaKartActions({
   async function handleEkle(sahipMi: boolean) {
     setSecimAcik(false);
     setPending(true);
-    await aracEkle({
+    const sonuc = await aracEkle({
       tip_kodu: arac.tipKodu,
       marka_adi: arac.markaAdi,
       tip_adi: arac.tipAdi,
@@ -85,8 +85,12 @@ export function AnaKartActions({
       marka_slug: arac.markaSlug,
       sahip_mi: sahipMi,
     });
-    setEklendi(true);
     setPending(false);
+    if (!sonuc?.error) {
+      setEklendi(true);
+    } else {
+      alert("Eklenemedi: " + sonuc.error);
+    }
   }
 
   function handleKopyala() {
