@@ -31,29 +31,32 @@ export function IkonKasko(props: Props) {
   );
 }
 
-// Sedan silüeti — geniş görünüm için 40x22 viewBox
+// Sedan yan silüet — 48×24 viewBox (2:1 oran, gerçekçi sedan)
 export function IkonArac({ size = 20, className }: Props) {
   return (
     <svg
-      width={Math.round(size * 1.8)}
+      width={size * 2}
       height={size}
-      viewBox="0 0 40 22"
+      viewBox="0 0 48 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.75}
+      strokeWidth={1.6}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
       aria-hidden
     >
+      {/* dış gövde: ön tampon → kaput eğimi → ön cam → düz tavan → arka cam → bagaj → arka tampon */}
+      <path d="M2 15 L7 13 L14 9 L19 7 H29 L36 11 L44 12 L46 15 V21 H40" />
+      <path d="M32 21 H16" />
+      <path d="M8 21 H2 V15" />
       {/* ön tekerlek */}
-      <circle cx="10" cy="17" r="3.5" />
+      <circle cx="12" cy="17" r="4" />
       {/* arka tekerlek */}
-      <circle cx="30" cy="17" r="3.5" />
-      {/* gövde: ön tampon → kaput → ön cam → tavan → arka cam → bagaj → arka tampon */}
-      <path d="M1 17V14L5 13 15 8h11l8 6v3H1z" />
-      {/* iç cam bölümü */}
-      <path d="M16 8.5V14h10l-2-5.5" />
+      <circle cx="36" cy="17" r="4" />
+      {/* cam alanı + B-pillar */}
+      <path d="M15 9.5 L19.5 7.5 H28.5 L34.5 11.5 H15 Z" />
+      <line x1="24" y1="7.5" x2="24" y2="11.5" />
     </svg>
   );
 }
