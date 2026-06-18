@@ -37,7 +37,7 @@ export function AraclarimSekmeler({
             : "border-transparent text-slate-500 hover:text-slate-700"
         }`}
       >
-        İzliyorum
+        Takiptekiler
         {izlemeSayisi > 0 && (
           <span className="ml-1.5 rounded-full bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500">
             {izlemeSayisi}

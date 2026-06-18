@@ -310,12 +310,7 @@ export function SifirEndeksListesi({
                             </div>
                           )}
                           <div className="mt-2 flex items-center gap-3">
-                            <button
-                              onClick={() => setModalAcik(true)}
-                              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
-                            >
-                              Güncel bayi fiyatı →
-                            </button>
+                            <span className="text-xs text-slate-300">Güncel bayi fiyatı yakında</span>
                             <button
                               onClick={() => handleTakip(tip)}
                               disabled={takipPending === tip.tip_kodu}
@@ -326,7 +321,7 @@ export function SifirEndeksListesi({
                               }`}
                             >
                               <span>{izlenenSet.has(tip.tip_kodu) ? "★" : "☆"}</span>
-                              <span>{takipPending === tip.tip_kodu ? "..." : izlenenSet.has(tip.tip_kodu) ? "İzliyorum" : "İzle"}</span>
+                              <span>{takipPending === tip.tip_kodu ? "..." : izlenenSet.has(tip.tip_kodu) ? "Takipte" : "Takibe al"}</span>
                             </button>
                           </div>
                         </div>

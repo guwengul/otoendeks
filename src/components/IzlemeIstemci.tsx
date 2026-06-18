@@ -116,9 +116,9 @@ export function IzlemeIstemci({ items }: { items: IzlemeItem[] }) {
   if (items.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 py-16 text-center">
-        <p className="text-slate-400 text-sm">Henüz araç izlemiyorsun.</p>
+        <p className="text-slate-400 text-sm">Henüz takibe aldığın araç yok.</p>
         <p className="mt-1 text-xs text-slate-400">
-          Sıfır araç sayfasında ☆ ile ekleyebilirsin.
+          Sıfır araç sayfasında "Takibe al" ile ekleyebilirsin.
         </p>
         <Link
           href="/sifir-arac"
