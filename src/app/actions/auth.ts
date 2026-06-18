@@ -43,7 +43,7 @@ export async function girisYap(formData: FormData) {
   if (error) return { error: turkce(error.message) };
 
   revalidatePath("/", "layout");
-  redirect(redirectTo || "/garajim");
+  redirect(redirectTo || "/araclarim");
 }
 
 export async function cikisYap() {

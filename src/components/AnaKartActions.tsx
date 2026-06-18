@@ -68,7 +68,7 @@ export function AnaKartActions({
       return;
     }
     if (eklendi) {
-      router.push("/garajim");
+      router.push("/araclarim");
       return;
     }
     setSecimAcik(true);

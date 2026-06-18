@@ -23,7 +23,8 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user && request.nextUrl.pathname.startsWith("/garajim")) {
+  const korunanlar = ["/araclarim", "/hesabim"];
+  if (!user && korunanlar.some(p => request.nextUrl.pathname.startsWith(p))) {
     const url = request.nextUrl.clone();
     url.pathname = "/giris";
     url.searchParams.set("redirect", request.nextUrl.pathname);
@@ -34,5 +35,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/garajim/:path*"],
+  matcher: ["/araclarim/:path*", "/hesabim/:path*"],
 };

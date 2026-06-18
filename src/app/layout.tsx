@@ -52,8 +52,8 @@ export default async function RootLayout({
             </Link>
             <div className="ml-auto">
               {user ? (
-                <Link href="/garajim" className="px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors rounded-md">
-                  Garajım
+                <Link href="/araclarim" className="px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors rounded-md">
+                  Araçlarım
                 </Link>
               ) : (
                 <Link href="/giris" className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">

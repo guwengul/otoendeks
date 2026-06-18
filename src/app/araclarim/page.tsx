@@ -2,16 +2,11 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { GarajimIstemci } from "@/components/GarajimIstemci";
-import { cikisYap } from "@/app/actions/auth";
 
 export const dynamic = "force-dynamic";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-function fmt(v: number) {
-  return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(v);
-}
 
 async function getKaskoFiyati(tipKodu: number, modelYili: number): Promise<number | null> {
   try {
@@ -26,7 +21,7 @@ async function getKaskoFiyati(tipKodu: number, modelYili: number): Promise<numbe
   }
 }
 
-export default async function GarajimPage() {
+export default async function AraclarimPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/giris");
@@ -43,7 +38,6 @@ export default async function GarajimPage() {
     })
   );
 
-  // Yaklaşan tarihler (30 gün içinde)
   const bugun = new Date();
   const otuzGunSonra = new Date(bugun);
   otuzGunSonra.setDate(otuzGunSonra.getDate() + 30);
@@ -68,15 +62,10 @@ export default async function GarajimPage() {
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-10">
       <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Garajım</h1>
-          <p className="mt-0.5 text-sm text-slate-500">{user.email}</p>
-        </div>
-        <form action={cikisYap}>
-          <button type="submit" className="text-sm text-slate-400 hover:text-slate-600">
-            Çıkış yap
-          </button>
-        </form>
+        <h1 className="text-2xl font-semibold text-slate-900">Araçlarım</h1>
+        <Link href="/hesabim" className="text-sm text-slate-500 hover:text-indigo-600">
+          Hesabım →
+        </Link>
       </div>
 
       {yaklasanTarihler.length > 0 && (
