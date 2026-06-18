@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { aylikTaksit, type KrediTipi } from "@/lib/kredi";
+import { type KrediTipi } from "@/lib/kredi";
+
+// Vergi oranları
+const BSMV = 0.05;
+const KKDF: Record<KrediTipi, number> = { tasit: 0, ihtiyac: 0.15 };
 
 const VADELER_TASIT   = [6, 12, 18, 24, 36, 48, 60];
 const VADELER_IHTIYAC = [6, 12, 18, 24, 36];
 
-// BDDK ihtiyaç kredisi vade sınırları (tutar bazlı)
 function ihtiyacMaxVade(tutar: number): number {
   if (tutar > 250000) return 12;
   if (tutar > 125000) return 24;
@@ -15,6 +18,56 @@ function ihtiyacMaxVade(tutar: number): number {
 
 function fmt(v: number) {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(v);
+}
+function fmtK(v: number) {
+  return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 2 }).format(v);
+}
+
+// Efektif aylık oran = baz_oran × (1 + KKDF) × (1 + BSMV)
+function efektifOran(bazOranPct: number, tip: KrediTipi): number {
+  return bazOranPct * (1 + KKDF[tip]) * (1 + BSMV);
+}
+
+function aylikTaksit(tutar: number, efektifPct: number, vade: number): number {
+  const r = efektifPct / 100;
+  if (r === 0) return tutar / vade;
+  return (tutar * r * Math.pow(1 + r, vade)) / (Math.pow(1 + r, vade) - 1);
+}
+
+type TaksitSatir = {
+  ay: number;
+  taksit: number;
+  anapara: number;
+  faiz: number;
+  kkdf: number;
+  bsmv: number;
+  kalan: number;
+};
+
+function amortizasyon(tutar: number, bazOranPct: number, vade: number, tip: KrediTipi): TaksitSatir[] {
+  const bazR = bazOranPct / 100;
+  const taksit = aylikTaksit(tutar, efektifOran(bazOranPct, tip), vade);
+  let kalan = tutar;
+  const satirlar: TaksitSatir[] = [];
+
+  for (let ay = 1; ay <= vade; ay++) {
+    const faiz = kalan * bazR;
+    const kkdfT = faiz * KKDF[tip];
+    const bsmvT = (faiz + kkdfT) * BSMV;
+    // Son ayda kalan bakiyeyi temizle (yuvarlama hataları için)
+    const anapara = ay === vade ? kalan : taksit - faiz - kkdfT - bsmvT;
+    kalan = Math.max(0, kalan - anapara);
+    satirlar.push({
+      ay,
+      taksit: anapara + faiz + kkdfT + bsmvT,
+      anapara,
+      faiz,
+      kkdf: kkdfT,
+      bsmv: bsmvT,
+      kalan,
+    });
+  }
+  return satirlar;
 }
 
 function Satir({ label, deger }: { label: string; deger: string }) {
@@ -31,7 +84,8 @@ export function KrediHesaplama() {
   const [tutar, setTutar] = useState(500000);
   const [tutarInput, setTutarInput] = useState("500.000");
   const [vade, setVade] = useState(24);
-  const [aylikFaiz, setAylikFaiz] = useState(3.5);
+  const [bazFaiz, setBazFaiz] = useState(3.5);
+  const [tabloAcik, setTabloAcik] = useState(false);
 
   function handleTutarInput(raw: string) {
     const digits = raw.replace(/\D/g, "");
@@ -41,27 +95,30 @@ export function KrediHesaplama() {
   }
 
   function handleFaizInput(raw: string) {
-    const normalized = raw.replace(",", ".");
-    const num = parseFloat(normalized);
-    if (!isNaN(num) && num >= 0 && num <= 10) setAylikFaiz(Math.round(num * 10) / 10);
+    const num = parseFloat(raw.replace(",", "."));
+    if (!isNaN(num) && num >= 0 && num <= 10) setBazFaiz(Math.round(num * 10) / 10);
   }
 
-  const sonuc = useMemo(() => {
-    const maxV = tip === "ihtiyac" ? ihtiyacMaxVade(tutar) : 60;
-    const v = Math.min(vade, maxV);
-    const taksit = aylikTaksit(tutar, aylikFaiz, v);
-    const toplam = taksit * v;
-    const faizToplam = toplam - tutar;
-    const yillikFaiz = aylikFaiz * 12;
-    return { taksit, toplam, faizToplam, yillikFaiz, efektifVade: v };
-  }, [tutar, aylikFaiz, vade, tip]);
-
   const maxVade = tip === "ihtiyac" ? ihtiyacMaxVade(tutar) : 60;
+  const gecerliVade = Math.min(vade, maxVade);
   const vadeler = (tip === "ihtiyac" ? VADELER_IHTIYAC : VADELER_TASIT).filter(v => v <= maxVade);
-  const gecerliVade = vade > maxVade ? maxVade : vade;
+
+  const efOran = efektifOran(bazFaiz, tip);
+
+  const sonuc = useMemo(() => {
+    const taksit = aylikTaksit(tutar, efektifOran(bazFaiz, tip), gecerliVade);
+    const toplam = taksit * gecerliVade;
+    const satirlar = amortizasyon(tutar, bazFaiz, gecerliVade, tip);
+    const toplamFaiz = satirlar.reduce((s, r) => s + r.faiz, 0);
+    const toplamKKDF  = satirlar.reduce((s, r) => s + r.kkdf, 0);
+    const toplamBSMV  = satirlar.reduce((s, r) => s + r.bsmv, 0);
+    return { taksit, toplam, toplamFaiz, toplamKKDF, toplamBSMV, satirlar };
+  }, [tutar, bazFaiz, gecerliVade, tip]);
+
+  const gosterKKDF = tip === "ihtiyac";
 
   return (
-    <div className="w-full max-w-xl">
+    <div className="w-full max-w-2xl">
       {/* Sekme */}
       <div className="mb-6 flex gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1 w-fit">
         {(["tasit", "ihtiyac"] as KrediTipi[]).map((t) => (
@@ -75,7 +132,7 @@ export function KrediHesaplama() {
         ))}
       </div>
 
-      {/* Giriş alanları */}
+      {/* Giriş */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
         {/* Tutar */}
         <div>
@@ -93,13 +150,10 @@ export function KrediHesaplama() {
           </div>
           <div className="mt-2 flex gap-2 flex-wrap">
             {[100000, 250000, 500000, 750000, 1000000].map((v) => (
-              <button
-                key={v}
+              <button key={v}
                 onClick={() => { setTutar(v); setTutarInput(new Intl.NumberFormat("tr-TR").format(v)); }}
                 className={`rounded-full border px-3 py-1 text-xs transition-colors ${tutar === v ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-500 hover:border-slate-300"}`}
-              >
-                {fmt(v)}
-              </button>
+              >{fmt(v)}</button>
             ))}
           </div>
         </div>
@@ -109,67 +163,114 @@ export function KrediHesaplama() {
           <div className="flex items-center justify-between mb-1.5">
             <label className="text-sm font-medium text-slate-700">Vade</label>
             {tip === "ihtiyac" && maxVade < 36 && (
-              <span className="text-[11px] text-amber-600 font-medium">
-                BDDK: bu tutar için maks. {maxVade} ay
-              </span>
+              <span className="text-[11px] text-amber-600 font-medium">BDDK: bu tutar için maks. {maxVade} ay</span>
             )}
           </div>
           <div className="flex flex-wrap gap-2">
             {vadeler.map((v) => (
-              <button
-                key={v}
-                onClick={() => setVade(v)}
+              <button key={v} onClick={() => setVade(v)}
                 className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${gecerliVade === v ? "border-indigo-500 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-700 hover:border-slate-300"}`}
-              >
-                {v} ay
-              </button>
+              >{v} ay</button>
             ))}
           </div>
         </div>
 
-        {/* Faiz oranı */}
+        {/* Faiz */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-slate-700">Aylık faiz oranı</label>
+            <div>
+              <label className="text-sm font-medium text-slate-700">Baz aylık faiz oranı</label>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Vergilerle efektif: %{efOran.toFixed(3)}
+                {gosterKKDF ? " (KKDF %15 + BSMV %5)" : " (BSMV %5)"}
+              </p>
+            </div>
             <div className="flex items-center gap-1">
               <input
-                type="number"
-                min={0.1}
-                max={10}
-                step={0.1}
-                value={aylikFaiz}
+                type="number" min={0.1} max={10} step={0.1} value={bazFaiz}
                 onChange={(e) => handleFaizInput(e.target.value)}
                 className="w-16 rounded-md border border-slate-300 py-1 px-2 text-sm text-center font-semibold text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 tabular-nums"
               />
               <span className="text-sm text-slate-500">%</span>
             </div>
           </div>
-          <input
-            type="range"
-            min={0.1}
-            max={10}
-            step={0.1}
-            value={aylikFaiz}
-            onChange={(e) => setAylikFaiz(Number(e.target.value))}
+          <input type="range" min={0.1} max={10} step={0.1} value={bazFaiz}
+            onChange={(e) => setBazFaiz(Number(e.target.value))}
             className="w-full accent-indigo-600"
           />
           <div className="mt-1 flex justify-between text-[10px] text-slate-400">
-            <span>%0.1</span>
-            <span>%10.0</span>
+            <span>%0.1</span><span>%10.0</span>
           </div>
         </div>
       </div>
 
-      {/* Sonuç */}
+      {/* Sonuç özeti */}
       <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-6">
         <p className="mb-1 text-xs font-medium text-indigo-500 uppercase tracking-wide">Aylık taksit</p>
         <p className="text-5xl font-bold tracking-tight text-slate-900 tabular-nums mb-4">{fmt(Math.round(sonuc.taksit))}</p>
         <div className="rounded-xl bg-white/70 px-4 divide-y divide-slate-100">
-          <Satir label="Toplam ödeme" deger={fmt(Math.round(sonuc.toplam))} />
-          <Satir label="Toplam faiz" deger={fmt(Math.round(sonuc.faizToplam))} />
-          <Satir label="Yıllık faiz oranı" deger={`%${sonuc.yillikFaiz.toFixed(1)}`} />
-          <Satir label="Vade" deger={`${sonuc.efektifVade} ay`} />
+          <Satir label="Toplam ödeme"  deger={fmt(Math.round(sonuc.toplam))} />
+          <Satir label="Toplam faiz"   deger={fmt(Math.round(sonuc.toplamFaiz))} />
+          {gosterKKDF && <Satir label="Toplam KKDF" deger={fmt(Math.round(sonuc.toplamKKDF))} />}
+          <Satir label="Toplam BSMV"   deger={fmt(Math.round(sonuc.toplamBSMV))} />
+          <Satir label="Toplam vergi"  deger={fmt(Math.round(sonuc.toplamKKDF + sonuc.toplamBSMV))} />
+          <Satir label="Vade"          deger={`${gecerliVade} ay`} />
         </div>
+      </div>
+
+      {/* Taksit tablosu */}
+      <div className="mt-4">
+        <button
+          onClick={() => setTabloAcik(v => !v)}
+          className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          <span>Taksit tablosu</span>
+          <svg className={`h-4 w-4 text-slate-400 transition-transform ${tabloAcik ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {tabloAcik && (
+          <div className="mt-2 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50">
+                  <th className="px-3 py-2.5 text-left font-semibold text-slate-500">Ay</th>
+                  <th className="px-3 py-2.5 text-right font-semibold text-slate-500">Taksit</th>
+                  <th className="px-3 py-2.5 text-right font-semibold text-slate-500">Anapara</th>
+                  <th className="px-3 py-2.5 text-right font-semibold text-slate-500">Faiz</th>
+                  {gosterKKDF && <th className="px-3 py-2.5 text-right font-semibold text-slate-500">KKDF</th>}
+                  <th className="px-3 py-2.5 text-right font-semibold text-slate-500">BSMV</th>
+                  <th className="px-3 py-2.5 text-right font-semibold text-slate-500">Kalan</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {sonuc.satirlar.map((s) => (
+                  <tr key={s.ay} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-3 py-2 text-slate-500 tabular-nums">{s.ay}</td>
+                    <td className="px-3 py-2 text-right font-medium text-slate-900 tabular-nums">{fmtK(s.taksit)}</td>
+                    <td className="px-3 py-2 text-right text-indigo-700 tabular-nums">{fmtK(s.anapara)}</td>
+                    <td className="px-3 py-2 text-right text-slate-600 tabular-nums">{fmtK(s.faiz)}</td>
+                    {gosterKKDF && <td className="px-3 py-2 text-right text-amber-600 tabular-nums">{fmtK(s.kkdf)}</td>}
+                    <td className="px-3 py-2 text-right text-amber-600 tabular-nums">{fmtK(s.bsmv)}</td>
+                    <td className="px-3 py-2 text-right text-slate-400 tabular-nums">{fmtK(s.kalan)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-slate-200 bg-slate-50 font-semibold">
+                  <td className="px-3 py-2.5 text-slate-500">Toplam</td>
+                  <td className="px-3 py-2.5 text-right text-slate-900 tabular-nums">{fmt(Math.round(sonuc.toplam))}</td>
+                  <td className="px-3 py-2.5 text-right text-indigo-700 tabular-nums">{fmt(tutar)}</td>
+                  <td className="px-3 py-2.5 text-right text-slate-600 tabular-nums">{fmt(Math.round(sonuc.toplamFaiz))}</td>
+                  {gosterKKDF && <td className="px-3 py-2.5 text-right text-amber-600 tabular-nums">{fmt(Math.round(sonuc.toplamKKDF))}</td>}
+                  <td className="px-3 py-2.5 text-right text-amber-600 tabular-nums">{fmt(Math.round(sonuc.toplamBSMV))}</td>
+                  <td className="px-3 py-2.5 text-right text-slate-400">—</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
