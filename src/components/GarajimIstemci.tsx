@@ -20,16 +20,57 @@ type Arac = {
 };
 
 const TIP_LABEL: Record<string, string> = {
-  mtv: "MTV son ödeme",
-  muayene: "Muayene",
+  mtv: "MTV hatırlatıcı",
+  muayene: "Bir sonraki muayene",
   kasko: "Kasko bitiş",
+};
+
+const TIP_ACIKLAMA: Record<string, string> = {
+  mtv: "31 Ocak ve 31 Temmuz'dan 1 hafta önce hatırlatırız.",
+  muayene: "Muayene tarihinden 2 hafta önce hatırlatırız.",
+  kasko: "Poliçe bitişinden 1 hafta önce hatırlatırız.",
 };
 
 function fmt(v: number) {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(v);
 }
 
-function TarihSatiri({ aracId, tip, mevcut }: { aracId: string; tip: string; mevcut?: string }) {
+function MTVSatiri({ aracId, mevcut }: { aracId: string; mevcut?: string }) {
+  // MTV için özel tarih yok — sadece "aktif mi" bilgisi. mevcut varsa aktif.
+  const [aktif, setAktif] = useState(!!mevcut);
+  const [pending, setPending] = useState(false);
+
+  async function toggle() {
+    setPending(true);
+    setAktif(v => !v);
+    // MTV için sabit bir tarih kaydediyoruz (31 Temmuz bu yıl veya gelecek yıl)
+    const buYil = new Date().getFullYear();
+    const temmuz = `${buYil}-07-31`;
+    if (!aktif) {
+      await tarihKaydet(aracId, "mtv", temmuz);
+    } else {
+      // Silmek için çok eski bir tarih yazıyoruz — backend'de ignore edilir
+      await tarihKaydet(aracId, "mtv", "1970-01-01");
+    }
+    setPending(false);
+  }
+
+  return (
+    <div className="py-2">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-medium text-slate-600">{TIP_LABEL["mtv"]}</p>
+          <p className="text-xs text-slate-400 mt-0.5">{TIP_ACIKLAMA["mtv"]}</p>
+        </div>
+        <button onClick={toggle} disabled={pending} className={`relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors disabled:opacity-50 ${aktif ? "bg-indigo-500" : "bg-slate-200"}`}>
+          <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform mt-0.5 ${aktif ? "translate-x-4" : "translate-x-0.5"}`} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TarihSatiri({ aracId, tip, mevcut }: { aracId: string; tip: "muayene" | "kasko"; mevcut?: string }) {
   const [duzenleniyor, setDuzenleniyor] = useState(false);
   const [tarih, setTarih] = useState(mevcut ?? "");
   const [pending, setPending] = useState(false);
@@ -37,51 +78,56 @@ function TarihSatiri({ aracId, tip, mevcut }: { aracId: string; tip: string; mev
   async function kaydet() {
     if (!tarih) return;
     setPending(true);
-    await tarihKaydet(aracId, tip as "mtv" | "muayene" | "kasko", tarih);
+    await tarihKaydet(aracId, tip, tarih);
     setPending(false);
     setDuzenleniyor(false);
   }
 
-  const kalan = mevcut
+  const kalan = mevcut && mevcut !== "1970-01-01"
     ? Math.ceil((new Date(mevcut).getTime() - Date.now()) / 86400000)
     : null;
 
   return (
-    <div className="flex items-center justify-between gap-2 py-1.5">
-      <span className="text-xs text-slate-500 w-28 shrink-0">{TIP_LABEL[tip]}</span>
-      {duzenleniyor ? (
-        <div className="flex items-center gap-2 flex-1">
-          <input
-            type="date"
-            value={tarih}
-            onChange={(e) => setTarih(e.target.value)}
-            className="flex-1 rounded border border-slate-300 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          />
-          <button onClick={kaydet} disabled={pending} className="text-xs font-medium text-indigo-600 hover:text-indigo-700 disabled:opacity-50">
-            {pending ? "..." : "Kaydet"}
-          </button>
-          <button onClick={() => setDuzenleniyor(false)} className="text-xs text-slate-400">İptal</button>
+    <div className="py-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1">
+          <p className="text-xs font-medium text-slate-600">{TIP_LABEL[tip]}</p>
+          <p className="text-xs text-slate-400 mt-0.5">{TIP_ACIKLAMA[tip]}</p>
         </div>
-      ) : (
-        <div className="flex items-center gap-2 flex-1 justify-end">
-          {mevcut ? (
-            <>
-              <span className="text-xs text-slate-700">{new Date(mevcut).toLocaleDateString("tr-TR")}</span>
-              {kalan !== null && kalan >= 0 && kalan <= 30 && (
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">{kalan} gün</span>
-              )}
-              {kalan !== null && kalan < 0 && (
-                <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">Geçti</span>
-              )}
-            </>
+        <div className="shrink-0 text-right">
+          {duzenleniyor ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={tarih}
+                onChange={(e) => setTarih(e.target.value)}
+                className="rounded border border-slate-300 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+              <button onClick={kaydet} disabled={pending} className="text-xs font-medium text-indigo-600 disabled:opacity-50">
+                {pending ? "..." : "Kaydet"}
+              </button>
+              <button onClick={() => setDuzenleniyor(false)} className="text-xs text-slate-400">İptal</button>
+            </div>
           ) : (
-            <span className="text-xs text-slate-300">—</span>
+            <div className="flex items-center gap-2">
+              {mevcut && mevcut !== "1970-01-01" ? (
+                <>
+                  <span className="text-xs text-slate-600">{new Date(mevcut).toLocaleDateString("tr-TR")}</span>
+                  {kalan !== null && kalan >= 0 && kalan <= 30 && (
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">{kalan} gün</span>
+                  )}
+                  {kalan !== null && kalan < 0 && (
+                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">Geçti</span>
+                  )}
+                </>
+              ) : null}
+              <button onClick={() => setDuzenleniyor(true)} className="text-xs text-slate-400 hover:text-indigo-600">
+                {mevcut && mevcut !== "1970-01-01" ? "Düzenle" : "Ekle"}
+              </button>
+            </div>
           )}
-          <button onClick={() => setDuzenleniyor(true)} className="text-xs text-slate-400 hover:text-indigo-600">
-            {mevcut ? "Düzenle" : "Ekle"}
-          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -137,10 +183,10 @@ function AracKarti({ arac }: { arac: Arac }) {
 
       {/* Tarihler — sadece benim arabam için */}
       {arac.sahip_mi && (
-        <div className="border-t border-slate-100 pt-2">
-          {(["mtv", "muayene", "kasko"] as const).map((tip) => (
-            <TarihSatiri key={tip} aracId={arac.id} tip={tip} mevcut={tarihByTip[tip]} />
-          ))}
+        <div className="border-t border-slate-100 pt-1 divide-y divide-slate-100">
+          <MTVSatiri aracId={arac.id} mevcut={tarihByTip["mtv"]} />
+          <TarihSatiri aracId={arac.id} tip="muayene" mevcut={tarihByTip["muayene"]} />
+          <TarihSatiri aracId={arac.id} tip="kasko" mevcut={tarihByTip["kasko"]} />
         </div>
       )}
 
