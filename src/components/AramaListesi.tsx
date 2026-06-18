@@ -57,29 +57,27 @@ export function AramaListesi({
           <li key={item.key}>
             <Link
               href={item.href}
-              className="block rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm transition-colors hover:border-indigo-400 hover:bg-indigo-50"
+              className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm transition-colors hover:border-indigo-400 hover:bg-indigo-50"
             >
-              <div className={`flex items-center gap-3 ${tekSutun ? "justify-between" : "flex-col items-start gap-1.5"}`}>
-                {item.logoSlug && !tekSutun && (
-                  <div className="h-8 w-full flex items-center">
-                    <Image
-                      src={`/logos/${item.logoSlug}.svg`}
-                      alt={item.label}
-                      width={48}
-                      height={28}
-                      className="object-contain opacity-70"
-                      style={{ maxHeight: 28 }}
-                    />
-                  </div>
-                )}
-                <div className={`flex items-center gap-2 ${tekSutun ? "" : "w-full"}`}>
-                  {item.logoSlug && tekSutun && (
-                    <Image src={`/logos/${item.logoSlug}.svg`} alt={item.label} width={20} height={20} className="object-contain opacity-70 shrink-0" />
-                  )}
-                  <div className="font-medium text-slate-900">{item.label}</div>
+              {item.logoSlug ? (
+                <div className="flex h-7 w-10 shrink-0 items-center justify-center">
+                  <Image
+                    src={`/logos/${item.logoSlug}.svg`}
+                    alt=""
+                    width={40}
+                    height={28}
+                    className="h-full w-full object-contain opacity-60"
+                  />
                 </div>
-                {item.sublabel && <div className={`text-xs text-slate-500 shrink-0 ${tekSutun ? "font-semibold" : ""}`}>{item.sublabel}</div>}
+              ) : (
+                !tekSutun && <div className="h-7 w-10 shrink-0" />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="font-medium text-slate-900">{item.label}</div>
               </div>
+              {item.sublabel && (
+                <div className="shrink-0 text-xs font-semibold text-slate-500">{item.sublabel}</div>
+              )}
             </Link>
           </li>
         ))}
