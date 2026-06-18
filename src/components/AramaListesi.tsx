@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 type Item = {
   key: string;
   label: string;
   sublabel?: string;
   href: string;
+  logoSlug?: string;
 };
 
 export function AramaListesi({
@@ -57,8 +59,25 @@ export function AramaListesi({
               href={item.href}
               className="block rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm transition-colors hover:border-indigo-400 hover:bg-indigo-50"
             >
-              <div className={`flex items-center justify-between gap-4 ${tekSutun ? "" : "flex-col items-start gap-0.5"}`}>
-                <div className="font-medium text-slate-900">{item.label}</div>
+              <div className={`flex items-center gap-3 ${tekSutun ? "justify-between" : "flex-col items-start gap-1.5"}`}>
+                {item.logoSlug && !tekSutun && (
+                  <div className="h-8 w-full flex items-center">
+                    <Image
+                      src={`/logos/${item.logoSlug}.svg`}
+                      alt={item.label}
+                      width={48}
+                      height={28}
+                      className="object-contain opacity-70"
+                      style={{ maxHeight: 28 }}
+                    />
+                  </div>
+                )}
+                <div className={`flex items-center gap-2 ${tekSutun ? "" : "w-full"}`}>
+                  {item.logoSlug && tekSutun && (
+                    <Image src={`/logos/${item.logoSlug}.svg`} alt={item.label} width={20} height={20} className="object-contain opacity-70 shrink-0" />
+                  )}
+                  <div className="font-medium text-slate-900">{item.label}</div>
+                </div>
                 {item.sublabel && <div className={`text-xs text-slate-500 shrink-0 ${tekSutun ? "font-semibold" : ""}`}>{item.sublabel}</div>}
               </div>
             </Link>
