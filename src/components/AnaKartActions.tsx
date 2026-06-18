@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 
@@ -28,29 +28,19 @@ function IconCopy() {
   );
 }
 
-function IconImage() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2}>
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-      <circle cx="8.5" cy="8.5" r="1.5"/>
-      <polyline points="21 15 16 10 5 21"/>
-    </svg>
-  );
-}
-
 export function AnaKartActions({
-  ogParams,
+  ozet,
   tumunuMetin,
 }: {
-  ogParams: string;
+  ozet: string;
   tumunuMetin: string;
 }) {
   const [takipAktif, setTakipAktif] = useState(false);
   const [kopyalandi, setKopyalandi] = useState(false);
-  const [resimYukleniyor, setResimYukleniyor] = useState(false);
 
   const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-  const encodedText = encodeURIComponent(tumunuMetin);
+  const waMetin = encodeURIComponent(ozet + "\n" + pageUrl);
+  const xMetin = encodeURIComponent(ozet);
   const encodedUrl = encodeURIComponent(pageUrl);
 
   function handleKopyala() {
@@ -59,84 +49,47 @@ export function AnaKartActions({
     setTimeout(() => setKopyalandi(false), 2000);
   }
 
-  async function handleResimPaylas() {
-    setResimYukleniyor(true);
-    try {
-      const ogUrl = `${window.location.origin}/api/og?${ogParams}`;
-      const res = await fetch(ogUrl);
-      const blob = await res.blob();
-      const file = new File([blob], "kasko-degeri.png", { type: "image/png" });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], url: pageUrl });
-      } else {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "kasko-degeri.png";
-        a.click();
-        URL.revokeObjectURL(a.href);
-      }
-    } catch {
-      // kullanıcı iptal etti
-    } finally {
-      setResimYukleniyor(false);
-    }
-  }
-
   return (
-    <div className="mt-4 flex items-center gap-2 border-t border-gray-200 pt-4">
-      {/* Takip et */}
+    <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
       {takipAktif ? (
         <span className="text-xs text-indigo-600">Takip için kayıt ol — yakında!</span>
       ) : (
         <button
           onClick={() => setTakipAktif(true)}
-          className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100"
+          className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition-colors hover:bg-slate-50"
         >
           <span>♡</span>
           <span>Takip et</span>
         </button>
       )}
 
-      {/* Paylaş ikonları */}
       <div className="ml-auto flex items-center gap-1.5">
         <a
-          href={`https://wa.me/?text=${encodedText}%0A${encodedUrl}`}
+          href={`https://wa.me/?text=${waMetin}`}
           target="_blank" rel="noopener noreferrer"
           className="flex h-6 w-6 items-center justify-center rounded-full bg-[#25D366] text-white transition-opacity hover:opacity-80"
-          title="WhatsApp"
+          title="WhatsApp'ta paylaş"
         >
           <IconWhatsApp />
         </a>
         <a
-          href={`https://x.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`}
+          href={`https://x.com/intent/tweet?text=${xMetin}&url=${encodedUrl}`}
           target="_blank" rel="noopener noreferrer"
           className="flex h-6 w-6 items-center justify-center rounded-full bg-black text-white transition-opacity hover:opacity-80"
-          title="X"
+          title="X'te paylaş"
         >
           <IconX />
         </a>
         <button
           onClick={handleKopyala}
-          className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-50"
-          title="Kopyala"
+          className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50"
+          title="Detayları kopyala"
         >
           {kopyalandi ? (
-            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-green-600" fill="none" stroke="currentColor" strokeWidth={2}>
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-emerald-600" fill="none" stroke="currentColor" strokeWidth={2}>
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           ) : <IconCopy />}
-        </button>
-        <button
-          onClick={handleResimPaylas}
-          disabled={resimYukleniyor}
-          className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-40"
-          title="Resim olarak paylaş"
-        >
-          {resimYukleniyor ? (
-            <svg viewBox="0 0 24 24" className="h-3 w-3 animate-spin" fill="none" stroke="currentColor" strokeWidth={2}>
-              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-            </svg>
-          ) : <IconImage />}
         </button>
       </div>
     </div>

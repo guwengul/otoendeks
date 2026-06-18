@@ -169,6 +169,11 @@ export default async function TipDetayPage({
     "\notoendeks.com",
   ].filter(Boolean).join("\n");
 
+  const ozet = [
+    `${marka.marka_adi} ${detay.tip_adi} ${modelYili} model`,
+    buYilDegeri ? `Kasko değeri: ${formatTL(buYilDegeri.deger)} (${ayLabel(marka.son_snapshot_month)} TSB)` : null,
+  ].filter(Boolean).join("\n");
+
   const ogParams = buildOgParams(marka, detay.tip_adi, modelYili, buYilDegeri?.deger, fiyatGecmisi, eskimeData);
 
   return (
@@ -199,7 +204,7 @@ export default async function TipDetayPage({
         <DetayKartlari enflasyon={enflasyonData} eskime={eskimeData} />
 
         {/* Takip et + paylaş — wrapper'ın alt kısmı */}
-        <AnaKartActions ogParams={ogParams} tumunuMetin={tumunuMetin} />
+        <AnaKartActions ozet={ozet} tumunuMetin={tumunuMetin} />
       </div>
 
       {/* Mikro feedback */}
