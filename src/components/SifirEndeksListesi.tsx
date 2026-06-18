@@ -108,6 +108,9 @@ export function SifirEndeksListesi({
   const gruplar = useMemo((): ModelGrup[] => {
     const modelMap = new Map<string, TipRow[]>();
     for (const r of veri.current) {
+      const aracTipi = veri.aracTipiMap.get(r.tip_kodu);
+      // arac_ozellikleri'nde kayıt varsa ve binek değilse atla
+      if (aracTipi && aracTipi !== "binek") continue;
       const model = veri.modelAdiMap.get(r.tip_kodu) ?? extractModelAdi(r.tip_adi, markaAdi);
       const tipAdi = r.tip_adi.startsWith(markaAdi) ? r.tip_adi.slice(markaAdi.length).trim() : r.tip_adi;
       const prev = veri.prevMonthMap.get(r.tip_kodu) ?? null;
