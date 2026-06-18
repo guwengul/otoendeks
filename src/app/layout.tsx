@@ -42,7 +42,14 @@ export default async function RootLayout({
         <header className="border-b border-slate-200 bg-white">
           <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 h-14">
             <Link href="/" className="mr-6 flex items-center gap-2 font-semibold text-slate-900 tracking-tight">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white text-xs font-bold">O</span>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+                {/* kadran */}
+                <path d="M4.2 17.5A9 9 0 1 1 19.8 17.5" stroke="#1e293b" strokeWidth="2.2" strokeLinecap="round"/>
+                {/* ibre — 10'u gösteriyor */}
+                <line x1="12" y1="13" x2="6.2" y2="9.6" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round"/>
+                {/* merkez nokta */}
+                <circle cx="12" cy="13" r="1.6" fill="#4f46e5"/>
+              </svg>
               <span className="text-base">otoendeks</span>
             </Link>
             <Link href="/" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
@@ -59,11 +66,11 @@ export default async function RootLayout({
             </Link>
             <div className="ml-auto">
               {user ? (
-                <Link href="/araclarim" className="px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors rounded-md">
+                <Link href="/araclarim" className="rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-100 transition-colors">
                   Araçlarım
                 </Link>
               ) : (
-                <Link href="/giris" className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
+                <Link href="/giris" className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600 transition-colors">
                   Giriş yap
                 </Link>
               )}
