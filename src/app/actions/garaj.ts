@@ -10,6 +10,7 @@ export type KullaniciArac = {
   tip_adi: string;
   model_yili: number;
   marka_slug: string;
+  sahip_mi: boolean;
 };
 
 export async function aracEkle(arac: Omit<KullaniciArac, "id">) {
@@ -19,7 +20,7 @@ export async function aracEkle(arac: Omit<KullaniciArac, "id">) {
 
   const { error } = await supabase
     .from("kullanici_araclar")
-    .upsert({ ...arac, user_id: user.id }, { onConflict: "user_id,tip_kodu,model_yili" });
+    .upsert({ ...arac, user_id: user.id, sahip_mi: arac.sahip_mi ?? false }, { onConflict: "user_id,tip_kodu,model_yili" });
 
   if (error) return { error: error.message };
   revalidatePath("/garajim");

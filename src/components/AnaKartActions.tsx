@@ -53,6 +53,7 @@ export function AnaKartActions({
 }) {
   const router = useRouter();
   const [eklendi, setEklendi] = useState(zatenEklendi);
+  const [secimAcik, setSecimAcik] = useState(false);
   const [pending, setPending] = useState(false);
   const [kopyalandi, setKopyalandi] = useState(false);
 
@@ -61,7 +62,7 @@ export function AnaKartActions({
   const xMetin = encodeURIComponent(ozet);
   const encodedUrl = encodeURIComponent(pageUrl);
 
-  async function handleTakip() {
+  function handleTakip() {
     if (!girisYapilmis) {
       router.push(`/giris?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
@@ -70,6 +71,11 @@ export function AnaKartActions({
       router.push("/garajim");
       return;
     }
+    setSecimAcik(true);
+  }
+
+  async function handleEkle(sahipMi: boolean) {
+    setSecimAcik(false);
     setPending(true);
     await aracEkle({
       tip_kodu: arac.tipKodu,
@@ -77,6 +83,7 @@ export function AnaKartActions({
       tip_adi: arac.tipAdi,
       model_yili: arac.modelYili,
       marka_slug: arac.markaSlug,
+      sahip_mi: sahipMi,
     });
     setEklendi(true);
     setPending(false);
@@ -90,18 +97,39 @@ export function AnaKartActions({
 
   return (
     <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
-      <button
-        onClick={handleTakip}
-        disabled={pending}
-        className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:opacity-50 ${
-          eklendi
-            ? "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-            : "border-slate-200 text-slate-600 hover:bg-slate-50"
-        }`}
-      >
-        <span>{eklendi ? "★" : "☆"}</span>
-        <span>{pending ? "Ekleniyor..." : eklendi ? "Garajımda" : "Bu aracı takip et"}</span>
-      </button>
+      <div className="relative">
+        <button
+          onClick={handleTakip}
+          disabled={pending}
+          className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:opacity-50 ${
+            eklendi
+              ? "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+              : "border-slate-200 text-slate-600 hover:bg-slate-50"
+          }`}
+        >
+          <span>{eklendi ? "★" : "☆"}</span>
+          <span>{pending ? "Ekleniyor..." : eklendi ? "Garajımda" : "Bu aracı takip et"}</span>
+        </button>
+        {secimAcik && (
+          <div className="absolute left-0 top-full mt-1 z-10 w-52 rounded-xl border border-slate-200 bg-white shadow-lg">
+            <button
+              onClick={() => handleEkle(true)}
+              className="flex w-full flex-col items-start px-4 py-3 text-left hover:bg-indigo-50 rounded-t-xl"
+            >
+              <span className="text-sm font-medium text-slate-900">Benim arabam</span>
+              <span className="text-xs text-slate-500">MTV, muayene, sigorta hatırlatıcıları</span>
+            </button>
+            <div className="border-t border-slate-100" />
+            <button
+              onClick={() => handleEkle(false)}
+              className="flex w-full flex-col items-start px-4 py-3 text-left hover:bg-slate-50 rounded-b-xl"
+            >
+              <span className="text-sm font-medium text-slate-900">Sadece takip et</span>
+              <span className="text-xs text-slate-500">Fiyat değişince bildirim al</span>
+            </button>
+          </div>
+        )}
+      </div>
 
       <div className="ml-auto flex items-center gap-1.5">
         <a

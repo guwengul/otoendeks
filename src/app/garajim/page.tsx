@@ -16,11 +16,11 @@ function fmt(v: number) {
 async function getKaskoFiyati(tipKodu: number, modelYili: number): Promise<number | null> {
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/kasko_degerleri?tip_kodu=eq.${tipKodu}&model_yili=eq.${modelYili}&order=snapshot_month.desc&limit=1&select=deger_tl`,
+      `${SUPABASE_URL}/rest/v1/kasko_degerleri?tip_kodu=eq.${tipKodu}&model_yili=eq.${modelYili}&order=snapshot_month.desc&limit=1&select=deger`,
       { headers: { apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` }, cache: "no-store" }
     );
     const data = await res.json();
-    return data?.[0]?.deger_tl ?? null;
+    return data?.[0]?.deger ?? null;
   } catch {
     return null;
   }
@@ -37,11 +37,10 @@ export default async function GarajimPage() {
     .order("created_at", { ascending: false });
 
   const araclarWithFiyat = await Promise.all(
-    (araclar ?? []).map(async (a) => ({
-      ...a,
-      kasko_fiyati: await getKaskoFiyati(a.tip_kodu, a.model_yili),
-      kasko_fiyati_fmt: fmt(await getKaskoFiyati(a.tip_kodu, a.model_yili) ?? 0),
-    }))
+    (araclar ?? []).map(async (a) => {
+      const fiyat = await getKaskoFiyati(a.tip_kodu, a.model_yili);
+      return { ...a, kasko_fiyati: fiyat };
+    })
   );
 
   // Yaklaşan tarihler (30 gün içinde)
