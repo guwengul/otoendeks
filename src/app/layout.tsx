@@ -42,7 +42,7 @@ export default async function RootLayout({
         <header className="border-b border-slate-200 bg-white">
           <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 h-14">
             <Link href="/" className="mr-6 flex items-center gap-2 font-semibold text-slate-900 tracking-tight">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden>
                 {/* kadran */}
                 <path d="M4.2 17.5A9 9 0 1 1 19.8 17.5" stroke="#1e293b" strokeWidth="2.2" strokeLinecap="round"/>
                 {/* ibre — 10'u gösteriyor */}
@@ -50,7 +50,7 @@ export default async function RootLayout({
                 {/* merkez nokta */}
                 <circle cx="12" cy="13" r="1.6" fill="#4f46e5"/>
               </svg>
-              <span className="text-base">otoendeks</span>
+              <span className="text-lg">otoendeks</span>
             </Link>
             <Link href="/" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
               <IkonKasko className="shrink-0" />
