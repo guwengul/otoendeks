@@ -1,15 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 
 export function MikroFeedback({ tipKodu, modelYili }: { tipKodu: number; modelYili: number }) {
   const storageKey = `fb-${tipKodu}-${modelYili}`;
 
-  const [seciliOy, setSeciliOy] = useState<1 | -1 | null>(() => {
-    if (typeof window === "undefined") return null;
-    const v = localStorage.getItem(storageKey);
-    return v ? (Number(v) as 1 | -1) : null;
-  });
+  const [acik, setAcik] = useState(false);
   const [yorum, setYorum] = useState("");
   const [gonderiyor, setGonderiyor] = useState(false);
   const [tamamlandi, setTamamlandi] = useState(() => {
@@ -17,13 +13,8 @@ export function MikroFeedback({ tipKodu, modelYili }: { tipKodu: number; modelYi
     return !!localStorage.getItem(storageKey);
   });
 
-  function handleOy(oy: 1 | -1) {
-    if (seciliOy !== null || gonderiyor) return;
-    setSeciliOy(oy);
-  }
-
-  async function gonder(yorumMetni: string) {
-    if (seciliOy === null || gonderiyor) return;
+  async function gonder() {
+    if (gonderiyor) return;
     setGonderiyor(true);
     try {
       await fetch("/api/feedback", {
@@ -32,11 +23,11 @@ export function MikroFeedback({ tipKodu, modelYili }: { tipKodu: number; modelYi
         body: JSON.stringify({
           tip_kodu: tipKodu,
           model_yili: modelYili,
-          oy: seciliOy,
-          yorum: yorumMetni.trim() || null,
+          oy: -1,
+          yorum: yorum.trim() || null,
         }),
       });
-      localStorage.setItem(storageKey, String(seciliOy));
+      localStorage.setItem(storageKey, "-1");
       setTamamlandi(true);
     } finally {
       setGonderiyor(false);
@@ -45,42 +36,37 @@ export function MikroFeedback({ tipKodu, modelYili }: { tipKodu: number; modelYi
 
   if (tamamlandi) {
     return (
-      <div className="py-3 text-center text-sm text-gray-400">
-        {seciliOy === 1 ? "👍" : "👎"} Teşekkürler, görüşün kaydedildi.
-      </div>
+      <p className="py-2 text-center text-xs text-slate-400">Bildiriminiz alındı, teşekkürler.</p>
     );
   }
 
-  if (seciliOy !== null) {
+  if (acik) {
     return (
-      <div className="py-3">
-        <p className="mb-2 text-center text-sm text-gray-500">
-          {seciliOy === 1 ? "👍" : "👎"} Kısa bir yorum eklemek ister misin?
-        </p>
+      <div className="py-2">
+        <p className="mb-2 text-xs text-slate-500">Hangi değerin hatalı olduğunu belirtir misiniz? (isteğe bağlı)</p>
         <div className="flex gap-2">
           <input
             type="text"
             value={yorum}
             onChange={(e) => setYorum(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && gonder(yorum)}
-            placeholder="İsteğe bağlı..."
+            onKeyDown={(e) => e.key === "Enter" && gonder()}
+            placeholder="örn. gerçek değer ₺1.200.000 civarında"
             maxLength={200}
             autoFocus
-            className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400"
           />
           <button
-            onClick={() => gonder(yorum)}
+            onClick={gonder}
             disabled={gonderiyor}
-            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-40"
+            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
           >
             Gönder
           </button>
           <button
-            onClick={() => gonder("")}
-            disabled={gonderiyor}
-            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-gray-50 disabled:opacity-40"
+            onClick={() => setAcik(false)}
+            className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-50"
           >
-            Geç
+            İptal
           </button>
         </div>
       </div>
@@ -88,22 +74,14 @@ export function MikroFeedback({ tipKodu, modelYili }: { tipKodu: number; modelYi
   }
 
   return (
-    <div className="flex items-center justify-center gap-4 py-3">
-      <span className="text-sm text-gray-500">Bu bilgi faydalı oldu mu?</span>
+    <p className="py-2 text-center text-xs text-slate-400">
+      Değer hatalı mı?{" "}
       <button
-        onClick={() => handleOy(1)}
-        className="text-xl transition-transform hover:scale-125"
-        aria-label="Evet, faydalı"
+        onClick={() => setAcik(true)}
+        className="text-indigo-500 hover:text-indigo-700 hover:underline"
       >
-        👍
+        Bildir
       </button>
-      <button
-        onClick={() => handleOy(-1)}
-        className="text-xl transition-transform hover:scale-125"
-        aria-label="Hayır, faydalı değil"
-      >
-        👎
-      </button>
-    </div>
+    </p>
   );
 }
