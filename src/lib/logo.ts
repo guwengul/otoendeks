@@ -1,5 +1,6 @@
 // marka_adi (büyük harf) → /logos/{slug}.svg dosya adı
 const LOGO_MAP: Record<string, string> = {
+  // Popüler binek
   "TOYOTA": "toyota",
   "VOLKSWAGEN": "volkswagen",
   "BMW": "bmw",
@@ -36,6 +37,13 @@ const LOGO_MAP: Record<string, string> = {
   "JAGUAR": "jaguar",
   "SMART": "smart",
   "INFINITI": "infiniti",
+  "CUPRA": "cupra",
+  "DS": "ds",
+  "LEXUS": "lexus",
+  "DAIHATSU": "daihatsu",
+  "ISUZU": "isuzu",
+  "TOGG": "togg",
+  // Lüks & spor
   "ALFA ROMEO": "alfaromeo",
   "FERRARI": "ferrari",
   "MASERATI": "maserati",
@@ -43,17 +51,41 @@ const LOGO_MAP: Record<string, string> = {
   "BENTLEY": "bentley",
   "ASTON MARTIN": "astonmartin",
   "ROLLS-ROYCE": "rollsroyce",
-  "SUBARU": "subaru",
+  "MCLAREN": "mclaren",
   "BUGATTI": "bugatti",
+  "KOENIGSEGG": "koenigsegg",
+  "LOTUS": "lotus",
+  "MAYBACH": "maybach",
+  "LANCIA": "lancia",
+  // Amerikan
   "CADILLAC": "cadillac",
   "CHEVROLET": "chevrolet",
   "CHRYSLER": "chrysler",
-  "LADA": "lada",
-  "LUCID": "lucid",
-  "MAHINDRA": "mahindra",
-  "MCLAREN": "mclaren",
+  "DODGE/USA": "dodge",
+  "GMC": "gmc",
+  "LINCOLN": "lincoln",
+  "BUICK": "buick",
+  // EV & yeni nesil
   "POLESTAR": "polestar",
+  "LUCID": "lucid",
+  "BYD": "byd",
+  "XPENG": "xpeng",
+  "CHERY": "chery",
+  // Diğer global
+  "SUBARU": "subaru",
+  "SAAB": "saab",
+  "SSANGYONG": "ssangyong",
+  "KGMOBILITY": "kgmobility",
+  "LADA": "lada",
+  "MAHINDRA": "mahindra",
   "PROTON": "proton",
+  "GEELY": "geely",
+  "LYNK-CO": "lynkco",
+  // Ticari & diğer
+  "MAN": "man",
+  "SCANIA": "scania",
+  "TATA": "tata",
+  "KTM": "ktm",
 };
 
 export function getLogoSlug(markaAdi: string): string | null {
