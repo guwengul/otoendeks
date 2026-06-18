@@ -212,11 +212,11 @@ export type SifirEndeksVeri = {
   sonAy: string;
   oncekiAy: string | null;
   current: RawKaskoRow[];
-  prevMonthMap: Map<number, number>;
-  prevYearMap: Map<number, number>;
-  aracTipiMap: Map<number, string>;
-  modelAdiMap: Map<number, string>;
-  spekMap: Map<number, AracSpek>;
+  prevMonthMap: Record<number, number>;
+  prevYearMap: Record<number, number>;
+  aracTipiMap: Record<number, string>;
+  modelAdiMap: Record<number, string>;
+  spekMap: Record<number, AracSpek>;
 };
 
 export async function getSifirEndeksVeri(
@@ -266,11 +266,11 @@ export async function getSifirEndeksVeri(
     sonAy,
     oncekiAy: prevMonth.length ? oncekiAy : null,
     current,
-    prevMonthMap: new Map(prevMonth.map((r) => [r.tip_kodu, r.deger])),
-    prevYearMap: new Map(prevYear.map((r) => [r.tip_kodu, r.deger])),
-    aracTipiMap: new Map(ozellikler.filter((r) => r.arac_tipi).map((r) => [r.tip_kodu, r.arac_tipi!])),
-    modelAdiMap: new Map(ozellikler.filter((r) => r.model_adi).map((r) => [r.tip_kodu, r.model_adi!])),
-    spekMap: new Map(ozellikler.map((r) => [r.tip_kodu, { kasa: r.kasa, yakit: r.yakit, vites: r.vites, motor_guc_hp: r.motor_guc_hp, motor_hacmi: r.motor_hacmi, cekis: r.cekis }])),
+    prevMonthMap: Object.fromEntries(prevMonth.map((r) => [r.tip_kodu, r.deger])),
+    prevYearMap: Object.fromEntries(prevYear.map((r) => [r.tip_kodu, r.deger])),
+    aracTipiMap: Object.fromEntries(ozellikler.filter((r) => r.arac_tipi).map((r) => [r.tip_kodu, r.arac_tipi!])),
+    modelAdiMap: Object.fromEntries(ozellikler.filter((r) => r.model_adi).map((r) => [r.tip_kodu, r.model_adi!])),
+    spekMap: Object.fromEntries(ozellikler.map((r) => [r.tip_kodu, { kasa: r.kasa, yakit: r.yakit, vites: r.vites, motor_guc_hp: r.motor_guc_hp, motor_hacmi: r.motor_hacmi, cekis: r.cekis }])),
   };
 }
 

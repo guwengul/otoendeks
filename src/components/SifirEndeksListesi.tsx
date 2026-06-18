@@ -95,7 +95,7 @@ export function SifirEndeksListesi({
 }) {
   // Tab: markanın hem binek hem ticari/özel araçları varsa göster
   const tablar = useMemo(() => {
-    const tipler = new Set(veri.current.map((r) => veri.aracTipiMap.get(r.tip_kodu) ?? "binek"));
+    const tipler = new Set(veri.current.map((r) => veri.aracTipiMap[r.tip_kodu] ?? "binek"));
     const binekVar = tipler.has("binek");
     const ticariVar = tipler.has("ticari") || tipler.has("özel");
     if (binekVar && ticariVar) return ["binek", "ticari"] as const;
@@ -119,20 +119,20 @@ export function SifirEndeksListesi({
   const gruplar = useMemo((): ModelGrup[] => {
     const modelMap = new Map<string, TipRow[]>();
     for (const r of veri.current) {
-      const aracTipi = veri.aracTipiMap.get(r.tip_kodu) ?? "binek";
+      const aracTipi = veri.aracTipiMap[r.tip_kodu] ?? "binek";
       if (tablar) {
         // Tab varsa: aktif taba göre filtrele
         const isBinek = aracTipi === "binek";
         if (aktifTab === "binek" && !isBinek) continue;
         if (aktifTab === "ticari" && isBinek) continue;
       }
-      const model = veri.modelAdiMap.get(r.tip_kodu) ?? extractModelAdi(r.tip_adi, markaAdi);
+      const model = veri.modelAdiMap[r.tip_kodu] ?? extractModelAdi(r.tip_adi, markaAdi);
       const tipAdi = r.tip_adi.startsWith(markaAdi) ? r.tip_adi.slice(markaAdi.length).trim() : r.tip_adi;
-      const prev = veri.prevMonthMap.get(r.tip_kodu) ?? null;
-      const yilOnce = veri.prevYearMap.get(r.tip_kodu) ?? null;
+      const prev = veri.prevMonthMap[r.tip_kodu] ?? null;
+      const yilOnce = veri.prevYearMap[r.tip_kodu] ?? null;
       const aylikPct = prev ? ((r.deger - prev) / prev) * 100 : null;
       const yillikPct = yilOnce ? ((r.deger - yilOnce) / yilOnce) * 100 : null;
-      const tip: TipRow = { tip_kodu: r.tip_kodu, tipAdi, deger: r.deger, oncekiAy: prev, oncekiYil: yilOnce, aylikPct, yillikPct, spek: veri.spekMap.get(r.tip_kodu) ?? null };
+      const tip: TipRow = { tip_kodu: r.tip_kodu, tipAdi, deger: r.deger, oncekiAy: prev, oncekiYil: yilOnce, aylikPct, yillikPct, spek: veri.spekMap[r.tip_kodu] ?? null };
       const list = modelMap.get(model) ?? [];
       list.push(tip);
       modelMap.set(model, list);
