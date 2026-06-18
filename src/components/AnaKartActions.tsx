@@ -114,7 +114,7 @@ export function AnaKartActions({
           }`}
         >
           <span>{eklendi ? "★" : "☆"}</span>
-          <span>{pending ? "Ekleniyor..." : eklendi ? "Garajımda" : "Bu aracı takip et"}</span>
+          <span>{pending ? "Ekleniyor..." : eklendi ? "Araçlarımda" : "Bu aracı takip et"}</span>
         </button>
         {secimAcik && (
           <div className="absolute left-0 top-full mt-1 z-10 w-52 rounded-xl border border-slate-200 bg-white shadow-lg">
