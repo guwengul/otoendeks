@@ -205,12 +205,12 @@ export function KrediHesaplama() {
       </div>
 
       {/* Sonuç özeti */}
-      <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 px-5 py-4">
+      <div className="mt-4 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
         <div className="flex items-baseline justify-between mb-3">
-          <span className="text-xs font-medium text-indigo-500 uppercase tracking-wide">Aylık taksit</span>
+          <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Aylık taksit</span>
           <span className="text-3xl font-bold tabular-nums text-slate-900">{fmt(Math.round(sonuc.taksit))}</span>
         </div>
-        <div className="rounded-xl bg-white/70 px-3 divide-y divide-slate-100">
+        <div className="rounded-xl bg-slate-50 px-3 divide-y divide-slate-100">
           <Satir label="Toplam ödeme" deger={fmt(Math.round(sonuc.toplam))} />
           <Satir label="Toplam faiz"  deger={fmt(Math.round(sonuc.toplamFaiz))} />
           <Satir label={gosterKKDF ? "Vergi (KKDF + BSMV)" : "Vergi (BSMV)"} deger={fmt(Math.round(sonuc.toplamKKDF + sonuc.toplamBSMV))} />
