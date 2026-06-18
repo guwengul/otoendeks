@@ -1,11 +1,11 @@
 // marka_adi (büyük harf) → /logos/{slug}.svg dosya adı
-// Eşleşme yoksa null döner, bileşen placeholder gösterir
 const LOGO_MAP: Record<string, string> = {
   "TOYOTA": "toyota",
   "VOLKSWAGEN": "volkswagen",
   "BMW": "bmw",
   "MERCEDES": "mercedes",
   "FORD": "ford",
+  "FORD /USA": "ford",
   "RENAULT": "renault",
   "RENAULT (OYAK)": "renault",
   "HYUNDAI": "hyundai",
@@ -17,6 +17,7 @@ const LOGO_MAP: Record<string, string> = {
   "AUDI": "audi",
   "SKODA": "skoda",
   "VOLVO": "volvo",
+  "VOLVO-TR": "volvo",
   "HONDA": "honda",
   "NISSAN": "nissan",
   "SUZUKI": "suzuki",
@@ -41,8 +42,18 @@ const LOGO_MAP: Record<string, string> = {
   "LAMBORGHINI": "lamborghini",
   "BENTLEY": "bentley",
   "ASTON MARTIN": "astonmartin",
-  "ROLLS ROYCE": "rollsroyce",
+  "ROLLS-ROYCE": "rollsroyce",
   "SUBARU": "subaru",
+  "BUGATTI": "bugatti",
+  "CADILLAC": "cadillac",
+  "CHEVROLET": "chevrolet",
+  "CHRYSLER": "chrysler",
+  "LADA": "lada",
+  "LUCID": "lucid",
+  "MAHINDRA": "mahindra",
+  "MCLAREN": "mclaren",
+  "POLESTAR": "polestar",
+  "PROTON": "proton",
 };
 
 export function getLogoSlug(markaAdi: string): string | null {

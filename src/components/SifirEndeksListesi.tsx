@@ -153,6 +153,7 @@ export function SifirEndeksListesi({
   const [acikGruplar, setAcikGruplar] = useState<Set<string>>(new Set());
   const [izlenenSet, setIzlenenSet] = useState<Set<number>>(izlenenler ?? new Set());
   const [takipPending, setTakipPending] = useState<number | null>(null);
+  const [takipHata, setTakipHata] = useState<string | null>(null);
 
   async function handleTakip(tip: TipRow) {
     if (!girisYapilmis) {
@@ -177,8 +178,9 @@ export function SifirEndeksListesi({
     setTakipPending(null);
     if (!sonuc?.error) {
       setIzlenenSet(prev => new Set([...prev, tip.tip_kodu]));
+      setTakipHata(null);
     } else {
-      alert("Eklenemedi: " + sonuc.error);
+      setTakipHata(sonuc.error);
     }
   }
 
@@ -258,6 +260,8 @@ export function SifirEndeksListesi({
         placeholder="Model veya versiyon ara..."
         className="mb-6 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
+
+      {takipHata && <p className="mb-4 text-xs text-red-600">{takipHata}</p>}
 
       {filtreliGruplar.length === 0 && (
         <p className="mt-6 text-center text-sm text-slate-500">Sonuç bulunamadı.</p>

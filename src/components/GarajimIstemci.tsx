@@ -5,6 +5,8 @@ import Link from "next/link";
 import { aracSil, tarihKaydet, fiyatBildirimiGuncelle } from "@/app/actions/garaj";
 import { slugify } from "@/lib/slug";
 
+const BOSH_TARIH = BOSH_TARIH;
+
 type AracTarih = { id: string; tip: string; tarih: string };
 type Arac = {
   id: string;
@@ -50,7 +52,7 @@ function MTVSatiri({ aracId, mevcut }: { aracId: string; mevcut?: string }) {
       await tarihKaydet(aracId, "mtv", temmuz);
     } else {
       // Silmek için çok eski bir tarih yazıyoruz — backend'de ignore edilir
-      await tarihKaydet(aracId, "mtv", "1970-01-01");
+      await tarihKaydet(aracId, "mtv", BOSH_TARIH);
     }
     setPending(false);
   }
@@ -83,7 +85,7 @@ function TarihSatiri({ aracId, tip, mevcut }: { aracId: string; tip: "muayene" |
     setDuzenleniyor(false);
   }
 
-  const kalan = mevcut && mevcut !== "1970-01-01"
+  const kalan = mevcut && mevcut !== BOSH_TARIH
     ? Math.ceil((new Date(mevcut).getTime() - Date.now()) / 86400000)
     : null;
 
@@ -110,7 +112,7 @@ function TarihSatiri({ aracId, tip, mevcut }: { aracId: string; tip: "muayene" |
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              {mevcut && mevcut !== "1970-01-01" ? (
+              {mevcut && mevcut !== BOSH_TARIH ? (
                 <>
                   <span className="text-xs text-slate-600">{new Date(mevcut).toLocaleDateString("tr-TR")}</span>
                   {kalan !== null && kalan >= 0 && kalan <= 30 && (
@@ -122,7 +124,7 @@ function TarihSatiri({ aracId, tip, mevcut }: { aracId: string; tip: "muayene" |
                 </>
               ) : null}
               <button onClick={() => setDuzenleniyor(true)} className="text-xs text-slate-400 hover:text-indigo-600">
-                {mevcut && mevcut !== "1970-01-01" ? "Düzenle" : "Ekle"}
+                {mevcut && mevcut !== BOSH_TARIH ? "Düzenle" : "Ekle"}
               </button>
             </div>
           )}

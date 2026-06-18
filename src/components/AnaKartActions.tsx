@@ -62,6 +62,7 @@ export function AnaKartActions({
   const [secimAcik, setSecimAcik] = useState(false);
   const [pending, setPending] = useState(false);
   const [kopyalandi, setKopyalandi] = useState(false);
+  const [hata, setHata] = useState<string | null>(null);
 
   const pageUrl = typeof window !== "undefined" ? window.location.href : "";
   const waMetin = encodeURIComponent(ozet + "\n" + pageUrl);
@@ -87,6 +88,7 @@ export function AnaKartActions({
   async function handleEkle(sahipMi: boolean) {
     setSecimAcik(false);
     setPending(true);
+    setHata(null);
     if (!sahipMi) {
       const sonuc = await izlemeEkle({
         marka_kodu: arac.markaKodu,
@@ -99,7 +101,7 @@ export function AnaKartActions({
       });
       setPending(false);
       if (!sonuc?.error) setTakipte(true);
-      else alert("Eklenemedi: " + sonuc.error);
+      else setHata(sonuc.error);
       return;
     }
     const sonuc = await aracEkle({
@@ -113,7 +115,7 @@ export function AnaKartActions({
     });
     setPending(false);
     if (!sonuc?.error) setEklendi(true);
-    else alert("Eklenemedi: " + sonuc.error);
+    else setHata(sonuc.error);
   }
 
   function handleKopyala() {
@@ -123,7 +125,9 @@ export function AnaKartActions({
   }
 
   return (
-    <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
+    <div className="mt-4 border-t border-slate-100 pt-4">
+      {hata && <p className="mb-2 text-xs text-red-600">{hata}</p>}
+      <div className="flex items-center gap-2">
       <div className="relative">
         <button
           onClick={handleTakip}
@@ -186,6 +190,7 @@ export function AnaKartActions({
             </svg>
           ) : <IconCopy />}
         </button>
+      </div>
       </div>
     </div>
   );
