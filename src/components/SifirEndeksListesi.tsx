@@ -314,10 +314,10 @@ export function SifirEndeksListesi({
                             <button
                               onClick={() => handleTakip(tip)}
                               disabled={takipPending === tip.tip_kodu}
-                              className={`flex items-center gap-1 text-xs disabled:opacity-50 ${
+                              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
                                 izlenenSet.has(tip.tip_kodu)
-                                  ? "text-indigo-600 font-medium"
-                                  : "text-slate-400 hover:text-slate-600"
+                                  ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                               }`}
                             >
                               <span>{izlenenSet.has(tip.tip_kodu) ? "★" : "☆"}</span>
