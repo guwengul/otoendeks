@@ -22,7 +22,7 @@ type Arac = {
 const TIP_LABEL: Record<string, string> = {
   mtv: "MTV hatırlatıcı",
   muayene: "Bir sonraki muayene",
-  kasko: "Kasko bitiş",
+  kasko: "Trafik sigortası bitiş",
 };
 
 const TIP_ACIKLAMA: Record<string, string> = {

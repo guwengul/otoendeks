@@ -73,7 +73,7 @@ export default async function AraclarimPage({
     for (const t of arac.arac_tarihler ?? []) {
       const d = new Date(t.tarih);
       if (d >= bugun && d <= otuzGunSonra && t.tarih !== "1970-01-01") {
-        const tipLabel = t.tip === "mtv" ? "MTV" : t.tip === "muayene" ? "Muayene" : "Kasko";
+        const tipLabel = t.tip === "mtv" ? "MTV" : t.tip === "muayene" ? "Muayene" : "Trafik sigortası";
         yaklasanTarihler.push({
           tip: tipLabel,
           tarih: t.tarih,
