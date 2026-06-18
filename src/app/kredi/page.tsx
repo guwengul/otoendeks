@@ -3,8 +3,8 @@ import { KrediHesaplama } from "@/components/KrediHesaplama";
 import { IkonKredi } from "@/components/BolumIkon";
 
 export const metadata: Metadata = {
-  title: "Kredi Karşılaştırma — Taşıt & İhtiyaç Kredisi | Otoendeks",
-  description: "Taşıt ve ihtiyaç kredisi faiz oranlarını karşılaştır. Tutar ve vade seç, aylık taksitini hesapla.",
+  title: "Kredi Hesaplama — Taşıt & İhtiyaç Kredisi | Otoendeks",
+  description: "Taşıt ve ihtiyaç kredisi için aylık taksit, toplam ödeme ve vergi dökümünü hesaplayın. BDDK vade limitleri uygulanır.",
 };
 
 export default function KrediPage() {
@@ -15,7 +15,7 @@ export default function KrediPage() {
         Kredi Hesaplama
       </h1>
       <p className="mb-8 text-sm text-slate-600">
-        Kredi tutarı, vade ve aylık faiz oranını gir, taksitini hesapla.
+        Tutar, vade ve faiz oranını belirleyin; aylık taksit, toplam maliyet ve vergi dökümünü görün.
       </p>
       <KrediHesaplama />
     </main>

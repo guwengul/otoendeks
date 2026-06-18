@@ -29,7 +29,7 @@ export default async function YilPage({
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
       <nav className="mb-6 text-sm text-slate-500">
         <Link href="/" className="hover:underline">
-          Markalar
+          Kasko Değeri
         </Link>{" "}
         /{" "}
         <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">

@@ -21,8 +21,8 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000"
   ),
-  title: "Otoendeks — Kasko Değeri Sorgula",
-  description: "Aracının marka, model yılı ve tipine göre güncel kasko değerini sorgula.",
+  title: "Otoendeks — Kasko Değeri, Sıfır Araç Fiyatları & Kredi Hesaplama",
+  description: "Aracınızın güncel kasko değerini sorgulayın, sıfır araç fiyatlarını karşılaştırın ve kredi taksitinizi hesaplayın.",
 };
 
 export default async function RootLayout({
@@ -90,7 +90,7 @@ export default async function RootLayout({
                   </svg>
                   <span className="text-sm">otoendeks</span>
                 </Link>
-                <p className="mt-2 text-xs text-slate-400 max-w-xs">Türkiye Sigorta Birliği (TSB) verilerine dayalı güncel kasko değerleri ve sıfır araç fiyatları.</p>
+                <p className="mt-2 text-xs text-slate-400 max-w-xs">TSB verilerine dayalı kasko değerleri, sıfır araç fiyatları ve kredi hesaplama aracı.</p>
               </div>
               <div className="flex gap-12">
                 <div>
@@ -112,7 +112,7 @@ export default async function RootLayout({
               </div>
             </div>
             <div className="mt-8 border-t border-slate-100 pt-4 text-xs text-slate-400">
-              © {new Date().getFullYear()} Otoendeks. Bilgi amaçlıdır, resmi sigorta değeri için sigorta şirketinize danışın.
+              © {new Date().getFullYear()} Otoendeks. Sunulan veriler bilgi amaçlıdır; bağlayıcı değildir. Resmi kasko değeri için sigorta şirketinize başvurunuz.
             </div>
           </div>
         </footer>

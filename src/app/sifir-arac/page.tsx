@@ -20,7 +20,7 @@ export default async function SifirEndeksPage() {
         Sıfır Araç Fiyatları
       </h1>
       <p className="mb-8 text-sm text-slate-600">
-        {simdikiYil} model araçların güncel fiyatları, aylık ve yıllık değişimi.
+        {simdikiYil} model araçların güncel liste fiyatları ve aylık/yıllık değişim oranları.
       </p>
       <AramaListesi
         placeholder="Marka ara..."
