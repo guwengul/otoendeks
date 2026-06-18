@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getMarkaBySlug, getSifirEndeksVeri } from "@/lib/kasko";
 import { SifirEndeksListesi } from "@/components/SifirEndeksListesi";
 import { createClient } from "@/lib/supabase/server";
+import { getLogoSlug } from "@/lib/logo";
+import Image from "next/image";
 
 export const revalidate = 86400;
 
@@ -49,13 +51,20 @@ export default async function SifirEndeksMarkaPage({
         <span className="text-slate-900">{marka.marka_adi}</span>
       </nav>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">
-          {marka.marka_adi} — {modelYili} Model Güncel Fiyatlar
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {modelYili} model · {marka.son_snapshot_month.slice(0, 7)} verisi
-        </p>
+      <div className="mb-6 flex items-center gap-4">
+        {(() => { const logo = getLogoSlug(marka.marka_adi); return logo ? (
+          <div className="shrink-0 h-10 w-16 flex items-center">
+            <Image src={`/logos/${logo}.svg`} alt={marka.marka_adi} width={64} height={40} className="h-full w-full object-contain opacity-60" />
+          </div>
+        ) : null; })()}
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            {marka.marka_adi} — {modelYili} Model Güncel Fiyatlar
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            {modelYili} model · {marka.son_snapshot_month.slice(0, 7)} verisi
+          </p>
+        </div>
       </div>
 
       {veri.current.length === 0 ? (
