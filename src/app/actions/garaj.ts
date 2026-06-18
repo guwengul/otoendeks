@@ -24,7 +24,7 @@ export async function aracEkle(arac: Omit<KullaniciArac, "id">) {
     .upsert({ ...arac, user_id: user.id, sahip_mi: arac.sahip_mi ?? false }, { onConflict: "user_id,tip_kodu,model_yili" });
 
   if (error) return { error: error.message };
-  revalidatePath("/garajim");
+  revalidatePath("/araclarim");
   return { ok: true };
 }
 
@@ -36,7 +36,7 @@ export async function aracSil(aracId: string) {
     .eq("id", aracId);
 
   if (error) return { error: error.message };
-  revalidatePath("/garajim");
+  revalidatePath("/araclarim");
 }
 
 export async function fiyatBildirimiGuncelle(aracId: string, aktif: boolean) {
@@ -56,5 +56,5 @@ export async function tarihKaydet(aracId: string, tip: "mtv" | "muayene" | "kask
     .upsert({ arac_id: aracId, tip, tarih }, { onConflict: "arac_id,tip" });
 
   if (error) return { error: error.message };
-  revalidatePath("/garajim");
+  revalidatePath("/araclarim");
 }

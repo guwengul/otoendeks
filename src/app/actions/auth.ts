@@ -30,7 +30,7 @@ export async function kayitOl(formData: FormData) {
   if (error) return { error: turkce(error.message) };
 
   revalidatePath("/", "layout");
-  redirect("/garajim");
+  redirect("/araclarim");
 }
 
 export async function girisYap(formData: FormData) {
