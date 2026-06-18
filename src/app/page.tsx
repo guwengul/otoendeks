@@ -1,6 +1,7 @@
 import { getMarkalar } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 import { getLogoSlug } from "@/lib/logo";
+import { IkonKasko } from "@/components/BolumIkon";
 
 export const revalidate = 86400;
 
@@ -26,7 +27,10 @@ export default async function Home() {
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
-      <h1 className="mb-2 text-2xl font-semibold text-slate-900">Kasko Değeri Sorgula</h1>
+      <h1 className="mb-2 flex items-center gap-2.5 text-2xl font-semibold text-slate-900">
+        <IkonKasko size={24} className="text-indigo-600 shrink-0" />
+        Kasko Değeri Sorgula
+      </h1>
       <p className="mb-8 text-sm text-slate-600">
         Aracının markasını seç, kasko değerine ve değer kaybı grafiğine ulaş.
       </p>

@@ -1,6 +1,7 @@
 ﻿import { getMarkalar } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 import { getLogoSlug } from "@/lib/logo";
+import { IkonArac } from "@/components/BolumIkon";
 
 export const revalidate = 86400;
 
@@ -14,7 +15,10 @@ export default async function SifirEndeksPage() {
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
-      <h1 className="mb-2 text-2xl font-semibold text-slate-900">Sıfır Araç Fiyatları</h1>
+      <h1 className="mb-2 flex items-center gap-2.5 text-2xl font-semibold text-slate-900">
+        <IkonArac size={24} className="text-indigo-600 shrink-0" />
+        Sıfır Araç Fiyatları
+      </h1>
       <p className="mb-8 text-sm text-slate-600">
         {simdikiYil} model araçların güncel fiyatları, aylık ve yıllık değişimi.
       </p>
