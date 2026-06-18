@@ -137,7 +137,9 @@ export function SifirEndeksListesi({
       list.push(tip);
       modelMap.set(model, list);
     }
-    return [...modelMap.entries()].map(([model, tipler]) => ({ model, tipler }));
+    return [...modelMap.entries()]
+      .map(([model, tipler]) => ({ model, tipler }))
+      .sort((a, b) => Math.min(...a.tipler.map((t) => t.deger)) - Math.min(...b.tipler.map((t) => t.deger)));
   }, [veri, markaAdi, tablar, aktifTab]);
 
   const filtreliGruplar = useMemo(() => {
