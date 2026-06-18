@@ -101,13 +101,23 @@ function IzlemeKarti({ item }: { item: IzlemeItem }) {
           </span>
           <span>Fiyat değişince bildir</span>
         </button>
-        <button
-          onClick={handleSil}
-          disabled={siliyor}
-          className="text-xs text-slate-400 hover:text-red-500 disabled:opacity-50"
-        >
-          {siliyor ? "..." : "Kaldır"}
-        </button>
+        <div className="flex items-center gap-3">
+          {item.model_yili && (
+            <Link
+              href={`/kasko-deger/${item.marka_slug}/${item.model_yili}/${item.tip_kodu}`}
+              className="text-xs text-indigo-500 hover:text-indigo-700"
+            >
+              Detaya git →
+            </Link>
+          )}
+          <button
+            onClick={handleSil}
+            disabled={siliyor}
+            className="text-xs text-slate-400 hover:text-red-500 disabled:opacity-50"
+          >
+            {siliyor ? "..." : "Kaldır"}
+          </button>
+        </div>
       </div>
     </div>
   );
