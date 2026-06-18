@@ -38,6 +38,16 @@ export async function aracSil(aracId: string) {
   revalidatePath("/garajim");
 }
 
+export async function fiyatBildirimiGuncelle(aracId: string, aktif: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("kullanici_araclar")
+    .update({ fiyat_bildirimi: aktif })
+    .eq("id", aracId);
+  if (error) return { error: error.message };
+  revalidatePath("/araclarim");
+}
+
 export async function tarihKaydet(aracId: string, tip: "mtv" | "muayene" | "kasko", tarih: string) {
   const supabase = await createClient();
   const { error } = await supabase

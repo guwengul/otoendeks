@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { aracSil, tarihKaydet } from "@/app/actions/garaj";
+import { aracSil, tarihKaydet, fiyatBildirimiGuncelle } from "@/app/actions/garaj";
 import { slugify } from "@/lib/slug";
 
 type AracTarih = { id: string; tip: string; tarih: string };
@@ -14,6 +14,7 @@ type Arac = {
   model_yili: number;
   marka_slug: string;
   sahip_mi: boolean;
+  fiyat_bildirimi: boolean;
   kasko_fiyati: number | null;
   arac_tarihler: AracTarih[];
 };
@@ -87,6 +88,16 @@ function TarihSatiri({ aracId, tip, mevcut }: { aracId: string; tip: string; mev
 
 function AracKarti({ arac }: { arac: Arac }) {
   const [siliyor, setSiliyor] = useState(false);
+  const [bildirim, setBildirim] = useState(arac.fiyat_bildirimi);
+  const [bildirimPending, setBildirimPending] = useState(false);
+
+  async function handleBildirim() {
+    setBildirimPending(true);
+    const yeni = !bildirim;
+    setBildirim(yeni);
+    await fiyatBildirimiGuncelle(arac.id, yeni);
+    setBildirimPending(false);
+  }
   const tarihByTip = Object.fromEntries(arac.arac_tarihler.map((t) => [t.tip, t.tarih]));
   const detayHref = `/kasko-deger/${arac.marka_slug}/${arac.model_yili}/${arac.tip_kodu}-${slugify(arac.tip_adi)}`;
 
@@ -133,10 +144,19 @@ function AracKarti({ arac }: { arac: Arac }) {
         </div>
       )}
 
-      {/* Takip modunda bilgi */}
+      {/* Takip modunda bildirim toggle */}
       {!arac.sahip_mi && (
-        <div className="border-t border-slate-100 pt-2">
-          <p className="text-xs text-slate-400">Kasko fiyatı değişince bildirim alacaksın.</p>
+        <div className="border-t border-slate-100 pt-3">
+          <button
+            onClick={handleBildirim}
+            disabled={bildirimPending}
+            className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-700 disabled:opacity-50"
+          >
+            <span className={`relative inline-flex h-4 w-7 shrink-0 rounded-full transition-colors ${bildirim ? "bg-indigo-500" : "bg-slate-200"}`}>
+              <span className={`inline-block h-3 w-3 rounded-full bg-white shadow transition-transform mt-0.5 ${bildirim ? "translate-x-3.5" : "translate-x-0.5"}`} />
+            </span>
+            <span>Fiyat değişince bildir</span>
+          </button>
         </div>
       )}
 
