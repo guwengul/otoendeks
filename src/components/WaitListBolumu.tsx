@@ -17,6 +17,10 @@ export function WaitListBolumu({ items: ilkItems }: { items: Item[] }) {
 
   async function handleCik(ozellik: string) {
     const sonuc = await waitListeCik(ozellik);
+    if (sonuc?.error) {
+      alert(sonuc.error);
+      return;
+    }
     if (sonuc?.ok) {
       setItems((prev) => prev.filter((i) => i.ozellik !== ozellik));
     }

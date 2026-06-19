@@ -28,12 +28,13 @@ export async function waitListeCik(ozellik: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "giris_gerekli" };
 
-  await supabase
+  const { error } = await supabase
     .from("wait_list")
     .delete()
     .eq("user_id", user.id)
     .eq("ozellik", ozellik);
 
+  if (error) return { error: error.message };
   revalidatePath("/araclarim");
   return { ok: true };
 }
