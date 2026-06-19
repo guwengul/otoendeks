@@ -5,6 +5,7 @@ import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import { IkonKasko, IkonArac, IkonKredi, IkonPiyasa } from "@/components/BolumIkon";
 import { NavMobil } from "@/components/NavMobil";
+import { PostHogProvider } from "@/components/PostHogProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,7 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-50">
+        <PostHogProvider>
         <header className="relative border-b border-slate-200 bg-white">
           <nav className="mx-auto flex w-full max-w-5xl items-center gap-1 px-6 h-14">
             <Link href="/" className="mr-4 flex items-center gap-2 font-semibold text-slate-900 tracking-tight shrink-0">
@@ -127,6 +129,7 @@ export default async function RootLayout({
             </div>
           </div>
         </footer>
+        </PostHogProvider>
       </body>
     </html>
   );
