@@ -9,6 +9,7 @@ import { FiyatGecmisiGrafik } from "@/components/FiyatGecmisiGrafik";
 import { DetayKartlari } from "@/components/DetayKartlari";
 import { AnaKartActions } from "@/components/AnaKartActions";
 import { MikroFeedback } from "@/components/MikroFeedback";
+import { PiyasaFiyatiSection } from "@/components/PiyasaFiyatiSection";
 import { createClient } from "@/lib/supabase/server";
 
 function formatTL(value: number): string {
@@ -117,8 +118,9 @@ export default async function TipDetayPage({
   const { data: { user } } = await supabase.auth.getUser();
   let zatenEklendi = false;
   let zatenTakipte = false;
+  let piyasaListede = false;
   if (user) {
-    const [{ data: mevcut }, { data: takipte }] = await Promise.all([
+    const [{ data: mevcut }, { data: takipte }, { data: waitListe }] = await Promise.all([
       supabase
         .from("kullanici_araclar")
         .select("id")
@@ -133,9 +135,16 @@ export default async function TipDetayPage({
         .eq("marka_kodu", marka.marka_kodu)
         .eq("tip_kodu", tipKodu)
         .maybeSingle(),
+      supabase
+        .from("wait_list")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("ozellik", "piyasa_fiyati")
+        .maybeSingle(),
     ]);
     zatenEklendi = !!mevcut;
     zatenTakipte = !!takipte;
+    piyasaListede = !!waitListe;
   }
 
   const buYilDegeri = detay.gecmis.find((d) => d.model_yili === modelYili);
@@ -264,6 +273,13 @@ export default async function TipDetayPage({
       <div className="mb-6 border-b border-slate-100 pb-4">
         <MikroFeedback tipKodu={tipKodu} modelYili={modelYili} />
       </div>
+
+      {/* Piyasa fiyatı wait list */}
+      <PiyasaFiyatiSection
+        girisYapilmis={!!user}
+        listede={piyasaListede}
+        geriDonUrl={`/kasko-deger/${marka.slug}/${modelYili}/${tipSlug}`}
+      />
 
       {/* Sıfır araç yönlendirme */}
       <div className="mb-8 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">

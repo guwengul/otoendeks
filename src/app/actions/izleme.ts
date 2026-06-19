@@ -32,6 +32,13 @@ export async function izlemeEkle(data: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Giriş yapılmamış" };
 
+  const { count } = await supabase
+    .from("izleme_listesi")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+  if ((count ?? 0) >= 5)
+    return { error: "En fazla 5 araç takip edebilirsiniz." };
+
   const piyasa = await getSonPiyasa();
   const usd_kayit = piyasa ? Math.round(data.fiyat_kayit / piyasa.usd_try) : null;
   const altin_kayit = piyasa ? Math.round(data.fiyat_kayit / piyasa.gram_altin_try) : null;

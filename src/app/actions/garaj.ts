@@ -14,10 +14,22 @@ export type KullaniciArac = {
   sahip_mi: boolean;
 };
 
+const LIMIT_SAHIP = 2;
+
 export async function aracEkle(arac: Omit<KullaniciArac, "id">) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Giriş yapılmamış" };
+
+  if (arac.sahip_mi) {
+    const { count } = await supabase
+      .from("kullanici_araclar")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("sahip_mi", true);
+    if ((count ?? 0) >= LIMIT_SAHIP)
+      return { error: `En fazla ${LIMIT_SAHIP} araç ekleyebilirsiniz.` };
+  }
 
   const { error } = await supabase
     .from("kullanici_araclar")
