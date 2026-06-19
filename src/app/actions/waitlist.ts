@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { waitListOnayMailiGonder } from "@/lib/mail";
 
 export async function waitListeEkle(ozellik: string, meta?: Record<string, string>) {
   const supabase = await createClient();
@@ -15,10 +14,6 @@ export async function waitListeEkle(ozellik: string, meta?: Record<string, strin
 
   if (error) return { error: error.message };
   revalidatePath("/araclarim");
-
-  if (user.email) {
-    waitListOnayMailiGonder(user.email).catch(() => {});
-  }
 
   return { ok: true };
 }
