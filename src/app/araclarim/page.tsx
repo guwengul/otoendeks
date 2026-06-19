@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { GarajimIstemci } from "@/components/GarajimIstemci";
 import { IzlemeIstemci } from "@/components/IzlemeIstemci";
 import { AraclarimSekmeler } from "@/components/AraclarimSekmeler";
+import { WaitListBolumu } from "@/components/WaitListBolumu";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +49,12 @@ export default async function AraclarimPage({
       return { ...a, kasko_fiyati: fiyat };
     })
   );
+
+  // Wait list
+  const { data: waitList } = await supabase
+    .from("wait_list")
+    .select("ozellik, created_at")
+    .order("created_at", { ascending: true });
 
   // İzleme listesi verisi
   const { data: izlemeler } = await supabase
@@ -132,6 +139,10 @@ export default async function AraclarimPage({
           <IzlemeIstemci items={izlemelerWithFiyat} />
         )}
       </div>
+      {/* Bekleme listesi */}
+      {(waitList ?? []).length > 0 && (
+        <WaitListBolumu items={waitList ?? []} />
+      )}
     </main>
   );
 }
