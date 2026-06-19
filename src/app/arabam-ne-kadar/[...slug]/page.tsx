@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 // Eski site (otoendeks.com) marka slug'larını yeni site slug'larına eşleştirir.
 // Tek kelimeli markalar için slug aynı kalır; çok kelimeli olanlar burada belirtilir.
@@ -25,5 +25,5 @@ export default async function ArabamNeKadar({
   // Eski URL'den marka slug'unu al; eşleşme varsa yeni slug'u kullan
   const yeniMarka = MARKA_MAP[eskiMarka] ?? eskiMarka;
 
-  redirect(`/kasko-deger/${yeniMarka}`);
+  permanentRedirect(`/kasko-deger/${yeniMarka}`);
 }
