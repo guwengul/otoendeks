@@ -15,12 +15,6 @@ export async function waitListeEkle(ozellik: string, meta?: Record<string, strin
 
   if (error) return { error: error.message };
   revalidatePath("/araclarim");
-
-  // Onay maili — hata olsa bile listeye girişi engelleme
-  try {
-    if (user.email) await waitListOnayMailiGonder(user.email);
-  } catch {}
-
   return { ok: true };
 }
 
