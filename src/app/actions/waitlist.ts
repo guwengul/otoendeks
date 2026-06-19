@@ -28,13 +28,14 @@ export async function waitListeCik(ozellik: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "giris_gerekli" };
 
-  const { error } = await supabase
+  const { error, count } = await supabase
     .from("wait_list")
-    .delete()
+    .delete({ count: "exact" })
     .eq("user_id", user.id)
     .eq("ozellik", ozellik);
 
   if (error) return { error: error.message };
+  if (count === 0) return { error: `Silinecek kayit bulunamadi. user_id=${user.id} ozellik=${ozellik}` };
   revalidatePath("/araclarim");
   return { ok: true };
 }
