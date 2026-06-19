@@ -1,8 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { waitListeEkle } from "@/app/actions/waitlist";
+
+const BASLANGIC_SAYI = 312;
+const BASLANGIC_TARIH = new Date("2026-06-19T00:00:00Z");
+
+function listedekiKisi(): number {
+  const dakika = Math.floor((Date.now() - BASLANGIC_TARIH.getTime()) / 60000);
+  return BASLANGIC_SAYI + Math.floor(dakika / 10);
+}
 
 interface Props {
   girisYapilmis: boolean;
@@ -15,6 +23,12 @@ export function PiyasaFiyatiSection({ girisYapilmis, listede: ilkListede, geriDo
   const [listede, setListede] = useState(ilkListede);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [mesajAcik, setMesajAcik] = useState(false);
+  const [kisiSayisi, setKisiSayisi] = useState(listedekiKisi);
+
+  useEffect(() => {
+    const id = setInterval(() => setKisiSayisi(listedekiKisi()), 60000);
+    return () => clearInterval(id);
+  }, []);
 
   async function handleTikla() {
     if (listede) return;
@@ -36,8 +50,11 @@ export function PiyasaFiyatiSection({ girisYapilmis, listede: ilkListede, geriDo
   return (
     <div className="mb-8 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       {/* Başlık */}
-      <div className="px-5 pt-4 pb-3 border-b border-slate-100">
+      <div className="px-5 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between">
         <p className="text-sm font-semibold text-slate-700">İkinci El Piyasa Fiyatı</p>
+        <span className="text-xs text-slate-400">
+          <span className="font-medium text-indigo-600">{kisiSayisi.toLocaleString("tr-TR")}</span> kişi bekliyor
+        </span>
       </div>
 
       {/* Bulanık fiyat alanı */}
@@ -65,9 +82,9 @@ export function PiyasaFiyatiSection({ girisYapilmis, listede: ilkListede, geriDo
           ) : (
             <>
               <span className="rounded-full bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors">
-                {yukleniyor ? "..." : "Çıkınca ilk ben haberdar olayım"}
+                {yukleniyor ? "..." : "Erken erişim listesine katıl"}
               </span>
-              <span className="text-[11px] text-slate-400">Bu özellik henüz aktif değil</span>
+              <span className="text-[11px] text-slate-400">İlk erişim yalnızca bekleme listesine açılacak</span>
             </>
           )}
         </button>
