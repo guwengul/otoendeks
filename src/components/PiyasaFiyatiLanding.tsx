@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { waitListeEkle } from "@/app/actions/waitlist";
+import { WaitListModal } from "@/components/WaitListModal";
 
 const BASLANGIC_SAYI = 312;
 const BASLANGIC_TARIH = new Date("2026-06-19T00:00:00Z");
@@ -20,7 +20,7 @@ interface Props {
 export function PiyasaFiyatiLanding({ girisYapilmis, listede: ilkListede }: Props) {
   const router = useRouter();
   const [listede, setListede] = useState(ilkListede);
-  const [yukleniyor, setYukleniyor] = useState(false);
+  const [modalAcik, setModalAcik] = useState(false);
   const [kisiSayisi, setKisiSayisi] = useState(listedekiKisi);
 
   useEffect(() => {
@@ -28,16 +28,13 @@ export function PiyasaFiyatiLanding({ girisYapilmis, listede: ilkListede }: Prop
     return () => clearInterval(id);
   }, []);
 
-  async function handleTikla() {
+  function handleTikla() {
     if (listede) return;
     if (!girisYapilmis) {
       router.push(`/giris?sonra=${encodeURIComponent("/piyasa-fiyati")}`);
       return;
     }
-    setYukleniyor(true);
-    const sonuc = await waitListeEkle("piyasa_fiyati");
-    setYukleniyor(false);
-    if (sonuc.ok) setListede(true);
+    setModalAcik(true);
   }
 
   return (
@@ -102,14 +99,20 @@ export function PiyasaFiyatiLanding({ girisYapilmis, listede: ilkListede }: Prop
         ) : (
           <button
             onClick={handleTikla}
-            disabled={yukleniyor}
-            className="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors disabled:opacity-60"
+            className="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors"
           >
-            {yukleniyor ? "..." : "Erken erişim listesine katıl"}
+            Erken erişim listesine katıl
           </button>
         )}
         <p className="mt-3 text-xs text-slate-400">İlk erişim yalnızca bekleme listesine açılacak</p>
       </div>
+
+      {modalAcik && (
+        <WaitListModal
+          onKapat={() => setModalAcik(false)}
+          onBasari={() => { setModalAcik(false); setListede(true); }}
+        />
+      )}
     </main>
   );
 }
