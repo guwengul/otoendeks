@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IkonKasko, IkonArac, IkonKredi } from "@/components/BolumIkon";
+import { IkonKasko, IkonArac, IkonKredi, IkonPiyasa } from "@/components/BolumIkon";
 
 const LINKLER = [
-  { href: "/",           label: "Kasko Değeri",       Ikon: IkonKasko },
-  { href: "/sifir-arac", label: "Sıfır Araç Fiyatları", Ikon: IkonArac },
-  { href: "/kredi",      label: "Kredi Hesaplama",    Ikon: IkonKredi },
+  { href: "/",              label: "Kasko Değeri",         Ikon: IkonKasko },
+  { href: "/sifir-arac",   label: "Sıfır Araç Fiyatları", Ikon: IkonArac },
+  { href: "/kredi",        label: "Kredi Hesaplama",       Ikon: IkonKredi },
+  { href: "/piyasa-fiyati", label: "Piyasa Fiyatı",        Ikon: IkonPiyasa },
 ];
 
 export function NavMobil({ girisYapilmis }: { girisYapilmis: boolean }) {
