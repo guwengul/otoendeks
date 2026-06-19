@@ -6,10 +6,10 @@ import { usePathname } from "next/navigation";
 import { IkonKasko, IkonArac, IkonKredi, IkonPiyasa } from "@/components/BolumIkon";
 
 const LINKLER = [
-  { href: "/",              label: "Kasko Değeri",         Ikon: IkonKasko },
-  { href: "/sifir-arac",   label: "Sıfır Araç Fiyatları", Ikon: IkonArac },
-  { href: "/kredi",        label: "Kredi Hesaplama",       Ikon: IkonKredi },
-  { href: "/piyasa-fiyati", label: "Piyasa Fiyatı",        Ikon: IkonPiyasa },
+  { href: "/piyasa-fiyati", label: "Piyasa Fiyatı",        Ikon: IkonPiyasa, indigo: true },
+  { href: "/",              label: "Kasko Değeri",         Ikon: IkonKasko,  indigo: false },
+  { href: "/sifir-arac",   label: "Sıfır Araç Fiyatları", Ikon: IkonArac,   indigo: false },
+  { href: "/kredi",        label: "Kredi Hesaplama",       Ikon: IkonKredi,  indigo: false },
 ];
 
 export function NavMobil({ girisYapilmis }: { girisYapilmis: boolean }) {
@@ -43,13 +43,13 @@ export function NavMobil({ girisYapilmis }: { girisYapilmis: boolean }) {
       {acik && (
         <div className="absolute left-0 right-0 top-14 z-50 border-b border-slate-200 bg-white shadow-lg md:hidden">
           <nav className="mx-auto max-w-5xl px-4 py-3 flex flex-col gap-1">
-            {LINKLER.map(({ href, label, Ikon }) => (
+            {LINKLER.map(({ href, label, Ikon, indigo }) => (
               <Link
                 key={href}
                 href={href}
-                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-indigo-50 hover:text-indigo-600 ${indigo ? "text-indigo-600" : "text-slate-700"}`}
               >
-                <Ikon size={20} className="shrink-0 text-slate-400" />
+                <Ikon size={20} className={`shrink-0 ${indigo ? "text-indigo-500" : "text-slate-400"}`} />
                 {label}
               </Link>
             ))}

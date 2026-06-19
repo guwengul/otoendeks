@@ -53,6 +53,10 @@ export default async function RootLayout({
 
             {/* masaüstü linkleri */}
             <div className="hidden md:flex items-center gap-1">
+              <Link href="/piyasa-fiyati" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors rounded-md hover:bg-indigo-50">
+                <IkonPiyasa className="shrink-0 text-indigo-500" />
+                Piyasa Fiyatı
+              </Link>
               <Link href="/" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
                 <IkonKasko className="shrink-0" />
                 Kasko Değeri
@@ -64,10 +68,6 @@ export default async function RootLayout({
               <Link href="/kredi" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
                 <IkonKredi className="shrink-0" />
                 Kredi Hesaplama
-              </Link>
-              <Link href="/piyasa-fiyati" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors rounded-md hover:bg-indigo-50">
-                <IkonPiyasa className="shrink-0" />
-                Piyasa Fiyatı
               </Link>
             </div>
 
