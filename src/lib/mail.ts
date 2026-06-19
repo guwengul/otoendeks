@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const GONDEREN = "otoendeks <noreply@otoendeks.com>";
+const GONDEREN = "otoendeks <onboarding@resend.dev>";
 
 export async function waitListOnayMailiGonder(email: string) {
   await resend.emails.send({
