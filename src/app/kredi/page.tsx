@@ -3,7 +3,7 @@ import { KrediHesaplama } from "@/components/KrediHesaplama";
 import { IkonKredi } from "@/components/BolumIkon";
 
 export const metadata: Metadata = {
-  title: "Kredi Hesaplama — Taşıt & İhtiyaç Kredisi | Otoendeks",
+  title: "Kredi Hesaplama — Taşıt & İhtiyaç Kredisi",
   description: "Taşıt ve ihtiyaç kredisi için aylık taksit, toplam ödeme ve vergi dökümünü hesaplayın. BDDK vade limitleri uygulanır.",
 };
 

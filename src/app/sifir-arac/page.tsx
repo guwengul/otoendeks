@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Türkiye'deki tüm markaların güncel sıfır araç liste fiyatları, aylık ve yıllık değişim oranları. BMW, Mercedes, Toyota, Volkswagen ve daha fazlası.",
   alternates: { canonical: "https://otoendeks.com/sifir-arac" },
   openGraph: {
-    title: "Sıfır Araç Fiyatları | Otoendeks",
+    title: "Sıfır Araç Fiyatları",
     description: "Türkiye'deki tüm markaların güncel sıfır araç fiyatları ve değişim oranları.",
     url: "https://otoendeks.com/sifir-arac",
   },

@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PiyasaFiyatiLanding } from "@/components/PiyasaFiyatiLanding";
 
 export const metadata: Metadata = {
-  title: "İkinci El Piyasa Fiyatı — Otoendeks",
+  title: "İkinci El Piyasa Fiyatı",
   description: "Aracınızın ikinci el piyasada gerçek satış fiyatını öğrenin. Yapay zeka destekli piyasa analizi yakında geliyor.",
 };
 

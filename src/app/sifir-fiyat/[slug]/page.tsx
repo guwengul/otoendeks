@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const marka = await getMarkaBySlug(slug);
   if (!marka) return {};
   return {
-    title: `${marka.marka_adi} Sıfır Araç Fiyatları | Otoendeks`,
+    title: `${marka.marka_adi} Sıfır Araç Fiyatları`,
     description: `${marka.marka_adi} güncel sıfır araç liste fiyatları ve versiyon karşılaştırması.`,
   };
 }

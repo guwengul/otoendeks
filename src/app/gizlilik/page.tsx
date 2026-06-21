@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Gizlilik Politikası — Otoendeks",
+  title: "Gizlilik Politikası",
 };
 
 export default function GizlilikPage() {
