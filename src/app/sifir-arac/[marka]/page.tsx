@@ -15,6 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ marka: st
   return {
     title: `${marka.marka_adi} Sıfır Araç Fiyatları | Otoendeks`,
     description: `${marka.marka_adi} güncel model araçların fiyatları ve aylık/yıllık değişimi.`,
+    alternates: { canonical: `https://otoendeks.com/sifir-arac/${slug}` },
   };
 }
 
@@ -43,8 +44,21 @@ export default async function SifirEndeksMarkaPage({
     izlenenler = new Set((data ?? []).map((r: { tip_kodu: number }) => r.tip_kodu));
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `${marka.marka_adi} Sıfır Araç Fiyatları`,
+    "description": `${marka.marka_adi} güncel sıfır araç fiyat listesi`,
+    "itemListElement": veri.current.slice(0, 10).map((tip, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": tip.tip_adi,
+    })),
+  };
+
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <nav className="mb-6 text-sm text-slate-500">
         <Link href="/sifir-arac" className="hover:underline">Sıfır Araç Fiyatları</Link>
         {" / "}

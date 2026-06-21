@@ -1,8 +1,20 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getMarkaBySlug } from "@/lib/kasko";
 
 export const revalidate = 86400;
+
+export async function generateMetadata({ params }: { params: Promise<{ marka: string }> }): Promise<Metadata> {
+  const { marka: markaSlug } = await params;
+  const marka = await getMarkaBySlug(markaSlug);
+  if (!marka) return {};
+  return {
+    title: `${marka.marka_adi} Kasko Değeri | Otoendeks`,
+    description: `${marka.marka_adi} araçlarının güncel TSB kasko değerlerini model yılına göre sorgulayın.`,
+    alternates: { canonical: `https://otoendeks.com/kasko-deger/${markaSlug}` },
+  };
+}
 
 export default async function MarkaPage({ params }: { params: Promise<{ marka: string }> }) {
   const { marka: markaSlug } = await params;
@@ -11,8 +23,22 @@ export default async function MarkaPage({ params }: { params: Promise<{ marka: s
 
   const yillar = marka.model_yillari;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `${marka.marka_adi} Kasko Değerleri`,
+    "description": `${marka.marka_adi} araçlarının model yılına göre TSB kasko değerleri`,
+    "itemListElement": yillar.map((yil, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": `${marka.marka_adi} ${yil} Model`,
+      "url": `https://otoendeks.com/kasko-deger/${markaSlug}/${yil}`,
+    })),
+  };
+
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <nav className="mb-6 text-sm text-slate-500">
         <Link href="/" className="hover:underline">
           Kasko Değeri

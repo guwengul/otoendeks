@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import { getMarkalar } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 import { getLogoSlug } from "@/lib/logo";
 import { IkonKasko } from "@/components/BolumIkon";
 
 export const revalidate = 86400;
+
+export const metadata: Metadata = {
+  title: "Kasko Değeri Sorgula | Otoendeks",
+  description: "Aracınızın güncel TSB kasko değerini markanıza, model yılınıza ve tipinize göre anında sorgulayın.",
+  alternates: { canonical: "https://otoendeks.com" },
+};
 
 const POPULER_BINEK = new Set([
   "TOYOTA", "VOLKSWAGEN", "RENAULT", "FIAT", "FORD", "HYUNDAI", "OPEL",
@@ -25,8 +32,22 @@ export default async function Home() {
     ...diger.sort((a, b) => a.marka_adi.localeCompare(b.marka_adi, "tr")),
   ];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Otoendeks",
+    "url": "https://otoendeks.com",
+    "description": "Türkiye'nin kasko değeri ve sıfır araç fiyat platformu",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": { "@type": "EntryPoint", "urlTemplate": "https://otoendeks.com/kasko-deger/{search_term_string}" },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <h1 className="mb-2 flex items-center gap-2.5 text-2xl font-semibold text-slate-900">
         <IkonKasko size={24} className="text-indigo-600 shrink-0" />
         Kasko Değeri Sorgulama

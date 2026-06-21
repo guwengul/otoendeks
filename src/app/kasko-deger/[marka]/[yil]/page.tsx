@@ -1,11 +1,23 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getMarkaBySlug, getTiplerForMarkaYil, slugify } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 import { getLogoSlug } from "@/lib/logo";
 import Image from "next/image";
 
 export const revalidate = 86400;
+
+export async function generateMetadata({ params }: { params: Promise<{ marka: string; yil: string }> }): Promise<Metadata> {
+  const { marka: markaSlug, yil } = await params;
+  const marka = await getMarkaBySlug(markaSlug);
+  if (!marka) return {};
+  return {
+    title: `${marka.marka_adi} ${yil} Model Kasko Değeri | Otoendeks`,
+    description: `${marka.marka_adi} ${yil} model araçların güncel TSB kasko değerlerini tip bazında karşılaştırın.`,
+    alternates: { canonical: `https://otoendeks.com/kasko-deger/${markaSlug}/${yil}` },
+  };
+}
 
 function formatTL(value: number): string {
   return "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(value);
@@ -25,8 +37,22 @@ export default async function YilPage({
 
   const tipler = await getTiplerForMarkaYil(marka.marka_kodu, modelYili, marka.son_snapshot_month);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `${marka.marka_adi} ${modelYili} Model Kasko Değerleri`,
+    "description": `${marka.marka_adi} ${modelYili} model araçların güncel TSB kasko değerleri`,
+    "itemListElement": tipler.slice(0, 10).map((tip, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": tip.tip_adi,
+      "url": `https://otoendeks.com/kasko-deger/${markaSlug}/${modelYili}/${tip.tip_kodu}-${slugify(tip.tip_adi)}`,
+    })),
+  };
+
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <nav className="mb-6 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-slate-500">
         <Link href="/" className="hover:underline shrink-0">Kasko Değeri</Link>
         <span className="shrink-0">/</span>
