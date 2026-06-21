@@ -7,9 +7,14 @@ import { IkonKasko } from "@/components/BolumIkon";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Kasko Değeri Sorgula | Otoendeks",
-  description: "Aracınızın güncel TSB kasko değerini markanıza, model yılınıza ve tipinize göre anında sorgulayın.",
+  title: "TSB Kasko Değeri Sorgulama",
+  description: "Aracınızın güncel TSB kasko değerini markanıza, model yılınıza ve tipinize göre anında sorgulayın. TL, USD ve altın bazında takip edin.",
   alternates: { canonical: "https://otoendeks.com" },
+  openGraph: {
+    title: "TSB Kasko Değeri Sorgulama | Otoendeks",
+    description: "Aracınızın güncel TSB kasko değerini anında sorgulayın. TL, USD ve altın bazında takip edin.",
+    url: "https://otoendeks.com",
+  },
 };
 
 const POPULER_BINEK = new Set([

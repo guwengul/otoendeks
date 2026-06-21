@@ -12,10 +12,13 @@ export async function generateMetadata({ params }: { params: Promise<{ marka: st
   const { marka: slug } = await params;
   const marka = await getMarkaBySlug(slug);
   if (!marka) return {};
+  const title = `${marka.marka_adi} Sıfır Araç Fiyatları`;
+  const description = `${marka.marka_adi} güncel sıfır araç liste fiyatları, aylık ve yıllık değişim oranları. ${new Date().getFullYear()} model yıl bilgileri.`;
   return {
-    title: `${marka.marka_adi} Sıfır Araç Fiyatları | Otoendeks`,
-    description: `${marka.marka_adi} güncel model araçların fiyatları ve aylık/yıllık değişimi.`,
+    title,
+    description,
     alternates: { canonical: `https://otoendeks.com/sifir-arac/${slug}` },
+    openGraph: { title: `${title} | Otoendeks`, description, url: `https://otoendeks.com/sifir-arac/${slug}` },
   };
 }
 
@@ -92,14 +95,31 @@ export default async function SifirEndeksMarkaPage({
           </Link>
         </div>
       ) : (
-        <SifirEndeksListesi
-          veri={veri}
-          markaAdi={marka.marka_adi}
-          markaKodu={marka.marka_kodu}
-          markaSlug={marka.slug}
-          girisYapilmis={!!user}
-          izlenenler={izlenenler}
-        />
+        <>
+          <SifirEndeksListesi
+            veri={veri}
+            markaAdi={marka.marka_adi}
+            markaKodu={marka.marka_kodu}
+            markaSlug={marka.slug}
+            girisYapilmis={!!user}
+            izlenenler={izlenenler}
+          />
+          <div className="mt-10 rounded-xl border border-slate-200 bg-white p-6">
+            <h2 className="mb-3 text-sm font-semibold text-slate-700">{marka.marka_adi} Sıfır Araç Fiyatları Hakkında</h2>
+            <p className="text-sm leading-relaxed text-slate-500">
+              Bu sayfada {marka.marka_adi} araçlarının güncel bayi liste fiyatlarını, bir önceki aya
+              ve yıla göre değişim oranlarını takip edebilirsiniz. Fiyat verileri düzenli aralıklarla
+              güncellenerek piyasadaki değişimler anlık olarak yansıtılmaktadır.
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-slate-500">
+              {marka.marka_adi} araç satın almayı planlıyorsanız liste fiyatını kasko değeriyle
+              karşılaştırarak ikinci el değer kaybını önceden hesaplayabilirsiniz.{" "}
+              <Link href={`/kasko-deger/${marka.slug}`} className="text-indigo-600 hover:underline">
+                {marka.marka_adi} kasko değerlerine bakın →
+              </Link>
+            </p>
+          </div>
+        </>
       )}
     </main>
   );

@@ -19,13 +19,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000"
-  ),
-  title: "Otoendeks — Kasko Değeri, Sıfır Araç Fiyatları & Kredi Hesaplama",
+  metadataBase: new URL("https://otoendeks.com"),
+  title: {
+    default: "Otoendeks — Kasko Değeri, Sıfır Araç Fiyatları & Kredi Hesaplama",
+    template: "%s | Otoendeks",
+  },
   description: "Aracınızın güncel kasko değerini sorgulayın, sıfır araç fiyatlarını karşılaştırın ve kredi taksitinizi hesaplayın.",
+  openGraph: {
+    siteName: "Otoendeks",
+    type: "website",
+    locale: "tr_TR",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function RootLayout({

@@ -1,9 +1,21 @@
-﻿import { getMarkalar } from "@/lib/kasko";
+﻿import type { Metadata } from "next";
+import { getMarkalar } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 import { getLogoSlug } from "@/lib/logo";
 import { IkonArac } from "@/components/BolumIkon";
 
 export const revalidate = 86400;
+
+export const metadata: Metadata = {
+  title: "Sıfır Araç Fiyatları",
+  description: "Türkiye'deki tüm markaların güncel sıfır araç liste fiyatları, aylık ve yıllık değişim oranları. BMW, Mercedes, Toyota, Volkswagen ve daha fazlası.",
+  alternates: { canonical: "https://otoendeks.com/sifir-arac" },
+  openGraph: {
+    title: "Sıfır Araç Fiyatları | Otoendeks",
+    description: "Türkiye'deki tüm markaların güncel sıfır araç fiyatları ve değişim oranları.",
+    url: "https://otoendeks.com/sifir-arac",
+  },
+};
 
 export default async function SifirEndeksPage() {
   const markalar = await getMarkalar();

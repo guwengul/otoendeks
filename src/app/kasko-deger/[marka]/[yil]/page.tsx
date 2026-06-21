@@ -12,10 +12,13 @@ export async function generateMetadata({ params }: { params: Promise<{ marka: st
   const { marka: markaSlug, yil } = await params;
   const marka = await getMarkaBySlug(markaSlug);
   if (!marka) return {};
+  const title = `${marka.marka_adi} ${yil} Model Kasko Değeri`;
+  const description = `${marka.marka_adi} ${yil} model araçların güncel TSB kasko değerlerini tip bazında karşılaştırın.`;
   return {
-    title: `${marka.marka_adi} ${yil} Model Kasko Değeri | Otoendeks`,
-    description: `${marka.marka_adi} ${yil} model araçların güncel TSB kasko değerlerini tip bazında karşılaştırın.`,
+    title,
+    description,
     alternates: { canonical: `https://otoendeks.com/kasko-deger/${markaSlug}/${yil}` },
+    openGraph: { title: `${title} | Otoendeks`, description, url: `https://otoendeks.com/kasko-deger/${markaSlug}/${yil}` },
   };
 }
 
@@ -67,7 +70,7 @@ export default async function YilPage({
           </div>
         ) : null; })()}
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">{marka.marka_adi} · {modelYili} Model</h1>
+          <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">{marka.marka_adi} {modelYili} Model Kasko Değeri</h1>
           <p className="mt-1 text-sm text-slate-500">Aracınızın tipini seçin.</p>
         </div>
       </div>
