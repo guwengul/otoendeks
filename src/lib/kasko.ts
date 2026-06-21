@@ -112,9 +112,9 @@ async function fetchAll<T>(table: string, params: Record<string, string>): Promi
 
 // Marka listesi artık 1.43M satırlık kasko_degerleri'ni hiç taramıyor;
 // TSB import script'i tarafından güncel tutulan küçük özet tablodan (tsb_markalar) okunuyor.
-export async function getMarkalar(): Promise<Marka[]> {
-  const rows = await fetchAll<Marka>("tsb_markalar", {
-    select: "marka_kodu,marka_adi,slug,model_yillari",
+export async function getMarkalar(): Promise<MarkaDetay[]> {
+  const rows = await fetchAll<MarkaDetay>("tsb_markalar", {
+    select: "marka_kodu,marka_adi,slug,model_yillari,son_snapshot_month",
     order: "marka_adi.asc",
   });
   return rows;

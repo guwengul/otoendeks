@@ -97,6 +97,7 @@ export async function generateMetadata({
     description: buYilDegeri
       ? `${marka.marka_adi} ${detay.tip_adi} ${modelYili} model kasko değeri: ${formatTL(buYilDegeri.deger)} (${ayLabel(marka.son_snapshot_month)} TSB)`
       : title,
+    alternates: { canonical: `https://otoendeks.com/kasko-deger/${markaSlug}/${yil}/${tipSlug}` },
     openGraph: { title, images: [{ url: `/api/og?${ogQuery}`, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", title, images: [`/api/og?${ogQuery}`] },
   };
@@ -211,8 +212,28 @@ export default async function TipDetayPage({
 
   const ogParams = buildOgParams(marka, detay.tip_adi, modelYili, buYilDegeri?.deger, fiyatGecmisi, eskimeData);
 
+  const jsonLd = buYilDegeri ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": `${marka.marka_adi} ${detay.tip_adi} ${modelYili}`,
+    "description": `${marka.marka_adi} ${detay.tip_adi} ${modelYili} model kasko değeri: ${formatTL(buYilDegeri.deger)} (${ayLabel(marka.son_snapshot_month)} TSB)`,
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "TRY",
+      "price": buYilDegeri.deger,
+      "priceValidUntil": marka.son_snapshot_month,
+      "availability": "https://schema.org/InStock",
+    },
+  } : null;
+
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
       <nav className="mb-6 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-slate-400">
         <Link href="/" className="hover:text-slate-700 shrink-0">Kasko Değeri</Link>
         <span className="shrink-0">/</span>
