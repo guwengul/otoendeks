@@ -64,23 +64,6 @@ export default async function MarkaPage({ params }: { params: Promise<{ marka: s
       </ul>
       {yillar.length === 0 && <p className="text-sm text-slate-500">Bu marka için veri bulunamadı.</p>}
 
-      {yillar.length > 0 && (
-        <div className="mt-10 rounded-xl border border-slate-200 bg-white p-6">
-          <h2 className="mb-3 text-sm font-semibold text-slate-700">{marka.marka_adi} Kasko Değeri Nedir?</h2>
-          <p className="text-sm leading-relaxed text-slate-500">
-            {marka.marka_adi} araçlarının kasko değerleri, Türkiye Sigorta Birliği (TSB) tarafından aylık
-            olarak yayımlanan veriler esas alınarak belirlenmektedir. Bu değerler; araç alım-satım
-            süreçlerinde referans fiyat, sigorta primlerinin hesaplanmasında ise temel girdi olarak
-            kullanılmaktadır. {marka.marka_adi} modelleri için kasko değerleri, enflasyon, döviz
-            kurları ve araç arz-talebi doğrultusunda aylık periyotlarla güncellenmektedir.
-          </p>
-          <p className="mt-3 text-sm leading-relaxed text-slate-500">
-            Otoendeks üzerinden {marka.marka_adi} aracınızın kasko değerini TL, ABD Doları ve
-            gram altın bazında takip edebilir; model yılına göre değer farklarını karşılaştırabilirsiniz.
-            Güncel değerlere ulaşmak için yukarıdan model yılınızı seçin.
-          </p>
-        </div>
-      )}
     </main>
   );
 }

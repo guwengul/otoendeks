@@ -104,21 +104,6 @@ export default async function SifirEndeksMarkaPage({
             girisYapilmis={!!user}
             izlenenler={izlenenler}
           />
-          <div className="mt-10 rounded-xl border border-slate-200 bg-white p-6">
-            <h2 className="mb-3 text-sm font-semibold text-slate-700">{marka.marka_adi} Sıfır Araç Fiyatları Hakkında</h2>
-            <p className="text-sm leading-relaxed text-slate-500">
-              Bu sayfada {marka.marka_adi} araçlarının güncel bayi liste fiyatlarını, bir önceki aya
-              ve yıla göre değişim oranlarını takip edebilirsiniz. Fiyat verileri düzenli aralıklarla
-              güncellenerek piyasadaki değişimler anlık olarak yansıtılmaktadır.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-slate-500">
-              {marka.marka_adi} araç satın almayı planlıyorsanız liste fiyatını kasko değeriyle
-              karşılaştırarak ikinci el değer kaybını önceden hesaplayabilirsiniz.{" "}
-              <Link href={`/kasko-deger/${marka.slug}`} className="text-indigo-600 hover:underline">
-                {marka.marka_adi} kasko değerlerine bakın →
-              </Link>
-            </p>
-          </div>
         </>
       )}
     </main>
