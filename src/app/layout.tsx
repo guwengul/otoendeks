@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { IkonKasko, IkonArac, IkonKredi, IkonPiyasa } from "@/components/BolumIkon";
 import { NavMobil } from "@/components/NavMobil";
 import { PostHogProvider } from "@/components/PostHogProvider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -130,6 +131,7 @@ export default async function RootLayout({
           </div>
         </footer>
         </PostHogProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
