@@ -116,6 +116,7 @@ export default async function RootLayout({
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">Araçlar</p>
                   <ul className="space-y-1.5">
                     <li><Link href="/" className="text-sm text-slate-500 hover:text-indigo-600">Kasko Değeri</Link></li>
+                    <li><Link href="/kasko-degeri-nedir" className="text-sm text-slate-500 hover:text-indigo-600">Kasko Değeri Nedir?</Link></li>
                     <li><Link href="/sifir-arac" className="text-sm text-slate-500 hover:text-indigo-600">Sıfır Araç Fiyatları</Link></li>
                     <li><Link href="/kredi" className="text-sm text-slate-500 hover:text-indigo-600">Kredi Hesaplama</Link></li>
                   </ul>

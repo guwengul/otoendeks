@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getMarkalar } from "@/lib/kasko";
 import { AramaListesi } from "@/components/AramaListesi";
 import { getLogoSlug } from "@/lib/logo";
@@ -58,7 +59,8 @@ export default async function Home() {
         Kasko Değeri Sorgulama
       </h1>
       <p className="mb-8 text-sm text-slate-600">
-        Markanızı seçin, aracınızın güncel kasko değerini ve model yılına göre fiyat aralığını görüntüleyin.
+        Markanızı seçin, aracınızın güncel kasko değerini ve model yılına göre fiyat aralığını görüntüleyin.{" "}
+        <Link href="/kasko-degeri-nedir" className="text-indigo-600 hover:underline">Kasko değeri nedir?</Link>
       </p>
       <AramaListesi
         placeholder="Marka ara..."
