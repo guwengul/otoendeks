@@ -12,6 +12,45 @@ export const metadata: Metadata = {
   },
 };
 
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kasko değeri nedir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kasko değeri, Türkiye Sigorta Birliği (TSB) tarafından aylık olarak yayımlanan resmi listede yer alan araç değeridir. Sigorta şirketleri kasko poliçesi düzenlerken bu değeri referans alır.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "TSB kasko değer listesi ne sıklıkla güncellenir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "TSB kasko değer listesi her ay güncellenir. Otoendeks bu verileri aylık olarak yayımlamaktadır.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "Kasko değeri hangi araçları kapsar?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "TSB kasko değer listesi yalnızca 15 yaşından küçük araçları kapsar. Marka, model, model yılı ve kullanım amacı dikkate alınarak hesaplanır.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": "Kasko değeri ile piyasa değeri arasındaki fark nedir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kasko değeri resmi bir referans fiyatıdır; piyasa değerini tam olarak yansıtmayabilir. İkinci el piyasada gerçek satış fiyatı; aracın kilometre, hasar geçmişi, donanım durumu ve bulunduğu şehre göre farklılaşabilir.",
+      },
+    },
+  ],
+};
+
 export default function KaskoDegeriNedirPage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
@@ -21,6 +60,7 @@ export default function KaskoDegeriNedirPage() {
         <span className="text-slate-900">Kasko Değeri Nedir?</span>
       </nav>
 
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
       <h1 className="mb-8 text-2xl font-semibold text-slate-900">Kasko Değeri Nedir?</h1>
 
       <div className="space-y-8 text-sm leading-relaxed text-slate-600">

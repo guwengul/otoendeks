@@ -63,7 +63,7 @@ export function AramaListesi({
                 <div className="flex h-7 w-10 shrink-0 items-center justify-center">
                   <Image
                     src={`/logos/${item.logoSlug}.svg`}
-                    alt=""
+                    alt={item.label}
                     width={40}
                     height={28}
                     className="h-full w-full object-contain opacity-60"

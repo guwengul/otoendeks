@@ -212,6 +212,17 @@ export default async function TipDetayPage({
 
   const ogParams = buildOgParams(marka, detay.tip_adi, modelYili, buYilDegeri?.deger, fiyatGecmisi, eskimeData);
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Kasko Değeri", "item": "https://otoendeks.com" },
+      { "@type": "ListItem", "position": 2, "name": marka.marka_adi, "item": `https://otoendeks.com/kasko-degeri/${marka.slug}` },
+      { "@type": "ListItem", "position": 3, "name": String(modelYili), "item": `https://otoendeks.com/kasko-degeri/${marka.slug}/${modelYili}` },
+      { "@type": "ListItem", "position": 4, "name": detay.tip_adi },
+    ],
+  };
+
   const jsonLd = buYilDegeri ? {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -228,6 +239,7 @@ export default async function TipDetayPage({
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       {jsonLd && (
         <script
           type="application/ld+json"
