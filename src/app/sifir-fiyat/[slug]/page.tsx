@@ -38,7 +38,7 @@ export default async function SifirFiyatPage({ params }: { params: Promise<{ slu
       <nav className="mb-6 text-sm text-gray-500">
         <Link href="/" className="hover:underline">Kasko Değeri</Link>
         {" / "}
-        <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline">{marka.marka_adi}</Link>
+        <Link href={`/kasko-degeri/${marka.slug}`} className="hover:underline">{marka.marka_adi}</Link>
         {" / "}
         <span className="text-gray-900">Sıfır Fiyatları</span>
       </nav>

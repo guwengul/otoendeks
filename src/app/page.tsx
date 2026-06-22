@@ -46,7 +46,7 @@ export default async function Home() {
     "description": "Türkiye'nin kasko değeri ve sıfır araç fiyat platformu",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": { "@type": "EntryPoint", "urlTemplate": "https://otoendeks.com/kasko-deger/{search_term_string}" },
+      "target": { "@type": "EntryPoint", "urlTemplate": "https://otoendeks.com/kasko-degeri/{search_term_string}" },
       "query-input": "required name=search_term_string",
     },
   };
@@ -68,7 +68,7 @@ export default async function Home() {
         items={sirali.map((m) => ({
           key: String(m.marka_kodu),
           label: m.marka_adi,
-          href: `/kasko-deger/${m.slug}`,
+          href: `/kasko-degeri/${m.slug}`,
           logoSlug: getLogoSlug(m.marka_adi) ?? undefined,
         }))}
       />

@@ -25,5 +25,5 @@ export default async function ArabamNeKadar({
   // Eski URL'den marka slug'unu al; eşleşme varsa yeni slug'u kullan
   const yeniMarka = MARKA_MAP[eskiMarka] ?? eskiMarka;
 
-  permanentRedirect(`/kasko-deger/${yeniMarka}`);
+  permanentRedirect(`/kasko-degeri/${yeniMarka}`);
 }

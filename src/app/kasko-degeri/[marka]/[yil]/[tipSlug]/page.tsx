@@ -97,7 +97,7 @@ export async function generateMetadata({
     description: buYilDegeri
       ? `${marka.marka_adi} ${detay.tip_adi} ${modelYili} model kasko değeri: ${formatTL(buYilDegeri.deger)} (${ayLabel(marka.son_snapshot_month)} TSB)`
       : title,
-    alternates: { canonical: `https://otoendeks.com/kasko-deger/${markaSlug}/${yil}/${tipSlug}` },
+    alternates: { canonical: `https://otoendeks.com/kasko-degeri/${markaSlug}/${yil}/${tipSlug}` },
     openGraph: { title, images: [{ url: `/api/og?${ogQuery}`, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", title, images: [`/api/og?${ogQuery}`] },
   };
@@ -237,9 +237,9 @@ export default async function TipDetayPage({
       <nav className="mb-6 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-slate-400">
         <Link href="/" className="hover:text-slate-700 shrink-0">Kasko Değeri</Link>
         <span className="shrink-0">/</span>
-        <Link href={`/kasko-deger/${marka.slug}`} className="hover:text-slate-700 shrink-0">{marka.marka_adi}</Link>
+        <Link href={`/kasko-degeri/${marka.slug}`} className="hover:text-slate-700 shrink-0">{marka.marka_adi}</Link>
         <span className="shrink-0">/</span>
-        <Link href={`/kasko-deger/${marka.slug}/${modelYili}`} className="hover:text-slate-700 shrink-0">{modelYili}</Link>
+        <Link href={`/kasko-degeri/${marka.slug}/${modelYili}`} className="hover:text-slate-700 shrink-0">{modelYili}</Link>
         <span className="shrink-0">/</span>
         <span className="text-slate-900 min-w-0 truncate">{detay.tip_adi}</span>
       </nav>
@@ -299,7 +299,7 @@ export default async function TipDetayPage({
       <PiyasaFiyatiSection
         girisYapilmis={!!user}
         listede={piyasaListede}
-        geriDonUrl={`/kasko-deger/${marka.slug}/${modelYili}/${tipSlug}`}
+        geriDonUrl={`/kasko-degeri/${marka.slug}/${modelYili}/${tipSlug}`}
       />
 
       {/* Sıfır araç yönlendirme */}

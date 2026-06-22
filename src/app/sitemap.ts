@@ -63,15 +63,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   for (const marka of markalar) {
-    urls.push({ url: `${BASE}/kasko-deger/${marka.slug}`, changeFrequency: "weekly", priority: 0.8 });
+    urls.push({ url: `${BASE}/kasko-degeri/${marka.slug}`, changeFrequency: "weekly", priority: 0.8 });
 
     for (const yil of marka.model_yillari ?? []) {
-      urls.push({ url: `${BASE}/kasko-deger/${marka.slug}/${yil}`, changeFrequency: "weekly", priority: 0.7 });
+      urls.push({ url: `${BASE}/kasko-degeri/${marka.slug}/${yil}`, changeFrequency: "weekly", priority: 0.7 });
 
       const tipler = tipMap.get(`${marka.marka_kodu}_${yil}`) ?? [];
       for (const tip of tipler) {
         urls.push({
-          url: `${BASE}/kasko-deger/${marka.slug}/${yil}/${tip.tip_kodu}-${slugify(tip.tip_adi)}`,
+          url: `${BASE}/kasko-degeri/${marka.slug}/${yil}/${tip.tip_kodu}-${slugify(tip.tip_adi)}`,
           changeFrequency: "monthly",
           priority: 0.6,
         });

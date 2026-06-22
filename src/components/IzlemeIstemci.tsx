@@ -113,7 +113,7 @@ function IzlemeKarti({ item }: { item: IzlemeItem }) {
         <div className="flex items-center gap-3">
           {item.model_yili && (
             <Link
-              href={`/kasko-deger/${item.marka_slug}/${item.model_yili}/${item.tip_kodu}`}
+              href={`/kasko-degeri/${item.marka_slug}/${item.model_yili}/${item.tip_kodu}`}
               className="text-xs text-indigo-500 hover:text-indigo-700"
             >
               Detaya git →

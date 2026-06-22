@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ marka: st
   return {
     title,
     description,
-    alternates: { canonical: `https://otoendeks.com/kasko-deger/${markaSlug}/${yil}` },
-    openGraph: { title: `${title} | Otoendeks`, description, url: `https://otoendeks.com/kasko-deger/${markaSlug}/${yil}` },
+    alternates: { canonical: `https://otoendeks.com/kasko-degeri/${markaSlug}/${yil}` },
+    openGraph: { title: `${title} | Otoendeks`, description, url: `https://otoendeks.com/kasko-degeri/${markaSlug}/${yil}` },
   };
 }
 
@@ -49,7 +49,7 @@ export default async function YilPage({
       "@type": "ListItem",
       "position": i + 1,
       "name": tip.tip_adi,
-      "url": `https://otoendeks.com/kasko-deger/${markaSlug}/${modelYili}/${tip.tip_kodu}-${slugify(tip.tip_adi)}`,
+      "url": `https://otoendeks.com/kasko-degeri/${markaSlug}/${modelYili}/${tip.tip_kodu}-${slugify(tip.tip_adi)}`,
     })),
   };
 
@@ -59,7 +59,7 @@ export default async function YilPage({
       <nav className="mb-6 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-slate-500">
         <Link href="/" className="hover:underline shrink-0">Kasko Değeri</Link>
         <span className="shrink-0">/</span>
-        <Link href={`/kasko-deger/${marka.slug}`} className="hover:underline shrink-0">{marka.marka_adi}</Link>
+        <Link href={`/kasko-degeri/${marka.slug}`} className="hover:underline shrink-0">{marka.marka_adi}</Link>
         <span className="shrink-0">/</span>
         <span className="text-slate-900 shrink-0">{modelYili}</span>
       </nav>
@@ -81,7 +81,7 @@ export default async function YilPage({
           key: String(tip.tip_kodu),
           label: tip.tip_adi,
           sublabel: formatTL(tip.deger),
-          href: `/kasko-deger/${marka.slug}/${modelYili}/${tip.tip_kodu}-${slugify(tip.tip_adi)}`,
+          href: `/kasko-degeri/${marka.slug}/${modelYili}/${tip.tip_kodu}-${slugify(tip.tip_adi)}`,
         }))}
       />
     </main>

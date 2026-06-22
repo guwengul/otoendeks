@@ -149,7 +149,7 @@ function AracKarti({ arac }: { arac: Arac }) {
     setBildirimPending(false);
   }
   const tarihByTip = Object.fromEntries(arac.arac_tarihler.map((t) => [t.tip, t.tarih]));
-  const detayHref = `/kasko-deger/${arac.marka_slug}/${arac.model_yili}/${arac.tip_kodu}-${slugify(arac.tip_adi)}`;
+  const detayHref = `/kasko-degeri/${arac.marka_slug}/${arac.model_yili}/${arac.tip_kodu}-${slugify(arac.tip_adi)}`;
 
   async function sil() {
     setSiliyor(true);

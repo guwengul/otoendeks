@@ -14,8 +14,8 @@ export async function generateMetadata({ params }: { params: Promise<{ marka: st
   return {
     title,
     description,
-    alternates: { canonical: `https://otoendeks.com/kasko-deger/${markaSlug}` },
-    openGraph: { title: `${title} | Otoendeks`, description, url: `https://otoendeks.com/kasko-deger/${markaSlug}` },
+    alternates: { canonical: `https://otoendeks.com/kasko-degeri/${markaSlug}` },
+    openGraph: { title: `${title} | Otoendeks`, description, url: `https://otoendeks.com/kasko-degeri/${markaSlug}` },
   };
 }
 
@@ -35,7 +35,7 @@ export default async function MarkaPage({ params }: { params: Promise<{ marka: s
       "@type": "ListItem",
       "position": i + 1,
       "name": `${marka.marka_adi} ${yil} Model`,
-      "url": `https://otoendeks.com/kasko-deger/${markaSlug}/${yil}`,
+      "url": `https://otoendeks.com/kasko-degeri/${markaSlug}/${yil}`,
     })),
   };
 
@@ -54,7 +54,7 @@ export default async function MarkaPage({ params }: { params: Promise<{ marka: s
         {yillar.map((yil) => (
           <li key={yil}>
             <Link
-              href={`/kasko-deger/${marka.slug}/${yil}`}
+              href={`/kasko-degeri/${marka.slug}/${yil}`}
               className="block rounded-lg border border-slate-200 bg-white shadow-sm px-4 py-3 text-center text-sm font-medium text-slate-900 transition-colors hover:border-indigo-400 hover:bg-indigo-50"
             >
               {yil}
