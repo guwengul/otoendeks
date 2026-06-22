@@ -117,6 +117,18 @@ export default function KaskoDegeriNedirPage() {
           </ul>
         </section>
 
+        <section>
+          <h2 className="mb-4 text-base font-semibold text-slate-800">Sıkça Sorulan Sorular</h2>
+          <div className="space-y-4">
+            {faqLd.mainEntity.map((q, i) => (
+              <div key={i} className="rounded-lg border border-slate-200 bg-white p-4">
+                <p className="font-medium text-slate-800">{q.name}</p>
+                <p className="mt-2 text-slate-500">{q.acceptedAnswer.text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section className="rounded-xl border border-indigo-100 bg-indigo-50 p-5">
           <h2 className="mb-2 text-base font-semibold text-indigo-800">Kasko Değerinizi Sorgulayın</h2>
           <p className="mb-4 text-indigo-700">
