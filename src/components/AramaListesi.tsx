@@ -27,11 +27,15 @@ export function AramaListesi({
   const [tumunuGoster, setTumunuGoster] = useState(false);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLocaleLowerCase("tr");
+    const normalize = (s: string) =>
+      s.toLocaleLowerCase("tr")
+        .replace(/İ/g, "i").replace(/I/g, "ı")
+        .normalize("NFD").replace(/[̀-ͯ]/g, "");
+    const q = normalize(query.trim());
     if (!q) return items;
     const tokens = q.split(/\s+/).filter(Boolean);
     return items.filter((item) => {
-      const label = item.label.toLocaleLowerCase("tr");
+      const label = normalize(item.label);
       return tokens.every((t) => label.includes(t));
     });
   }, [items, query]);
