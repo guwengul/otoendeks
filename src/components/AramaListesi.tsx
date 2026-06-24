@@ -28,8 +28,9 @@ export function AramaListesi({
 
   const filtered = useMemo(() => {
     const normalize = (s: string) =>
-      s.toLocaleLowerCase("tr")
-        .replace(/İ/g, "i").replace(/I/g, "ı")
+      s
+        .replace(/İ/g, "i").replace(/I/g, "i").replace(/ı/g, "i")
+        .toLowerCase()
         .normalize("NFD").replace(/[̀-ͯ]/g, "");
     const q = normalize(query.trim());
     if (!q) return items;
